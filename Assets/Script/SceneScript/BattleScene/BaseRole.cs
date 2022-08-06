@@ -25,6 +25,7 @@ public class BaseRole : BaseMono
     public int fangYuLi;
     public int speed;
     public string roleName;
+    public string roleAvatar;
     
     public Shentong[] shentongInBattle;
 
@@ -55,7 +56,7 @@ public class BaseRole : BaseMono
         this.gameObject.transform.position = new Vector3(startX + 0.5f, 0, startZ + 0.5f);
     }
 
-    public void InitRoleData(int hp, int maxHp, int mp, int maxMp, int gongJiLi, int fangYuLi, Shentong[] shentongInBattle, int speed, int roleId, TeamNum teamNum, string roleName, string gameObjName)
+    public void InitRoleData(int hp, int maxHp, int mp, int maxMp, int gongJiLi, int fangYuLi, Shentong[] shentongInBattle, int speed, int roleId, TeamNum teamNum, string roleName, string gameObjName, string roleAvatar)
     {
         this.hp = hp;
         this.maxHp = maxHp;
@@ -69,6 +70,7 @@ public class BaseRole : BaseMono
         this.teamNum = teamNum;
         this.roleName = roleName;
         this.name = gameObjName;
+        this.roleAvatar = roleAvatar;
 
         gameObjectType = GameObjectType.Role;
 

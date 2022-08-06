@@ -33,7 +33,7 @@ public class Enemy : BaseRole
             tmp[i] = enemyRoleShentongs[i];
         }
 
-        InitRoleData(enemyRoleInfo.currentHp, enemyRoleInfo.maxHp, enemyRoleInfo.currentMp, enemyRoleInfo.maxMp, enemyRoleInfo.gongJiLi, enemyRoleInfo.fangYuLi, tmp, enemyRoleInfo.speed, enemyRoleInfo.roleId, TeamNum.TEAM_TWO, enemyRoleInfo.roleName, enemyRoleInfo.roleName + index);
+        InitRoleData(enemyRoleInfo.currentHp, enemyRoleInfo.maxHp, enemyRoleInfo.currentMp, enemyRoleInfo.maxMp, enemyRoleInfo.gongJiLi, enemyRoleInfo.fangYuLi, tmp, enemyRoleInfo.speed, enemyRoleInfo.roleId, TeamNum.TEAM_TWO, enemyRoleInfo.roleName, enemyRoleInfo.roleName + index, enemyRoleInfo.roleAvatar);
 
         //Slider slide = GetSlide();
         //slide.maxValue = 100;

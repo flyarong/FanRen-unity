@@ -39,7 +39,7 @@ public class CatchWupinButtonScript : MonoBehaviour
 
         //Destroy(catchWupin); 用这个会报错
         catchWupin.SetActive(false);
-        this.wuPinGameObjs.RemoveAt(this.wuPinGameObjs.Count - 1);
+        this.wuPinGameObjs.Remove(catchWupin);
 
         UIUtil.ShowTipsUI(wuPinScript.wuPinName + " +" + wuPinScript.wuPinCount);
 

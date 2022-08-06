@@ -67,6 +67,7 @@ public class MyDBManager
             roleInfo = new RoleInfo();
             //public int roleId;
             string roleName = (string)sdr["roleName"];
+            string roleAvatar = (string)sdr["roleAvatar"];
             int hp = (int)((Int64)sdr["hp"]);
             int maxHp = (int)((Int64)sdr["maxHp"]);
             int mp = (int)((Int64)sdr["mp"]);
@@ -77,6 +78,7 @@ public class MyDBManager
 
             roleInfo.roleId = roleId;
             roleInfo.roleName = roleName;
+            roleInfo.roleAvatar = roleAvatar;
             roleInfo.currentHp = hp;
             roleInfo.maxHp = maxHp;
             roleInfo.currentMp = mp;
@@ -488,6 +490,7 @@ public class RoleInfo
     public int speed;
     public int gongJiLi;
     public int fangYuLi;
+    public string roleAvatar;
 }
 
 //角色拥有的物品

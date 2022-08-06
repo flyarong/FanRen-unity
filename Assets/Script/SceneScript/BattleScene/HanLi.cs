@@ -5,12 +5,6 @@ using UnityEngine.UI;
 public class HanLi : BaseRole
 {
 
-    private void Awake()
-    {
-        GetComponent<PlayerControl>().enabled = false;
-        GetComponent<CharacterController>().enabled = false;
-    }
-
     //todo 要从数据库查询出装备了哪些神通
     public void Init()
     {
@@ -26,7 +20,7 @@ public class HanLi : BaseRole
         RoleInfo roleInfo = MyDBManager.GetInstance().GetRoleInfo(1);
 
         //InitRoleData(roleInfo.currentHp, roleInfo.maxHp, roleInfo.currentMp, roleInfo.maxMp, roleInfo.gongJiLi, roleInfo.fangYuLi, tmp, roleInfo.speed, roleInfo.roleId, TeamNum.TEAM_ONE, roleInfo.roleName, roleInfo.roleName);
-        InitRoleData(roleInfo.currentHp, roleInfo.maxHp, roleInfo.currentMp, roleInfo.maxMp, roleInfo.gongJiLi, roleInfo.fangYuLi, tmp, roleInfo.speed, roleInfo.roleId, TeamNum.TEAM_ONE, roleInfo.roleName, roleInfo.roleName);
+        InitRoleData(roleInfo.currentHp, roleInfo.maxHp, roleInfo.currentMp, roleInfo.maxMp, roleInfo.gongJiLi, roleInfo.fangYuLi, tmp, roleInfo.speed, roleInfo.roleId, TeamNum.TEAM_ONE, roleInfo.roleName, roleInfo.roleName, roleInfo.roleAvatar);
 
     }
 

@@ -51,13 +51,9 @@ public class RootBattleInit : BaseMono
         {
             List<GameObject> roleList = new List<GameObject>();
             //roles = new GameObject[enemyRoleIds.Length + 1]; //todo
-            GameObject hanLiPrefab = Resources.Load<GameObject>("Prefab/RolePrefab/HanLi");
-            hanLiPrefab.GetComponent<CharacterController>().enabled = false;
-            hanLiPrefab.GetComponent<PlayerControl>().enabled = false;
-
+            GameObject hanLiPrefab = Resources.Load<GameObject>("Prefab/RolePrefab/HanLiBattle");
             GameObject hanLiGameObj = Instantiate(hanLiPrefab);
-            
-            HanLi hanLiCS = hanLiGameObj.AddComponent<HanLi>();
+            HanLi hanLiCS = hanLiGameObj.GetComponent<HanLi>();
             hanLiCS.Init();
             hanLiCS.InitRoleBattelePos(5, 5); //todo
             //roles[0] = hanLiGameObj;

@@ -50,14 +50,15 @@ public class BattleUIControl : BaseMono
             SlideAvatarController slideAvatarController = sliderAvatarGO.GetComponent<SlideAvatarController>();
             //todo 头像滑动速度公式待定
             slideAvatarController.speed = roleCS.speed / 10f;
+            sliderAvatarGO.GetComponent<Image>().sprite = Resources.Load<Sprite>(roleCS.roleAvatar);
             if (roleCS.teamNum == TeamNum.TEAM_ONE)
             {
-                sliderAvatarGO.GetComponent<Image>().color = Color.blue;
+                //sliderAvatarGO.GetComponent<Image>().color = Color.blue;
                 sliderAvatarGO.transform.position = new Vector2(avatarParent.transform.position.x - parentWidth / 2, avatarParent.transform.position.y - parentHeight / 2);
             }
             else
             {
-                sliderAvatarGO.GetComponent<Image>().color = Color.red;
+                //sliderAvatarGO.GetComponent<Image>().color = Color.red;
                 sliderAvatarGO.transform.position = new Vector2(avatarParent.transform.position.x - parentWidth / 2, avatarParent.transform.position.y + parentHeight / 2);
             }
             slideAvatarController.roleGO = roleGO;
@@ -114,6 +115,7 @@ public class BattleUIControl : BaseMono
         if (isWin)
         {
             //todo 战利品显示
+
         }
         else
         {
