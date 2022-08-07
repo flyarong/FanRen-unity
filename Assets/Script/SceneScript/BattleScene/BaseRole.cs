@@ -31,6 +31,39 @@ public class BaseRole : BaseMono
 
     public Shentong selectedShentong;
 
+    //private Animator animator;
+
+    private RoleHitAnimListener mRoleHitAnimListener;
+
+    //hit anim end call back
+    public virtual void EndRoleHitAnim()
+    {
+        Debug.Log("EndHitAnim");
+        GetComponent<Animator>().SetBool("isAttack", false);
+        if (mRoleHitAnimListener != null) {
+            mRoleHitAnimListener.OnEndRoleHitAnim();
+            mRoleHitAnimListener = null;
+        }
+    }
+
+    public virtual void StartRoleHitAnim(RoleHitAnimListener roleHitAnimListener)
+    {
+        Debug.Log("StartHitAnim");
+        mRoleHitAnimListener = roleHitAnimListener;
+        GetComponent<Animator>().SetBool("isAttack", true);
+    }
+
+    //状态机攻击动画事件结束回调 
+    public void Hit()
+    {
+        EndRoleHitAnim();
+    }
+
+    private void Awake()
+    {
+        //animator = this.GetComponent<Animator>();
+    }
+
     //public GameObject sliderPrefab;
 
     public RoleInBattleStatus roleInBattleStatus = RoleInBattleStatus.Waiting;
@@ -143,6 +176,8 @@ public class BaseRole : BaseMono
         GameObject uiParent = GameObject.FindGameObjectWithTag("UI_Canvas");
         uiParent.GetComponent<BattleUIControl>().ShowDamageTextUI(damage, enemy.gameObject);
 
+        //animator.SetBool("isAttack", true);
+
         if (enemy.hp > damage)
         {
             
@@ -235,5 +270,10 @@ public enum TeamNum
     //Enemy = 2
     TEAM_ONE = 1,
     TEAM_TWO = 2
+}
+
+public interface RoleHitAnimListener
+{
+    public void OnEndRoleHitAnim();
 }
 

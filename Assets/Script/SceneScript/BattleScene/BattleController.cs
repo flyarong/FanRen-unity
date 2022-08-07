@@ -64,7 +64,16 @@ public class BattleController : BaseMono
     //点击了待机按钮回调,此方法只允许外部调用，不允许内部调用
     public void OnClickPass()
     {
-        if (isPlayingAnim) return;
+        //if (isPlayingAnim) 
+        //{
+        //    Debug.Log("动画正在播放，不可以待机");
+        //    return;
+        //}
+        //else
+        //{
+        //    Debug.Log("?????????");
+        //}
+            
         ResetMouseAckRange();
 
         BaseRole selectedRoleCS = activingRoleGO.GetComponent<BaseRole>();
@@ -89,7 +98,7 @@ public class BattleController : BaseMono
     //回退
     public void OnClickReset()
     {
-        if (isPlayingAnim) return;
+        //if (isPlayingAnim) return;
         ResetMouseAckRange();
         BaseRole selectedRoleCS = activingRoleGO.GetComponent<BaseRole>();
         selectedRoleCS.DoCancelShentong();
@@ -408,7 +417,7 @@ public class BattleController : BaseMono
                     //args.Add("lookahead", 0.9f);
                     args.Add("path", path.ToArray());
                     args.Add("looptype", iTween.LoopType.none);
-                    args.Add("time", 1);
+                    args.Add("time", 2);
                     //args.Add();
                     //args.Add();
                     args.Add("oncomplete", "OnComplete");
@@ -417,6 +426,7 @@ public class BattleController : BaseMono
                     //args.Add("orienttopath", true);
                     //args.Add("position", );
                     isPlayingAnim = true;
+                    Debug.Log("移动动画开始");
                     iTween.MoveTo(activingRoleGO, args);
 
 
@@ -442,23 +452,31 @@ public class BattleController : BaseMono
                 }
                 else if (clickGameObj.tag.Equals("canAck") && activingRoleGO != null && activingRoleGO.GetComponent<BaseRole>().selectedShentong != null)
                 {
+
+                    Vector3 targetP = clickGameObj.transform.position;
+                    targetP.y = activingRoleGO.transform.position.y;
+                    activingRoleGO.transform.LookAt(targetP);
+                    
+
                     bool flag = true;
                     isPlayingAnim = true;
                     Debug.Log("开始播放人物攻击动画和神通动画");
                     Shentong shentong = activingRoleGO.GetComponent<BaseRole>().selectedShentong;
                     if (shentong.rangeType == ShentongRangeType.Point)
                     {
-                        MyAudioManager.GetInstance().PlaySE(shentong.soundEffPath);
+                        //MyAudioManager.GetInstance().PlaySE(shentong.soundEffPath);
 
-                        GameObject shentongEffPrefab = Resources.Load<GameObject>(shentong.effPath);
-                        ParticleSystem particleSystem = shentongEffPrefab.GetComponent<ParticleSystem>();
-                        MainModule mainModule = particleSystem.main;
-                        mainModule.stopAction = ParticleSystemStopAction.Callback;
+                        //GameObject shentongEffPrefab = Resources.Load<GameObject>(shentong.effPath);
+                        //ParticleSystem particleSystem = shentongEffPrefab.GetComponent<ParticleSystem>();
+                        //MainModule mainModule = particleSystem.main;
+                        //mainModule.stopAction = ParticleSystemStopAction.Callback;
 
-                        //this.requestCode++;
-                        //shentongEffPrefab.GetComponent<EffController>().requestCode = this.requestCode;
-                        GameObject stEffGO = Instantiate(shentongEffPrefab);
-                        stEffGO.transform.position = new Vector3(clickGameObj.transform.position.x, 1, clickGameObj.transform.position.z);
+                        //GameObject stEffGO = Instantiate(shentongEffPrefab);
+                        //stEffGO.transform.position = new Vector3(clickGameObj.transform.position.x, 1, clickGameObj.transform.position.z);
+
+                        MyRoleHitAnimListener mr = new MyRoleHitAnimListener(shentong, new Vector3(clickGameObj.transform.position.x, 1, clickGameObj.transform.position.z));
+                        activingRoleGO.GetComponent<BaseRole>().StartRoleHitAnim(mr);
+
                     }
                     else if (shentong.rangeType == ShentongRangeType.Line)
                     {
@@ -506,26 +524,52 @@ public class BattleController : BaseMono
                             stEffGO.transform.position = new Vector3(tmp.transform.position.x, 1, tmp.transform.position.z);
                         }
                     }
-                    enemyCount = HandleAfterAck();
+                    //enemyCount = HandleAfterAck();
                 }
 
             }
         }
     }
 
-    //人物正在移动
-    private bool isPlayingAnim = false;
+    private class MyRoleHitAnimListener : RoleHitAnimListener
+    {
+        Shentong shentong;
+        Vector3 position;
+        public MyRoleHitAnimListener(Shentong shentong, Vector3 position)
+        {
+            this.shentong = shentong;
+            this.position = position;
+        }
+        public void OnEndRoleHitAnim()
+        {
+            MyAudioManager.GetInstance().PlaySE(shentong.soundEffPath);
+
+            GameObject shentongEffPrefab = Resources.Load<GameObject>(shentong.effPath);
+            ParticleSystem particleSystem = shentongEffPrefab.GetComponent<ParticleSystem>();
+            MainModule mainModule = particleSystem.main;
+            mainModule.stopAction = ParticleSystemStopAction.Callback;
+
+            GameObject stEffGO = Instantiate(shentongEffPrefab);
+            stEffGO.transform.position = position;
+        }
+    }
+
+    //人物移动动画、人物攻击动画
+    public bool isPlayingAnim = false;
 
     //还没死的敌人数量
     int enemyCount;
 
+    //移动动画结束
     private void OnComplete()
     {
+        Debug.Log("移动动画结束");
         isPlayingAnim = false;
     }
 
     public void OnShentongParticleSystemStopped()
     {
+        enemyCount = HandleAfterAck();
         isPlayingAnim = false;
         if (enemyCount == 0)
         {

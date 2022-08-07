@@ -127,6 +127,14 @@ public class BattleUIControl : BaseMono
         }
     }
 
+    BattleController battleController;
+
+    void Start()
+    {
+        damageTextPrefab = Resources.Load<GameObject>("Prefab/TextDamage");
+        battleController = GameObject.FindGameObjectWithTag("Terrain").GetComponent<BattleController>();
+    }
+
     private void Update()
     {
         if (winUIGameObj.activeInHierarchy && winUIGameObj.activeSelf && Input.GetKeyUp(KeyCode.Space))
@@ -170,10 +178,19 @@ public class BattleUIControl : BaseMono
         resetButton.SetActive(true);
     }
 
+    
+
+    //点击待机按钮，会执行此方法
     public void OnClickPassButton()
     {
-
-        GameObject.FindGameObjectWithTag("Terrain").GetComponent<BattleController>().OnClickPass();
+        if (battleController.isPlayingAnim)
+        {
+            return;
+        }
+        else
+        {
+            battleController.OnClickPass();
+        }
 
         HideAllShentongButton();
         passButton.SetActive(false);
@@ -188,6 +205,18 @@ public class BattleUIControl : BaseMono
             BaseRole baseRole = roleGO.GetComponent<BaseRole>();
             SlideAvatarController sac = baseRole.sliderAvatarGO.GetComponent<SlideAvatarController>();
             sac.RePlayRun();
+        }
+    }
+
+    public void OnClickResetButton()
+    {
+        if (battleController.isPlayingAnim)
+        {
+            return;
+        }
+        else
+        {
+            battleController.OnClickReset();
         }
     }
 
@@ -227,10 +256,6 @@ public class BattleUIControl : BaseMono
         }
     }
 
-    void Start()
-    {
-        damageTextPrefab = Resources.Load<GameObject>("Prefab/TextDamage");
-    }
 
     //GameObject uiParent = GameObject.FindGameObjectWithTag("UI_Canvas");
     GameObject damageTextPrefab;
@@ -238,9 +263,11 @@ public class BattleUIControl : BaseMono
     public void ShowDamageTextUI(int damageText, GameObject targetGO)
     {
         GameObject damageTextGO = Instantiate(this.damageTextPrefab, this.transform);
+        damageTextGO.GetComponent<TextDamageController>().damageRole = targetGO;
         damageTextGO.GetComponent<Text>().text = "-" + damageText;
-        Vector2 tp2 = RectTransformUtility.WorldToScreenPoint(Camera.main, targetGO.transform.position);
-        damageTextGO.GetComponent<RectTransform>().position = tp2;
+
+        //Vector2 tp2 = RectTransformUtility.WorldToScreenPoint(Camera.main, targetGO.transform.position);
+        //damageTextGO.GetComponent<RectTransform>().position = tp2;
     }
 
     private void changeButtonColor(int clickButtonIndex)
@@ -262,72 +289,84 @@ public class BattleUIControl : BaseMono
 
     public void OnClickShentong0()
     {
+        if (battleController.isPlayingAnim) return;
         selectedRoleCS.OnSelectShentong(0);
         changeButtonColor(0);
     }
 
     public void OnClickShentong1()
     {
+        if (battleController.isPlayingAnim) return;
         selectedRoleCS.OnSelectShentong(1);
         changeButtonColor(1);
     }
 
     public void OnClickShentong2()
     {
+        if (battleController.isPlayingAnim) return;
         selectedRoleCS.OnSelectShentong(2);
         changeButtonColor(2);
     }
 
     public void OnClickShentong3()
     {
+        if (battleController.isPlayingAnim) return;
         selectedRoleCS.OnSelectShentong(3);
         changeButtonColor(3);
     }
 
     public void OnClickShentong4()
     {
+        if (battleController.isPlayingAnim) return;
         selectedRoleCS.OnSelectShentong(4);
         changeButtonColor(4);
     }
 
     public void OnClickShentong5()
     {
+        if (battleController.isPlayingAnim) return;
         selectedRoleCS.OnSelectShentong(5);
         changeButtonColor(5);
     }
 
     public void OnClickShentong6()
     {
+        if (battleController.isPlayingAnim) return;
         selectedRoleCS.OnSelectShentong(6);
         changeButtonColor(6);
     }
 
     public void OnClickShentong7()
     {
+        if (battleController.isPlayingAnim) return;
         selectedRoleCS.OnSelectShentong(7);
         changeButtonColor(7);
     }
 
     public void OnClickShentong8()
     {
+        if (battleController.isPlayingAnim) return;
         selectedRoleCS.OnSelectShentong(8);
         changeButtonColor(8);
     }
 
     public void OnClickShentong9()
     {
+        if (battleController.isPlayingAnim) return;
         selectedRoleCS.OnSelectShentong(9);
         changeButtonColor(9);
     }
 
     public void OnClickShentong10()
     {
+        if (battleController.isPlayingAnim) return;
         selectedRoleCS.OnSelectShentong(10);
         changeButtonColor(10);
     }
 
     public void OnClickShentong11()
     {
+        if (battleController.isPlayingAnim) return;
         selectedRoleCS.OnSelectShentong(11);
         changeButtonColor(11);
     }

@@ -24,4 +24,17 @@ public class HanLi : BaseRole
 
     }
 
+    //状态机攻击动画事件结束回调 
+    //public void Hit()
+    //{
+    //    base.EndRoleHitAnim();
+    //}
+
+    //hit anim end
+    //public void Hit()
+    //{
+    //    Debug.Log("Hit");
+    //    GetComponent<Animator>().SetBool("isAttack", false);
+    //}
+
 }
