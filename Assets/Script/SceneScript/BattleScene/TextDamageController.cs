@@ -8,6 +8,7 @@ public class TextDamageController : BaseMono
     RectTransform rtf;
     float targetY;
     Vector2 tp2;
+    bool flag = false;
 
     // Start is called before the first frame update
     void Start()
@@ -28,12 +29,14 @@ public class TextDamageController : BaseMono
     // Update is called once per frame
     void Update()
     {
+        if (flag || damageRole == null || !damageRole.activeInHierarchy || !damageRole.activeSelf) return;
         //transform.Translate(Vector2.up * Time.deltaTime * 100, Space.Self);
         tp2.y = tp2.y + 100f * Time.deltaTime;
         tp2.x = RectTransformUtility.WorldToScreenPoint(Camera.main, damageRole.transform.position).x;
         rtf.position = tp2;
         if (rtf.position.y > targetY)
         {
+            flag = true;
             Destroy(this.gameObject);
         }
     }

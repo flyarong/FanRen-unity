@@ -163,35 +163,18 @@ public class BaseRole : BaseMono
     public bool DoAck(BaseRole enemy)
     {
         Debug.Log("DoAck");
-        //公式待定
+        //todo 公式待定
         int damage = this.gongJiLi + this.selectedShentong.damage - enemy.fangYuLi;
 
         if (damage <= 0) damage = 1;
 
-        //GameObject damageTextGO = Instantiate(this.damageTextPrefab, this.uiParent.transform);
-        //damageTextGO.GetComponent<Text>().text = "-" + damage;
-        //Vector2 tp2 = RectTransformUtility.WorldToScreenPoint(Camera.main, enemy.transform.position);
-        //damageTextGO.GetComponent<RectTransform>().position = tp2;
-
         GameObject uiParent = GameObject.FindGameObjectWithTag("UI_Canvas");
         uiParent.GetComponent<BattleUIControl>().ShowDamageTextUI(damage, enemy.gameObject);
 
-        //animator.SetBool("isAttack", true);
-
         if (enemy.hp > damage)
         {
-            
-            //enemy.hp -= damage;
             this.mp -= this.selectedShentong.needMp;
-
-            //Debug.LogError(enemy.name + "更新血条 enemy.maxHp " + enemy.maxHp + ", enemy.hp " + enemy.hp);
-            //Slider enemySlide = enemy.hpGO.GetComponent<Slider>();
-            //enemySlide.maxValue = enemy.maxHp;
-            //enemySlide.minValue = 0;
-            //enemySlide.value = enemy.hp;
-
             enemy.UpdateHP(damage);
-
             return false;
         }
         else

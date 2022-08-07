@@ -474,55 +474,63 @@ public class BattleController : BaseMono
                         //GameObject stEffGO = Instantiate(shentongEffPrefab);
                         //stEffGO.transform.position = new Vector3(clickGameObj.transform.position.x, 1, clickGameObj.transform.position.z);
 
-                        MyRoleHitAnimListener mr = new MyRoleHitAnimListener(shentong, new Vector3(clickGameObj.transform.position.x, 1, clickGameObj.transform.position.z));
-                        activingRoleGO.GetComponent<BaseRole>().StartRoleHitAnim(mr);
+                        RoleHitAnimListener rhal = new MyPointRoleHitAnimListener(shentong, new Vector3(clickGameObj.transform.position.x, 1, clickGameObj.transform.position.z));
+                        activingRoleGO.GetComponent<BaseRole>().StartRoleHitAnim(rhal);
 
                     }
                     else if (shentong.rangeType == ShentongRangeType.Line)
                     {
 
-                        MyAudioManager.GetInstance().PlaySE(shentong.soundEffPath);
+                        //MyAudioManager.GetInstance().PlaySE(shentong.soundEffPath);
 
-                        GameObject shentongEffPrefab = Resources.Load<GameObject>(shentong.effPath);
-                        ParticleSystem particleSystem = shentongEffPrefab.GetComponent<ParticleSystem>();
-                        MainModule mainModule = particleSystem.main;
-                        mainModule.stopAction = ParticleSystemStopAction.Destroy;
+                        //GameObject shentongEffPrefab = Resources.Load<GameObject>(shentong.effPath);
+                        //ParticleSystem particleSystem = shentongEffPrefab.GetComponent<ParticleSystem>();
+                        //MainModule mainModule = particleSystem.main;
+                        //mainModule.stopAction = ParticleSystemStopAction.Destroy;
 
-                        foreach (GameObject tmp in lastNeedChangeColorGameObjects)
-                        {
-                            GameObject stEffGO = Instantiate(shentongEffPrefab);
-                            if (flag)
-                            {
-                                flag = false;
-                                particleSystem = stEffGO.GetComponent<ParticleSystem>();
-                                mainModule = particleSystem.main;
-                                mainModule.stopAction = ParticleSystemStopAction.Callback;
-                            }
-                            stEffGO.transform.position = new Vector3(tmp.transform.position.x, 1, tmp.transform.position.z);
-                        }
+                        //foreach (GameObject tmp in lastNeedChangeColorGameObjects)
+                        //{
+                        //    GameObject stEffGO = Instantiate(shentongEffPrefab);
+                        //    if (flag)
+                        //    {
+                        //        flag = false;
+                        //        particleSystem = stEffGO.GetComponent<ParticleSystem>();
+                        //        mainModule = particleSystem.main;
+                        //        mainModule.stopAction = ParticleSystemStopAction.Callback;
+                        //    }
+                        //    stEffGO.transform.position = new Vector3(tmp.transform.position.x, 1, tmp.transform.position.z);
+                        //}
+
+                        RoleHitAnimListener rhal = new MyLineRoleHitAnimListener(shentong, lastNeedChangeColorGameObjects);
+                        activingRoleGO.GetComponent<BaseRole>().StartRoleHitAnim(rhal);
+
                     }
                     else if (shentong.rangeType == ShentongRangeType.Plane)
                     {
 
-                        MyAudioManager.GetInstance().PlaySE(shentong.soundEffPath);
+                        //MyAudioManager.GetInstance().PlaySE(shentong.soundEffPath);
 
-                        GameObject shentongEffPrefab = Resources.Load<GameObject>(shentong.effPath);
-                        ParticleSystem particleSystem = shentongEffPrefab.GetComponent<ParticleSystem>();
-                        MainModule mainModule = particleSystem.main;
-                        mainModule.stopAction = ParticleSystemStopAction.Destroy;
+                        //GameObject shentongEffPrefab = Resources.Load<GameObject>(shentong.effPath);
+                        //ParticleSystem particleSystem = shentongEffPrefab.GetComponent<ParticleSystem>();
+                        //MainModule mainModule = particleSystem.main;
+                        //mainModule.stopAction = ParticleSystemStopAction.Destroy;
 
-                        foreach (GameObject tmp in lastChangeColorGOsForPlane)
-                        {
-                            GameObject stEffGO = Instantiate(shentongEffPrefab);
-                            if (flag)
-                            {
-                                flag = false;
-                                particleSystem = stEffGO.GetComponent<ParticleSystem>();
-                                mainModule = particleSystem.main;
-                                mainModule.stopAction = ParticleSystemStopAction.Callback;
-                            }
-                            stEffGO.transform.position = new Vector3(tmp.transform.position.x, 1, tmp.transform.position.z);
-                        }
+                        //foreach (GameObject tmp in lastChangeColorGOsForPlane)
+                        //{
+                        //    GameObject stEffGO = Instantiate(shentongEffPrefab);
+                        //    if (flag)
+                        //    {
+                        //        flag = false;
+                        //        particleSystem = stEffGO.GetComponent<ParticleSystem>();
+                        //        mainModule = particleSystem.main;
+                        //        mainModule.stopAction = ParticleSystemStopAction.Callback;
+                        //    }
+                        //    stEffGO.transform.position = new Vector3(tmp.transform.position.x, 1, tmp.transform.position.z);
+                        //}
+
+                        RoleHitAnimListener rhal = new MyPlaneRoleHitAnimListener(shentong, lastChangeColorGOsForPlane);
+                        activingRoleGO.GetComponent<BaseRole>().StartRoleHitAnim(rhal);
+
                     }
                     //enemyCount = HandleAfterAck();
                 }
@@ -531,11 +539,11 @@ public class BattleController : BaseMono
         }
     }
 
-    private class MyRoleHitAnimListener : RoleHitAnimListener
+    private class MyPointRoleHitAnimListener : RoleHitAnimListener
     {
         Shentong shentong;
         Vector3 position;
-        public MyRoleHitAnimListener(Shentong shentong, Vector3 position)
+        public MyPointRoleHitAnimListener(Shentong shentong, Vector3 position)
         {
             this.shentong = shentong;
             this.position = position;
@@ -551,6 +559,75 @@ public class BattleController : BaseMono
 
             GameObject stEffGO = Instantiate(shentongEffPrefab);
             stEffGO.transform.position = position;
+        }
+    }
+
+    private class MyLineRoleHitAnimListener : RoleHitAnimListener
+    {
+
+        Shentong shentong;
+        bool flag = true;
+        List<GameObject> lastNeedChangeColorGameObjects;
+        public MyLineRoleHitAnimListener(Shentong shentong, List<GameObject> lastNeedChangeColorGameObjects)
+        {
+            this.shentong = shentong;
+            this.lastNeedChangeColorGameObjects = lastNeedChangeColorGameObjects;
+        }
+        public void OnEndRoleHitAnim()
+        {
+            MyAudioManager.GetInstance().PlaySE(shentong.soundEffPath);
+
+            GameObject shentongEffPrefab = Resources.Load<GameObject>(shentong.effPath);
+            ParticleSystem particleSystem = shentongEffPrefab.GetComponent<ParticleSystem>();
+            MainModule mainModule = particleSystem.main;
+            mainModule.stopAction = ParticleSystemStopAction.Destroy;
+
+            foreach (GameObject tmp in lastNeedChangeColorGameObjects)
+            {
+                GameObject stEffGO = Instantiate(shentongEffPrefab);
+                if (flag)
+                {
+                    flag = false;
+                    particleSystem = stEffGO.GetComponent<ParticleSystem>();
+                    mainModule = particleSystem.main;
+                    mainModule.stopAction = ParticleSystemStopAction.Callback;
+                }
+                stEffGO.transform.position = new Vector3(tmp.transform.position.x, 1, tmp.transform.position.z);
+            }
+        }
+    }
+
+    private class MyPlaneRoleHitAnimListener : RoleHitAnimListener
+    {
+        Shentong shentong;
+        bool flag = true;
+        List<GameObject> lastChangeColorGOsForPlane;
+        public MyPlaneRoleHitAnimListener(Shentong shentong, List<GameObject> lastChangeColorGOsForPlane)
+        {
+            this.shentong = shentong;
+            this.lastChangeColorGOsForPlane = lastChangeColorGOsForPlane;
+        }
+        public void OnEndRoleHitAnim()
+        {
+            MyAudioManager.GetInstance().PlaySE(shentong.soundEffPath);
+
+            GameObject shentongEffPrefab = Resources.Load<GameObject>(shentong.effPath);
+            ParticleSystem particleSystem = shentongEffPrefab.GetComponent<ParticleSystem>();
+            MainModule mainModule = particleSystem.main;
+            mainModule.stopAction = ParticleSystemStopAction.Destroy;
+
+            foreach (GameObject tmp in lastChangeColorGOsForPlane)
+            {
+                GameObject stEffGO = Instantiate(shentongEffPrefab);
+                if (flag)
+                {
+                    flag = false;
+                    particleSystem = stEffGO.GetComponent<ParticleSystem>();
+                    mainModule = particleSystem.main;
+                    mainModule.stopAction = ParticleSystemStopAction.Callback;
+                }
+                stEffGO.transform.position = new Vector3(tmp.transform.position.x, 1, tmp.transform.position.z);
+            }
         }
     }
 
