@@ -98,20 +98,43 @@ public class BattleCameraController : BaseMono
             if (Input.GetAxis("Mouse Y") != 0f)
             {
                 float mouseY = Input.GetAxis("Mouse Y");
-                transform.RotateAround(player.position, transform.right, -mouseY * 600 * Time.deltaTime);
-                dir = player.transform.position - transform.position;
+                //transform.RotateAround(player.position, transform.right, -mouseY * 600 * Time.deltaTime);
+                //dir = player.transform.position - transform.position;
+
+                if (mouseY > 0)
+                {
+                    if (transform.rotation.eulerAngles.x > 20)
+                    {
+                        transform.RotateAround(player.position, transform.right, -mouseY * 600 * Time.deltaTime);
+                        dir = player.transform.position - transform.position;
+                    }
+                }
+                else if (mouseY < 0)
+                {
+                    if (transform.rotation.eulerAngles.x < 70)
+                    {
+                        transform.RotateAround(player.position, transform.right, -mouseY * 600 * Time.deltaTime);
+                        dir = player.transform.position - transform.position;
+                    }
+                }
+
             }
         }
 
-        if (Input.GetAxis("Mouse ScrollWheel") > 0)
+        if (Input.GetAxis("Mouse ScrollWheel") > 0) //їїЅь
         {
-            transform.Translate(dir / 6f, Space.World);
-            dir = player.transform.position - transform.position;
+            if(Vector3.Distance(this.transform.position, player.transform.position) > 10)
+            {
+                transform.Translate(dir / 10f, Space.World);
+                dir = player.transform.position - transform.position;
+            }
         }
-        else if (Input.GetAxis("Mouse ScrollWheel") < 0)
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0) //Ф¶Ал
         {
-            transform.Translate(-dir / 6f, Space.World);
-            dir = player.transform.position - transform.position;
+            if (Vector3.Distance(this.transform.position, player.transform.position) < 15) {
+                transform.Translate(-dir / 10f, Space.World);
+                dir = player.transform.position - transform.position;
+            }
         }
 
     }
