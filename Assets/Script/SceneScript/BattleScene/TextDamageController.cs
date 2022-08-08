@@ -8,7 +8,6 @@ public class TextDamageController : BaseMono
     RectTransform rectTransform;
     //float targetY;
     Vector2 startScreenPosition;
-    bool flag = false;
 
     // Start is called before the first frame update
     void Start()
@@ -31,40 +30,25 @@ public class TextDamageController : BaseMono
     // Update is called once per frame
     void Update()
     {
-        if (flag || damageRole == null || !damageRole.activeInHierarchy || !damageRole.activeSelf) return;
-        //transform.Translate(Vector2.up * Time.deltaTime * 100, Space.Self);
+        if (damageRole == null || !damageRole.activeInHierarchy || !damageRole.activeSelf)
+        {
+            Destroy(this.gameObject);
+            return;
+        }
 
         //镜头运动的偏移量
         Vector2 offset = RectTransformUtility.WorldToScreenPoint(Camera.main, damageRole.transform.position) - startScreenPosition;
 
-        //tp2.y = tp2.y + 100f * Time.deltaTime;
-        //tp2.x = RectTransformUtility.WorldToScreenPoint(Camera.main, damageRole.transform.position).x;
-        //startScreenPosition
-        //rectTransform.position = tp2;
-
-        //transform.Translate((Vector2.up - (offset - startScreenPosition)) * Time.deltaTime * 100, Space.Self);
-
         counter += 100f * Time.deltaTime;
-
         Vector2 targetPoint = startScreenPosition;
         targetPoint += offset;
-        //targetPoint.x = targetPoint.x;
         targetPoint.y += counter;
-
         rectTransform.position = targetPoint;
-
-        //if (rtf.position.y > targetY)
-        //{
-        //    flag = true;
-        //    Destroy(this.gameObject);
-        //}
 
         if (counter > 100f)
         {
-            flag = true;
             Destroy(this.gameObject);
         }
-
     }
 
 }
