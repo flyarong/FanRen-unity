@@ -187,38 +187,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 7378702448965960170, guid: df0b645a3f2a7fa4d815135173eef85e, type: 3}
   m_PrefabInstance: {fileID: 4780296287487606614}
   m_PrefabAsset: {fileID: 0}
---- !u!143 &-6201680687529070350
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2607985428635778748}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 0
-  serializedVersion: 2
-  m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.01
-  m_MinMoveDistance: 0.01
-  m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &-8897630329384364693
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2607985428635778748}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7926697a185286447b9644dc00a30f98, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerCamera: {fileID: 0}
-  moveSpeed: 5
 --- !u!114 &3452368863276846979
 MonoBehaviour:
   m_ObjectHideFlags: 0

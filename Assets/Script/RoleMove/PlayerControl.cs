@@ -34,8 +34,6 @@ public class PlayerControl : MonoBehaviour
             if (position != Vector3.zero)
             {
                 this.transform.position = position;
-                enabled = true;
-                this.gameObject.GetComponent<CharacterController>().enabled = true;
             }
             else
             {
@@ -45,15 +43,8 @@ public class PlayerControl : MonoBehaviour
         else
         {
             //每次创建主角(加载新场景)保存或者进入战斗前保存
-            if (enabled)
-            {
-                //Debug.LogWarning("=================正在保存角色数据");
-                SaveUtil.SaveGameObjLastState(this.gameObject);
-            }
-            else
-            {
-                Debug.LogWarning("=================PlayerControl组件关闭，无需保存角色数据");
-            }
+            Debug.LogWarning("=================正在保存角色数据");
+            SaveUtil.SaveGameObjLastState(this.gameObject);
         }
 
     }

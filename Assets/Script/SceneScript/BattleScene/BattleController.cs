@@ -417,7 +417,7 @@ public class BattleController : BaseMono
                     //args.Add("lookahead", 0.9f);
                     args.Add("path", path.ToArray());
                     args.Add("looptype", iTween.LoopType.none);
-                    args.Add("time", 2);
+                    args.Add("time", 1.4f);
                     //args.Add();
                     //args.Add();
                     args.Add("oncomplete", "OnComplete");
@@ -427,6 +427,8 @@ public class BattleController : BaseMono
                     //args.Add("position", );
                     isPlayingAnim = true;
                     Debug.Log("移动动画开始");
+
+                    activingRoleGO.GetComponent<Animator>().SetBool("isRun", true);
                     iTween.MoveTo(activingRoleGO, args);
 
 
@@ -458,7 +460,7 @@ public class BattleController : BaseMono
                     activingRoleGO.transform.LookAt(targetP);
                     
 
-                    bool flag = true;
+                    //bool flag = true;
                     isPlayingAnim = true;
                     Debug.Log("开始播放人物攻击动画和神通动画");
                     Shentong shentong = activingRoleGO.GetComponent<BaseRole>().selectedShentong;
@@ -642,6 +644,7 @@ public class BattleController : BaseMono
     {
         Debug.Log("移动动画结束");
         isPlayingAnim = false;
+        activingRoleGO.GetComponent<Animator>().SetBool("isRun", false);
     }
 
     public void OnShentongParticleSystemStopped()

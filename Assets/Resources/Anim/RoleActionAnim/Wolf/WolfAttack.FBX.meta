@@ -1,0 +1,477 @@
+fileFormatVersion: 2
+guid: 5af4ad1a9d061f8459fc837e8fabd168
+ModelImporter:
+  serializedVersion: 21300
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: Wolf
+  - first:
+      1: 100002
+    second: Wolf 1
+  - first:
+      1: 100004
+    second: Wolf2
+  - first:
+      1: 100006
+    second: Wolf3
+  - first:
+      1: 100008
+    second: Wolf4
+  - first:
+      1: 100010
+    second: //RootNode
+  - first:
+      1: 100012
+    second: Wolf_tail
+  - first:
+      1: 100014
+    second: WolfHub003
+  - first:
+      1: 100016
+    second: WolfHub004
+  - first:
+      1: 100018
+    second: WolfHub005
+  - first:
+      1: 100020
+    second: WolfHub005Bone001
+  - first:
+      1: 100022
+    second: WolfHub005Bone002
+  - first:
+      1: 100024
+    second: WolfHub005Bone003
+  - first:
+      1: 100026
+    second: WolfLLeg1
+  - first:
+      1: 100028
+    second: WolfLLeg1 1
+  - first:
+      1: 100030
+    second: WolfLLeg2
+  - first:
+      1: 100032
+    second: WolfLLeg2 1
+  - first:
+      1: 100034
+    second: WolfLLeg3
+  - first:
+      1: 100036
+    second: WolfLLeg3 1
+  - first:
+      1: 100038
+    second: WolfLLegAnkle
+  - first:
+      1: 100040
+    second: WolfLLegAnkle 1
+  - first:
+      1: 100042
+    second: WolfLLegPlatform
+  - first:
+      1: 100044
+    second: WolfLLegPlatform 1
+  - first:
+      1: 100046
+    second: WolfRLeg1
+  - first:
+      1: 100048
+    second: WolfRLeg1 1
+  - first:
+      1: 100050
+    second: WolfRLeg2
+  - first:
+      1: 100052
+    second: WolfRLeg2 1
+  - first:
+      1: 100054
+    second: WolfRLeg3
+  - first:
+      1: 100056
+    second: WolfRLeg3 1
+  - first:
+      1: 100058
+    second: WolfRLegAnkle
+  - first:
+      1: 100060
+    second: WolfRLegAnkle 1
+  - first:
+      1: 100062
+    second: WolfRLegPlatform
+  - first:
+      1: 100064
+    second: WolfRLegPlatform 1
+  - first:
+      1: 100066
+    second: WolfSpine1
+  - first:
+      1: 100068
+    second: WolfSpine1 1
+  - first:
+      1: 100070
+    second: WolfSpine2
+  - first:
+      1: 100072
+    second: WolfSpine2 1
+  - first:
+      1: 100074
+    second: WolfSpine3
+  - first:
+      1: 100076
+    second: WolfTail5
+  - first:
+      4: 400000
+    second: Wolf
+  - first:
+      4: 400002
+    second: Wolf 1
+  - first:
+      4: 400004
+    second: Wolf2
+  - first:
+      4: 400006
+    second: Wolf3
+  - first:
+      4: 400008
+    second: Wolf4
+  - first:
+      4: 400010
+    second: //RootNode
+  - first:
+      4: 400012
+    second: Wolf_tail
+  - first:
+      4: 400014
+    second: WolfHub003
+  - first:
+      4: 400016
+    second: WolfHub004
+  - first:
+      4: 400018
+    second: WolfHub005
+  - first:
+      4: 400020
+    second: WolfHub005Bone001
+  - first:
+      4: 400022
+    second: WolfHub005Bone002
+  - first:
+      4: 400024
+    second: WolfHub005Bone003
+  - first:
+      4: 400026
+    second: WolfLLeg1
+  - first:
+      4: 400028
+    second: WolfLLeg1 1
+  - first:
+      4: 400030
+    second: WolfLLeg2
+  - first:
+      4: 400032
+    second: WolfLLeg2 1
+  - first:
+      4: 400034
+    second: WolfLLeg3
+  - first:
+      4: 400036
+    second: WolfLLeg3 1
+  - first:
+      4: 400038
+    second: WolfLLegAnkle
+  - first:
+      4: 400040
+    second: WolfLLegAnkle 1
+  - first:
+      4: 400042
+    second: WolfLLegPlatform
+  - first:
+      4: 400044
+    second: WolfLLegPlatform 1
+  - first:
+      4: 400046
+    second: WolfRLeg1
+  - first:
+      4: 400048
+    second: WolfRLeg1 1
+  - first:
+      4: 400050
+    second: WolfRLeg2
+  - first:
+      4: 400052
+    second: WolfRLeg2 1
+  - first:
+      4: 400054
+    second: WolfRLeg3
+  - first:
+      4: 400056
+    second: WolfRLeg3 1
+  - first:
+      4: 400058
+    second: WolfRLegAnkle
+  - first:
+      4: 400060
+    second: WolfRLegAnkle 1
+  - first:
+      4: 400062
+    second: WolfRLegPlatform
+  - first:
+      4: 400064
+    second: WolfRLegPlatform 1
+  - first:
+      4: 400066
+    second: WolfSpine1
+  - first:
+      4: 400068
+    second: WolfSpine1 1
+  - first:
+      4: 400070
+    second: WolfSpine2
+  - first:
+      4: 400072
+    second: WolfSpine2 1
+  - first:
+      4: 400074
+    second: WolfSpine3
+  - first:
+      4: 400076
+    second: WolfTail5
+  - first:
+      43: 4300000
+    second: Wolf
+  - first:
+      74: 7400000
+    second: attack2
+  - first:
+      95: 9500000
+    second: //RootNode
+  - first:
+      137: 13700000
+    second: Wolf 1
+  externalObjects: {}
+  materials:
+    materialImportMode: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: attack2
+      takeName: Take 001
+      internalID: 0
+      firstFrame: 0
+      lastFrame: 60
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events:
+      - time: 0.15789473
+        functionName: Hit
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: a9654f7945ecfae47bba12c440657aa9, type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Wolf
+        weight: 1
+      - path: Wolf 1
+        weight: 1
+      - path: WolfHub003
+        weight: 1
+      - path: WolfHub003/Wolf_tail
+        weight: 1
+      - path: WolfHub003/Wolf_tail/Wolf2
+        weight: 1
+      - path: WolfHub003/Wolf_tail/Wolf2/Wolf3
+        weight: 1
+      - path: WolfHub003/Wolf_tail/Wolf2/Wolf3/Wolf4
+        weight: 1
+      - path: WolfHub003/Wolf_tail/Wolf2/Wolf3/Wolf4/WolfTail5
+        weight: 1
+      - path: WolfHub003/WolfLLeg1
+        weight: 1
+      - path: WolfHub003/WolfLLeg1/WolfLLeg2
+        weight: 1
+      - path: WolfHub003/WolfLLeg1/WolfLLeg2/WolfLLeg3
+        weight: 1
+      - path: WolfHub003/WolfLLeg1/WolfLLeg2/WolfLLeg3/WolfLLegAnkle
+        weight: 1
+      - path: WolfHub003/WolfRLeg1
+        weight: 1
+      - path: WolfHub003/WolfRLeg1/WolfRLeg2
+        weight: 1
+      - path: WolfHub003/WolfRLeg1/WolfRLeg2/WolfRLeg3
+        weight: 1
+      - path: WolfHub003/WolfRLeg1/WolfRLeg2/WolfRLeg3/WolfRLegAnkle
+        weight: 1
+      - path: WolfHub003/WolfSpine1
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2/WolfSpine3
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2/WolfSpine3/WolfHub004
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2/WolfSpine3/WolfHub004/WolfLLeg1 1
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2/WolfSpine3/WolfHub004/WolfLLeg1 1/WolfLLeg2
+          1
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2/WolfSpine3/WolfHub004/WolfLLeg1 1/WolfLLeg2
+          1/WolfLLeg3 1
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2/WolfSpine3/WolfHub004/WolfLLeg1 1/WolfLLeg2
+          1/WolfLLeg3 1/WolfLLegAnkle 1
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2/WolfSpine3/WolfHub004/WolfRLeg1 1
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2/WolfSpine3/WolfHub004/WolfRLeg1 1/WolfRLeg2
+          1
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2/WolfSpine3/WolfHub004/WolfRLeg1 1/WolfRLeg2
+          1/WolfRLeg3 1
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2/WolfSpine3/WolfHub004/WolfRLeg1 1/WolfRLeg2
+          1/WolfRLeg3 1/WolfRLegAnkle 1
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2/WolfSpine3/WolfHub004/WolfSpine1 1
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2/WolfSpine3/WolfHub004/WolfSpine1 1/WolfSpine2
+          1
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2/WolfSpine3/WolfHub004/WolfSpine1 1/WolfSpine2
+          1/WolfHub005
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2/WolfSpine3/WolfHub004/WolfSpine1 1/WolfSpine2
+          1/WolfHub005/WolfHub005Bone001
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2/WolfSpine3/WolfHub004/WolfSpine1 1/WolfSpine2
+          1/WolfHub005/WolfHub005Bone002
+        weight: 1
+      - path: WolfHub003/WolfSpine1/WolfSpine2/WolfSpine3/WolfHub004/WolfSpine1 1/WolfSpine2
+          1/WolfHub005/WolfHub005Bone003
+        weight: 1
+      - path: WolfLLegPlatform
+        weight: 1
+      - path: WolfLLegPlatform 1
+        weight: 1
+      - path: WolfRLegPlatform
+        weight: 1
+      - path: WolfRLegPlatform 1
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 0
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    nodeNameCollisionStrategy: 0
+    fileIdsGeneration: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
+    indexFormat: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 0
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 4
+    normalCalculationMode: 0
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 1
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 1
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 0
+  remapMaterialsIfMaterialImportModeIsNone: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

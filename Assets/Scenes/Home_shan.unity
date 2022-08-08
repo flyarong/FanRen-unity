@@ -1511,7 +1511,7 @@ MonoBehaviour:
   roleId: 07000000
   countOfRoleId: 02000000
   rolePrefabPath:
-  - Prefab/RolePrefab/Wolf_Animated/Prefabs/Wolf
+  - Prefab/RolePrefab/Wolf
 --- !u!1 &520380222
 GameObject:
   m_ObjectHideFlags: 0
@@ -3532,7 +3532,7 @@ PrefabInstance:
     - target: {fileID: 9547338, guid: f8243bb353e5cb74481bb26fe62fd298, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 4207a14823e50e6438f37b401c727159, type: 2}
+      objectReference: {fileID: 9100000, guid: b088e23f569e90c4dab7688e4e03ea1c, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f8243bb353e5cb74481bb26fe62fd298, type: 3}
 --- !u!1 &1570187445
@@ -4744,7 +4744,7 @@ PrefabInstance:
     - target: {fileID: 9547338, guid: f8243bb353e5cb74481bb26fe62fd298, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 4207a14823e50e6438f37b401c727159, type: 2}
+      objectReference: {fileID: 9100000, guid: b088e23f569e90c4dab7688e4e03ea1c, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f8243bb353e5cb74481bb26fe62fd298, type: 3}
 --- !u!1 &2115423686
