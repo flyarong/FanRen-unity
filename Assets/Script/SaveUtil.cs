@@ -7,7 +7,7 @@ public class SaveUtil
 
     public static void SaveGameObjLastState(GameObject hanLi)
     {
-        Debug.LogWarning("保存角色数据 scene " + hanLi.scene.name);
+        Debug.LogWarning("保存角色数据 scene " + hanLi.scene.name + " position : " + hanLi.transform.position);
         PlayerPrefs.SetInt("lastSceneBuildIndex", hanLi.scene.buildIndex);
         PlayerPrefs.SetFloat("lastPositionX", hanLi.transform.position.x);
         PlayerPrefs.SetFloat("lastPositionY", hanLi.transform.position.y);
@@ -27,7 +27,10 @@ public class SaveUtil
 
         float y = PlayerPrefs.GetFloat("lastPositionY", -1f);
         float z = PlayerPrefs.GetFloat("lastPositionZ", -1f);
-        return new Vector3(x, y, z);
+        Vector3 lastPosition = new Vector3(x, y, z);
+
+        Debug.LogWarning("GetLastPosition " + lastPosition);
+        return lastPosition;
     }
 
 }
