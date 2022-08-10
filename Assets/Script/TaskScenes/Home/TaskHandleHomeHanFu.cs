@@ -131,7 +131,7 @@ public class TaskHandleHomeHanFu : ITaskHandle
         if(taskId == 1)
         {
             MyDBManager.GetInstance().ConnDB();
-            RoleItem roleItem = MyDBManager.GetInstance().GetRoleItem(1); //1是干柴
+            RoleItem roleItem = MyDBManager.GetInstance().GetRoleItemInBag(1); //1是干柴
             return roleItem.itemCount >= 5;
         }
         else if(taskId == 5) //告别
@@ -148,7 +148,7 @@ public class TaskHandleHomeHanFu : ITaskHandle
         {
             Debug.Log("干柴>=5，-5干柴");
             MyDBManager.GetInstance().ConnDB();
-            RoleItem roleItem = MyDBManager.GetInstance().GetRoleItem(1);
+            RoleItem roleItem = MyDBManager.GetInstance().GetRoleItemInBag(1);
             MyDBManager.GetInstance().DeleteItemInBag(1, 5, roleItem.itemCount);
         }else if (taskId == 5)
         {

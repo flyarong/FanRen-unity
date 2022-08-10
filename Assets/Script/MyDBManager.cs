@@ -56,6 +56,11 @@ public class MyDBManager
         return this.mIsConnected;
     }
 
+    private string TryGetStringValue(SqliteDataReader sdr, string key)
+    {
+        return sdr[key].Equals(DBNull.Value) ? "" : (string)sdr[key];
+    }
+
     public RoleInfo GetRoleInfo(int roleId)
     {
         RoleInfo roleInfo = null;
@@ -76,6 +81,9 @@ public class MyDBManager
             int gongJiLi = (int)((Int64)sdr["attack"]);
             int fangYuLi = (int)((Int64)sdr["defense"]);
 
+            string canGetItemId = TryGetStringValue(sdr, "canGetItemId");
+            string canGetItemPercent = TryGetStringValue(sdr, "canGetItemPercent");
+
             roleInfo.roleId = roleId;
             roleInfo.roleName = roleName;
             roleInfo.roleAvatar = roleAvatar;
@@ -86,6 +94,9 @@ public class MyDBManager
             roleInfo.speed = speed;
             roleInfo.gongJiLi = gongJiLi;
             roleInfo.fangYuLi = fangYuLi;
+
+            roleInfo.canGetItemId = canGetItemId;
+            roleInfo.canGetItemPercent = canGetItemPercent;
 
         }
         sdr.Close();
@@ -154,17 +165,56 @@ public class MyDBManager
 
     
 
-    public RoleItem GetRoleItem(int itemId)
+    public RoleItem GetRoleItemInBag(int itemId)
     {
         RoleItem roleItem = new RoleItem();
         SqliteCommand sqliteCommand = this.mSqliteConnection.CreateCommand();
-        sqliteCommand.CommandText = $"select * from role_bag_rw where itemId={itemId}";
+        sqliteCommand.CommandText = $"select * from role_bag_rw a left join items_r b on a.itemId=b.itemId where itemId={itemId}";
         SqliteDataReader sdr = sqliteCommand.ExecuteReader();
         if (sdr.Read())
         {
             roleItem.itemId = itemId;
-            roleItem.itemCount = (int)((Int64)sdr["itemCount"]);
+            roleItem.itemCount = (int)((Int64)sdr["itemCount"]); //比GetItemDetailInfo仅多出这一项
+
             roleItem.itemType = (int)((Int64)sdr["itemType"]);
+            roleItem.itemName = (string)(sdr["itemName"]);
+
+            roleItem.addPhyAck = (int)((Int64)sdr["addPhyAck"]);
+            roleItem.addPhyDef = (int)((Int64)sdr["addPhyDef"]);
+            roleItem.price = (int)((Int64)sdr["price"]);
+
+            roleItem.imageName = (string)(sdr["imageName"]);
+            roleItem.itemDesc = (string)(sdr["itemDesc"]);
+
+            roleItem.scarceLevel = (int)((Int64)sdr["scarceLevel"]);
+        }
+        sdr.Close();
+        sdr.Dispose();
+        sqliteCommand.Dispose();
+        return roleItem;
+    }
+
+    public RoleItem GetItemDetailInfo(int itemId)
+    {
+        RoleItem roleItem = new RoleItem();
+        SqliteCommand sqliteCommand = this.mSqliteConnection.CreateCommand();
+        sqliteCommand.CommandText = $"select * from items_r where itemId={itemId}";
+        SqliteDataReader sdr = sqliteCommand.ExecuteReader();
+        if (sdr.Read())
+        {
+            roleItem.itemId = itemId;
+            //roleItem.itemCount = (int)((Int64)sdr["itemCount"]);
+            roleItem.itemType = (int)((Int64)sdr["itemType"]);
+            roleItem.itemName = (string)(sdr["itemName"]);
+
+            roleItem.addPhyAck = (int)((Int64)sdr["addPhyAck"]);
+            roleItem.addPhyDef = (int)((Int64)sdr["addPhyDef"]);
+            roleItem.price = (int)((Int64)sdr["price"]);
+
+            roleItem.imageName = (string)(sdr["imageName"]);
+            roleItem.itemDesc = (string)(sdr["itemDesc"]);
+
+            roleItem.scarceLevel = (int)((Int64)sdr["scarceLevel"]);
         }
         sdr.Close();
         sdr.Dispose();
@@ -491,14 +541,48 @@ public class RoleInfo
     public int gongJiLi;
     public int fangYuLi;
     public string roleAvatar;
+
+    public string canGetItemId;
+    public string canGetItemPercent;
+
+    public List<int> CanGetItemIdList()
+    {
+        if (canGetItemId == null || canGetItemId.Trim().Length == 0) return null;
+        List<int> result = new List<int>();
+        string[] idStringArray = canGetItemId.Split(",");
+        foreach(string itemId in idStringArray)
+        {
+            result.Add(int.Parse(itemId));
+        }
+        return result;
+    }
+
+    public List<float> CanGetItemIdPercentList()
+    {
+        if (canGetItemPercent == null || canGetItemPercent.Trim().Length == 0) return null;
+        List<float> result = new List<float>();
+        string[] percentStringArray = canGetItemPercent.Split(",");
+        foreach (string gainPercent in percentStringArray)
+        {
+            result.Add(float.Parse(gainPercent));
+        }
+        return result;
+    }
 }
 
 //角色拥有的物品
 public class RoleItem
 {
     public int itemId;
-    public int itemCount;
     public int itemType;
+    public int itemCount;
+    public string itemName;
+    public int addPhyAck;
+    public int addPhyDef;
+    public int price;
+    public string imageName;
+    public string itemDesc;
+    public int scarceLevel;
 }
 
 //任务状态

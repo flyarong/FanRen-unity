@@ -23,7 +23,7 @@ public class UIUtil
         if (roleTasks.Count > 0)
         {
             topGO.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.5f);
-            GameObject cellPrefab = Resources.Load<GameObject>("Prefab/TaskUICell");
+            GameObject cellPrefab = Resources.Load<GameObject>("Prefab/UIPrefab/TaskUICell");
             foreach (RoleTask item in roleTasks)
             {
                 GameObject cellGameObject = GameObject.Instantiate(cellPrefab);

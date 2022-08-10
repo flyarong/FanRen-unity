@@ -12,7 +12,7 @@ public class RootBattleInit : BaseMono
 
     public static string[] enemyRolePrefabPath; //人物预制体路径
 
-    public static string triggerToBattleGameObjUnionPreKey; //触发战斗的触发器标记
+    public static string triggerToBattleGameObjUnionPreKey; //触发战斗的触发器标记，用来保存记录这个触发器以后不再显示了
 
     private void OnDestroy()
     {
@@ -20,6 +20,9 @@ public class RootBattleInit : BaseMono
         countOfEnemyRole = null;
         enemyRolePrefabPath = null;
         triggerToBattleGameObjUnionPreKey = null;
+
+        //可能还在播放成功或者失败音乐
+        MyAudioManager.GetInstance().StopSE();
     }
 
     // Start is called before the first frame update

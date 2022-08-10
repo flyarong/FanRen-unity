@@ -37,7 +37,7 @@ public class BattleUIControl : BaseMono
         }
 
         
-        GameObject sliderAvatarPrefab = Resources.Load<GameObject>("Prefab/SliderAvatar");
+        GameObject sliderAvatarPrefab = Resources.Load<GameObject>("Prefab/UIPrefab/SliderAvatar");
         GameObject avatarParent = GameObject.FindGameObjectWithTag("SliderForAction");
         float parentWidth = avatarParent.GetComponent<RectTransform>().rect.width;
         float parentHeight = avatarParent.GetComponent<RectTransform>().rect.height;
@@ -66,7 +66,7 @@ public class BattleUIControl : BaseMono
 
 
             //初始化血条代码
-            GameObject hpSliderPrefab = Resources.Load<GameObject>("Prefab/HP_Slider");
+            GameObject hpSliderPrefab = Resources.Load<GameObject>("Prefab/UIPrefab/HP_Slider");
 
             GameObject hpSlideGameObject = Instantiate(hpSliderPrefab, this.transform);
             //hpSlideGameObject.name = roleCS.GetHpUIGameObjectName();
@@ -114,16 +114,16 @@ public class BattleUIControl : BaseMono
 
         if (isWin)
         {
-            //todo 战利品显示
-
+            //战利品显示
+            battleEndUIScript.ShowGainWupin();
         }
         else
         {
             Camera.main.GetComponent<SceneMusic>().StopBGM();
             //todo 播放小段悲惨音乐
-            battleEndUIScript.winTextGO.GetComponent<Text>().text = "战斗失败，身死道消";
-            battleEndUIScript.winTextGO2.SetActive(false);
-            battleEndUIScript.gridLayout.SetActive(false);
+            MyAudioManager audioManager = MyAudioManager.GetInstance();
+            audioManager.PlaySE("SoundEff/battleFail");
+            battleEndUIScript.ShowFailUI();
         }
     }
 
@@ -131,7 +131,7 @@ public class BattleUIControl : BaseMono
 
     void Start()
     {
-        damageTextPrefab = Resources.Load<GameObject>("Prefab/TextDamage");
+        damageTextPrefab = Resources.Load<GameObject>("Prefab/UIPrefab/TextDamage");
         battleController = GameObject.FindGameObjectWithTag("Terrain").GetComponent<BattleController>();
     }
 

@@ -91,4 +91,12 @@ public class MyAudioManager: MonoBehaviour
         soundEffects.Play();
     }
 
+    public void StopSE()
+    {
+        if (soundEffects != null && soundEffects.isPlaying)
+        {
+            soundEffects.Stop();
+        }
+    }
+
 }

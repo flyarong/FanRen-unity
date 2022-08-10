@@ -86,7 +86,7 @@ public class TaskHandleHomeXiaoMei : ITaskHandle
     {
         Debug.Log("IsSubmitable");
         MyDBManager.GetInstance().ConnDB();
-        RoleItem roleItem = MyDBManager.GetInstance().GetRoleItem(2); //2是红浆果  
+        RoleItem roleItem = MyDBManager.GetInstance().GetRoleItemInBag(2); //2是红浆果  
         return roleItem.itemCount >= 3;
     }
 
@@ -94,7 +94,7 @@ public class TaskHandleHomeXiaoMei : ITaskHandle
     {
         Debug.Log("红浆果数量-3，心境+1");
         MyDBManager.GetInstance().ConnDB();
-        RoleItem roleItem = MyDBManager.GetInstance().GetRoleItem(2);
+        RoleItem roleItem = MyDBManager.GetInstance().GetRoleItemInBag(2);
         MyDBManager.GetInstance().DeleteItemInBag(2, 3, roleItem.itemCount);
     }
 
