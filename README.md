@@ -15,10 +15,8 @@
 ![p1(1)](https://user-images.githubusercontent.com/1829123/183248140-1a44b46d-6b0d-4ff1-95f9-ba40f5063ddc.jpg)
 ![p2(1)](https://user-images.githubusercontent.com/1829123/183248144-a2b6753a-8be2-4faf-bcbf-25016d478bb1.jpg)
 
-## 基础设计思路
-整个项目逻辑完全围绕着数据库SQLite进行设计/FanRen/FanRenData/originData.db
-表格主要分为两种表，结尾是【_r】代表只读，就是游戏源数据不可修改，【_rw】结尾，代表是动态数据，随着游戏的进程而变化，如果要实现多个存档的功能，只需要拷贝【_rw】数据表即可。
-听说有个插件叫EasySave，有机会再研究吧，学习阶段先暂时自己造轮子。
+## 开发须知
+[开发须知](https://github.com/rtsbtx/FanRen/wiki/%E5%BC%80%E5%8F%91%E9%A1%BB%E7%9F%A5)
 
 ## 本项目使用到的素材出处（很多素材都是有意无意收集到的，时间久远，来自哪里已是无迹可寻，有漏标的望海涵并尽快通知作者标注上）
 * 大量使用了金庸群侠传3D重制版的模型素材 https://github.com/jynew/jynew
