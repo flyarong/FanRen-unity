@@ -35,7 +35,7 @@ public class CatchWupinButtonScript : MonoBehaviour
         PlayerPrefs.SetInt(wuPinScript.uniquePrefenceKey, 1);  //该道具终身只能在场景中显示1次
 
         MyDBManager.GetInstance().ConnDB();
-        MyDBManager.GetInstance().AddItemToBag(wuPinScript.itemId, wuPinScript.itemType, 1); //背包添加道具
+        MyDBManager.GetInstance().AddItemToBag(wuPinScript.itemId, 1); //背包添加道具
 
         //Destroy(catchWupin); 用这个会报错
         catchWupin.SetActive(false);

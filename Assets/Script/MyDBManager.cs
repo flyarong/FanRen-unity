@@ -430,7 +430,7 @@ public class MyDBManager
         return roleTasks;
     }
 
-    public bool AddItemToBag(int itemId, FRItemType itemType, int addCount)
+    public bool AddItemToBag(int itemId, int addCount)
     {
         SqliteCommand sqliteCommand = null;
         SqliteCommand sqliteCommand2 = null;
@@ -442,7 +442,7 @@ public class MyDBManager
             sdr = sqliteCommand.ExecuteReader();
 
             sqliteCommand2 = this.mSqliteConnection.CreateCommand();
-            if (sdr.Read())
+            if (sdr.Read()) //包里已经有该道具，只需要增加数量即可
             {
                 Int64 originCount = (Int64)sdr["itemCount"];
                 Int64 resultCount = originCount + addCount;
@@ -451,7 +451,7 @@ public class MyDBManager
             else
             {
                 //insert
-                sqliteCommand2.CommandText = $"insert into role_bag_rw (itemId, itemCount, itemType) values ({itemId}, {addCount}, {((int)itemType)})";
+                sqliteCommand2.CommandText = $"insert into role_bag_rw (itemId, itemCount) values ({itemId}, {addCount})";
             }
             bool result = sqliteCommand2.ExecuteNonQuery() == 1;
             return result;

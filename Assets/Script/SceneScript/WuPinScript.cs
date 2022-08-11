@@ -11,7 +11,7 @@ public class WuPinScript : BaseMono, IColliderWithCC
     public string wuPinCount = "1";
 
     public int itemId;
-    public FRItemType itemType;
+    //public FRItemType itemType;
 
     // Start is called before the first frame update
     void Start()

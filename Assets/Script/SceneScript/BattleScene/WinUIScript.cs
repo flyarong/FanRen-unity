@@ -25,8 +25,8 @@ public class WinUIScript : MonoBehaviour
             for (int i = 0; i < RootBattleInit.enemyRoleIds.Length; i++)
             {
 
-                int count = RootBattleInit.countOfEnemyRole[i];
-                int roleId = RootBattleInit.enemyRoleIds[i];
+                int count = RootBattleInit.countOfEnemyRole[i];//该兵种的数量
+                int roleId = RootBattleInit.enemyRoleIds[i];//兵种id
                 RoleInfo roleInfo = dBManager.GetRoleInfo(roleId);
 
                 List<float> gainSuccPercentList = roleInfo.CanGetItemIdPercentList();
@@ -35,7 +35,6 @@ public class WinUIScript : MonoBehaviour
                 for (int j=0; j< gainSuccPercentList.Count; j++)
                 {
                     float randomF = Random.Range(0f, 1f);
-                    Debug.LogWarning("randomF " + randomF);
                     if (randomF <= gainSuccPercentList[j]) //判定获得物品
                     {
                         int gainItemId = itemIds[j];
@@ -51,7 +50,7 @@ public class WinUIScript : MonoBehaviour
                     }
                     else
                     {
-                        Debug.LogWarning("没有获得战利品 -- 敌人 roleId " + roleId);
+                        Debug.Log("没有获得战利品 -- 敌人 roleId " + roleId);
                     }
                 }
             }
@@ -60,10 +59,6 @@ public class WinUIScript : MonoBehaviour
             if(allKeys.Count > 0) //有战利品
             {
                 gridLayout.SetActive(true);
-                //Image[] imageViews = gridLayout.GetComponentsInChildren<Image>();
-                //gridLayout.
-                //Debug.LogError("imageViews count " + imageViews.Length);
-                //Text[] textViews = gridLayout.GetComponentsInChildren<Text>();
                 int k = 0;
                 foreach (int itemId in allKeys) //k : 0-13
                 {
@@ -77,7 +72,7 @@ public class WinUIScript : MonoBehaviour
                     }
                     else
                     {
-                        Debug.LogError("该道具没有头像图片 itemId " + itemId);
+                        Debug.LogError("该道具没有头像图片，需要补全。 itemId " + itemId);
                         if (PlayerControl.IS_DEBUG)
                         {
                             imageViewGameObjs[k].GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/ItemImage/yuJian");
@@ -87,7 +82,8 @@ public class WinUIScript : MonoBehaviour
                     string forText = itemInfo.itemName + (itemCount > 1 ? ("X" + itemCount) : "");
                     imageViewGameObjs[k].GetComponentInChildren<Text>().text = forText;
 
-                    //todo 存入储物袋
+                    //存入储物袋
+                    dBManager.AddItemToBag(itemId, itemCount);
 
                     k++;
                     if (k == 14)
