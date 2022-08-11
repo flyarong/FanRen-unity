@@ -17,9 +17,26 @@ public class MyDBManager
     {
     }
 
+    
     public static MyDBManager GetInstance()
     {
         return mMyDBManager;
+    }
+
+    //有新增RW表需要在这里添加
+    public void DeleteAllRWGameData()
+    {
+        string[] rwTalbeName = { "role_active_gongfa_rw", "role_active_shentong_rw", "role_bag_rw", "role_tasks_rw"};
+
+        //sqlite不支持truncate
+        //sqliteCommand.CommandText = $"truncate table role_active_gongfa_rw,role_active_shentong_rw,role_bag_rw,role_tasks_rw";
+        foreach(string tableName in rwTalbeName)
+        {
+            SqliteCommand sqliteCommand = this.mSqliteConnection.CreateCommand();
+            sqliteCommand.CommandText = $"delete from {tableName}";
+            sqliteCommand.ExecuteNonQuery();
+            sqliteCommand.Dispose();
+        }
     }
 
     public bool ConnDB()
@@ -106,11 +123,13 @@ public class MyDBManager
     }
 
     //activeState 0查询全部 1只查询激活的
-    public List<Shentong> GetRoleShentong(int roleId, int activeState)
+    //isZhuJue 是否是查询主角的数据， 否则查询NPC的数据，两者在不同的表
+    public List<Shentong> GetRoleShentong(int roleId, int activeState, bool isZhuJue)
     {
         List<Shentong> roleShentong = new List<Shentong>();
         SqliteCommand sqliteCommand = this.mSqliteConnection.CreateCommand();
-        sqliteCommand.CommandText = $"select * from role_active_shentong_rw a left join shen_tong_r b on a.shenTongId=b.id where a.roleId={roleId}";
+        string tableName = isZhuJue ? "role_active_shentong_rw" : "role_active_shentong_r";
+        sqliteCommand.CommandText = $"select * from {tableName} a left join shen_tong_r b on a.shenTongId=b.id where a.roleId={roleId}";
         SqliteDataReader sdr = sqliteCommand.ExecuteReader();
         while (sdr.Read())
         {
@@ -169,7 +188,7 @@ public class MyDBManager
     {
         RoleItem roleItem = new RoleItem();
         SqliteCommand sqliteCommand = this.mSqliteConnection.CreateCommand();
-        sqliteCommand.CommandText = $"select * from role_bag_rw a left join items_r b on a.itemId=b.itemId where itemId={itemId}";
+        sqliteCommand.CommandText = $"select * from role_bag_rw a left join items_r b on a.itemId=b.itemId where a.itemId={itemId}";
         SqliteDataReader sdr = sqliteCommand.ExecuteReader();
         if (sdr.Read())
         {

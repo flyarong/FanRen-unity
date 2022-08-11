@@ -9,7 +9,7 @@ public class HanLi : BaseRole
     public void Init()
     {
         MyDBManager.GetInstance().ConnDB();
-        List<Shentong> shenTongList = MyDBManager.GetInstance().GetRoleShentong(1, 1);
+        List<Shentong> shenTongList = MyDBManager.GetInstance().GetRoleShentong(1, 1, true);
 
         Shentong[] tmp = new Shentong[12];
         for(int i=0; i< shenTongList.Count; i++)

@@ -41,8 +41,15 @@ public class PlayerControl : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        Debug.LogWarning("OnApplicationQuit()");
-        PlayerPrefs.DeleteAll();
+        Debug.LogError("OnApplicationQuit() debug模式，去除下面注释，退出游戏后清空所有游戏进度数据");
+        if (IS_DEBUG)
+        {
+            //PlayerPrefs配置文件仅仅用来做可拾取物品、触发战斗的碰撞体、触发器 等在游戏进程中终生只显示1次的flag
+            //PlayerPrefs.DeleteAll();
+
+            //一切游戏进程数据都在数据库中
+            //MyDBManager.GetInstance().DeleteAllRWGameData();
+        }
     }
 
 
