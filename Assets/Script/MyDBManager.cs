@@ -122,6 +122,14 @@ public class MyDBManager
         return roleInfo;
     }
 
+    //isActive 学完后，是否有装备上
+    public void ZhujueLearnShentong(int shenTongId, int isActive)
+    {
+        SqliteCommand sqliteCommand = this.mSqliteConnection.CreateCommand();
+        sqliteCommand.CommandText = $"insert into role_active_shentong_rw (shenTongId, isActive, roleId) values ({shenTongId}, {isActive}, 1)";
+        sqliteCommand.ExecuteNonQuery();
+    }
+
     //activeState 0查询全部 1只查询激活的
     //isZhuJue 是否是查询主角的数据， 否则查询NPC的数据，两者在不同的表
     public List<Shentong> GetRoleShentong(int roleId, int activeState, bool isZhuJue)

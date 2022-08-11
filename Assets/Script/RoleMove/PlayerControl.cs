@@ -37,18 +37,31 @@ public class PlayerControl : MonoBehaviour
         //PlayerPrefs.DeleteAll();
 
         HandleSaveOrLoad();
+
+        Debug.LogError("Awake() debug模式，主角默认学会三个神通");
+        if (IS_DEBUG)
+        {
+            MyDBManager.GetInstance().ConnDB();//ZhujueLearnShentong
+            if(MyDBManager.GetInstance().GetRoleShentong(1, 0, true).Count == 0)
+            {
+                MyDBManager.GetInstance().ZhujueLearnShentong(1, 1);
+                MyDBManager.GetInstance().ZhujueLearnShentong(2, 1);
+                MyDBManager.GetInstance().ZhujueLearnShentong(3, 1);
+            }
+        }
+
     }
 
     private void OnApplicationQuit()
     {
-        Debug.LogError("OnApplicationQuit() debug模式，去除下面注释，退出游戏后清空所有游戏进度数据");
+        Debug.LogError("OnApplicationQuit() debug模式，退出游戏后清空所有游戏进度数据");
         if (IS_DEBUG)
         {
             //PlayerPrefs配置文件仅仅用来做可拾取物品、触发战斗的碰撞体、触发器 等在游戏进程中终生只显示1次的flag
-            //PlayerPrefs.DeleteAll();
+            PlayerPrefs.DeleteAll();
 
             //一切游戏进程数据都在数据库中
-            //MyDBManager.GetInstance().DeleteAllRWGameData();
+            MyDBManager.GetInstance().DeleteAllRWGameData();
         }
     }
 
