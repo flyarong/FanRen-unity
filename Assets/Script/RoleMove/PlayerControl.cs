@@ -65,6 +65,11 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
+    private bool needStopMove = false;
+    public void StopMove(bool needStop)
+    {
+        this.needStopMove = needStop;
+    }
 
     void Start()
     {
@@ -153,6 +158,11 @@ public class PlayerControl : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (this.needStopMove) {
+            animator.SetBool("isRun", false);
+            return;
+        }
+
         if (horizontal != 0 && vertical != 0) //б
         {
             Vector3 camForword = playerCamera.transform.forward;
@@ -171,11 +181,11 @@ public class PlayerControl : MonoBehaviour
         }
         if (horizontal != 0f || vertical != 0f)
         {
-            animator?.SetBool("isRun", true);
+            animator.SetBool("isRun", true);
         }
         else
         {
-            animator?.SetBool("isRun", false);
+            animator.SetBool("isRun", false);
             this.moveDir = Vector3.zero;
         }
         DoMove();

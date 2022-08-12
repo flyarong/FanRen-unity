@@ -129,6 +129,7 @@ public class TalkButtonController : MonoBehaviour
                 }
                 else
                 {
+                    GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>().StopMove(false);
                     HideTalkUI();
                 }
             }
@@ -137,6 +138,8 @@ public class TalkButtonController : MonoBehaviour
 
     public void OnTalkButtonClick()
     {
+        GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>().StopMove(true);
+
         MyDBManager.GetInstance().ConnDB();
 
         List<RoleTask> leaderActorWithNPCSubmitTasks = MyDBManager.GetInstance().GetAllLeaderActorWithNPCSubmitTasks(this.roleId);

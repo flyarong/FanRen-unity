@@ -9,16 +9,4 @@ public class MyMenu : MonoBehaviour
         EdtorUtil.StartScene("Assets/Scenes/FirstScene_GameDesc.unity");
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
 }
