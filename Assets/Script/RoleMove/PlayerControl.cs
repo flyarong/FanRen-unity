@@ -21,6 +21,8 @@ public class PlayerControl : MonoBehaviour
     private GameObject lastHitGameObject;
     private IColliderWithCC colliderWithCCScript;
 
+    private TabUIRootScript mTabUIRootScript;
+
     //非正常状态：这是为了解决返回或者读档时候，人物的位置不能还原，场景刚开始加载，人物创建的时候设置position和cc的move有冲突，所以设置了前面1秒不让运行cc.move
     //但这样做其实会有隐患，待解决。 这个问题应该是unity内部多线程问题导致的。
     //可以加个过场动画掩饰这1秒
@@ -38,7 +40,7 @@ public class PlayerControl : MonoBehaviour
 
         HandleSaveOrLoad();
 
-        Debug.LogError("Awake() debug模式，主角默认学会三个神通");
+        Debug.LogWarning("Awake() debug模式，主角默认学会三个神通");
         if (IS_DEBUG)
         {
             MyDBManager.GetInstance().ConnDB();//ZhujueLearnShentong
@@ -54,7 +56,7 @@ public class PlayerControl : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        Debug.LogError("OnApplicationQuit() debug模式，退出游戏后清空所有游戏进度数据");
+        Debug.LogWarning("OnApplicationQuit() debug模式，退出游戏后清空所有游戏进度数据");
         if (IS_DEBUG)
         {
             //PlayerPrefs配置文件仅仅用来做可拾取物品、触发战斗的碰撞体、触发器 等在游戏进程中终生只显示1次的flag
@@ -85,6 +87,8 @@ public class PlayerControl : MonoBehaviour
         //cc.detectCollisions = false;
 
         if (playerCamera == null) playerCamera = Camera.main;
+
+        mTabUIRootScript = GameObject.Find("TAB_UI_Canvas").GetComponent<TabUIRootScript>();
 
         Invoke("SetNormalState", 1);
     }
@@ -158,6 +162,8 @@ public class PlayerControl : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (mTabUIRootScript.IsTabUIShowing()) return;
+
         if (this.needStopMove) {
             animator.SetBool("isRun", false);
             return;

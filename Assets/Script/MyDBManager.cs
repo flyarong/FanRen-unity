@@ -125,8 +125,16 @@ public class MyDBManager
     //isActive 学完后，是否有装备上
     public void ZhujueLearnShentong(int shenTongId, int isActive)
     {
+        //SqliteCommand sqliteCommand = this.mSqliteConnection.CreateCommand();
+        //sqliteCommand.CommandText = $"insert into role_active_shentong_rw (shenTongId, isActive, roleId) values ({shenTongId}, {isActive}, 1)";
+        //sqliteCommand.ExecuteNonQuery();
+        LearnShentong(1, shenTongId, isActive);
+    }
+
+    public void LearnShentong(int roleId, int shenTongId, int isActive)
+    {
         SqliteCommand sqliteCommand = this.mSqliteConnection.CreateCommand();
-        sqliteCommand.CommandText = $"insert into role_active_shentong_rw (shenTongId, isActive, roleId) values ({shenTongId}, {isActive}, 1)";
+        sqliteCommand.CommandText = $"insert into role_active_shentong_rw (shenTongId, isActive, roleId) values ({shenTongId}, {isActive}, {roleId})";
         sqliteCommand.ExecuteNonQuery();
     }
 

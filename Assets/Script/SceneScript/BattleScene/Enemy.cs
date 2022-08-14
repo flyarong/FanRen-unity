@@ -27,6 +27,12 @@ public class Enemy : BaseRole
         RoleInfo enemyRoleInfo = MyDBManager.GetInstance().GetRoleInfo(roleId);
         List<Shentong> enemyRoleShentongs = MyDBManager.GetInstance().GetRoleShentong(roleId, 1, false);
 
+        if (PlayerControl.IS_DEBUG && enemyRoleShentongs.Count == 0)
+        {
+            MyDBManager.GetInstance().LearnShentong(roleId, 1, 1);
+            enemyRoleShentongs = MyDBManager.GetInstance().GetRoleShentong(roleId, 1, false);
+        }
+
         Shentong[] tmp = new Shentong[12];
         for (int i = 0; i < enemyRoleShentongs.Count; i++)
         {

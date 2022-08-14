@@ -137,18 +137,26 @@ public class BattleUIControl : BaseMono
 
     private void Update()
     {
-        if (winUIGameObj.activeInHierarchy && winUIGameObj.activeSelf && Input.GetKeyUp(KeyCode.Space))
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            OnCloseWinUI();
+        }
+    }
+
+    public void OnCloseWinUI()
+    {
+        if (winUIGameObj.activeInHierarchy && winUIGameObj.activeSelf)
         {
             if (isWin)
             {
                 int lastSceneIndex = SaveUtil.GetLastSceneBuildIndex();
-                if(lastSceneIndex >= 0)
+                if (lastSceneIndex >= 0)
                 {
                     SceneManager.LoadScene(lastSceneIndex);
                 }
                 else
                 {
-                    Debug.LogError("lastSceneIndex < 0");
+                    Debug.LogError("lastSceneIndex < 0， 如果是从战斗场景启动，请忽略本log");
                 }
             }
             else
