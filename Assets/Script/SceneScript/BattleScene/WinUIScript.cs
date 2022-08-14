@@ -72,7 +72,7 @@ public class WinUIScript : MonoBehaviour
                     }
                     else
                     {
-                        Debug.LogError("该道具没有头像图片，需要补全。 itemId " + itemId);
+                        Debug.LogWarning("该道具没有头像图片，需要补全。 itemId " + itemId);
                         if (PlayerControl.IS_DEBUG)
                         {
                             imageViewGameObjs[k].GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/ItemImage/yuJian");

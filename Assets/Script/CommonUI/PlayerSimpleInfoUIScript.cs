@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerSimpleInfoUIScript : MonoBehaviour
 {
@@ -14,7 +13,19 @@ public class PlayerSimpleInfoUIScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        RoleInfo roleInfo = MyDBManager.GetInstance().GetRoleInfo(1);
+
+        Slider slider = sliderHPGO.GetComponent<Slider>();
+        slider.minValue = 0;
+        slider.maxValue = roleInfo.maxHp;
+        slider.value = roleInfo.currentHp;
+        sliderHPGO.GetComponentInChildren<Text>().text = roleInfo.currentHp + "/" + roleInfo.maxHp;
+
+        slider = sliderMPGO.GetComponent<Slider>();
+        slider.minValue = 0;
+        slider.maxValue = roleInfo.maxMp;
+        slider.value = roleInfo.currentMp;
+        sliderMPGO.GetComponentInChildren<Text>().text = roleInfo.currentMp + "/" + roleInfo.maxMp;
     }
 
     // Update is called once per frame

@@ -7,10 +7,26 @@ public class ExitScript : BaseMono, IColliderWithCC
     //public int selfSceneIndex = -1;
     public int targetSceneIndex;
 
+    public IExitCondition mIExitCondition;
+
     public void OnPlayerCollisionEnter(GameObject player)
     {
         Debug.Log("ExitScript OnCollisionEnter()");
-        SceneManager.LoadScene(targetSceneIndex, LoadSceneMode.Single);
+        if(mIExitCondition != null)
+        {
+            if (mIExitCondition.IsTriggerable())
+            {
+                SceneManager.LoadScene(targetSceneIndex, LoadSceneMode.Single);
+            }
+            else
+            {
+                Debug.Log("ExitScript 没有满足跳转条件");
+            }
+        }
+        else
+        {
+            SceneManager.LoadScene(targetSceneIndex, LoadSceneMode.Single);
+        }
     }
 
     public void OnPlayerCollisionExit(GameObject player)

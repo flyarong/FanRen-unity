@@ -24,10 +24,16 @@ public class TabUIRootScript : MonoBehaviour
     {
         if (Input.GetKeyUp(KeyCode.Tab))
         {
-            Debug.Log("tab click");
-            this.tabUIPanelGameObj.SetActive(!this.tabUIPanelGameObj.activeInHierarchy);
-            //this.tabUICamera.SetActive(this.tabUIPanelGameObj.activeInHierarchy);
-            this.isTabUIShowing = this.tabUIPanelGameObj.activeInHierarchy;
+            OpenTabUI();
         }
     }
+
+    public void OpenTabUI()
+    {
+        Debug.Log("tab click");
+        this.tabUIPanelGameObj.SetActive(!this.tabUIPanelGameObj.activeInHierarchy);
+        //this.tabUICamera.SetActive(this.tabUIPanelGameObj.activeInHierarchy);
+        this.isTabUIShowing = this.tabUIPanelGameObj.activeInHierarchy;
+    }
+
 }
