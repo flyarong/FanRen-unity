@@ -33,7 +33,31 @@ public class BaseRole : BaseMono
 
     //private Animator animator;
 
+
+
+
+    public delegate void RoleHitAnimDelegate();
+
+    private RoleHitAnimDelegate mRoleHitAnimDelegate;
+
+
+
+
     private RoleHitAnimListener mRoleHitAnimListener;
+
+    public virtual void StartRoleHitAnim(RoleHitAnimDelegate roleHitAnimDelegate)
+    {
+        Debug.Log("StartHitAnim");
+        mRoleHitAnimDelegate = roleHitAnimDelegate;
+        GetComponent<Animator>().SetBool("isAttack", true);
+    }
+
+    public virtual void StartRoleHitAnim(RoleHitAnimListener roleHitAnimListener)
+    {
+        Debug.Log("StartHitAnim");
+        mRoleHitAnimListener = roleHitAnimListener;
+        GetComponent<Animator>().SetBool("isAttack", true);
+    }
 
     //hit anim end call back
     public virtual void EndRoleHitAnim()
@@ -44,14 +68,14 @@ public class BaseRole : BaseMono
             mRoleHitAnimListener.OnEndRoleHitAnim();
             mRoleHitAnimListener = null;
         }
+        if (mRoleHitAnimDelegate != null)
+        {
+            mRoleHitAnimDelegate();
+            mRoleHitAnimDelegate = null;
+        }
     }
 
-    public virtual void StartRoleHitAnim(RoleHitAnimListener roleHitAnimListener)
-    {
-        Debug.Log("StartHitAnim");
-        mRoleHitAnimListener = roleHitAnimListener;
-        GetComponent<Animator>().SetBool("isAttack", true);
-    }
+    
 
     //状态机攻击动画事件结束回调 
     public void Hit()
