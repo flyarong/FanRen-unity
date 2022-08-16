@@ -27,6 +27,7 @@ public class BattleController : BaseMono
     {
         Debug.Log("BattleController Start");
         //MyAudioManager.GetInstance().PlayBGM("BGM/BattleBGM01");
+        TestAddObstacles();
     }
 
     public void Init(List<GameObject> allRole)
@@ -93,6 +94,8 @@ public class BattleController : BaseMono
                 this.grids[i, j].SetActive(false);
             }
         }
+
+        TestDestory();
     }
 
     //»ØÍË
@@ -675,7 +678,86 @@ public class BattleController : BaseMono
         BattleCameraController rcc = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<BattleCameraController>();
         rcc.SetSelectedRole(activingRoleGO);
 
+        //todo test A*
+        //if(selectRoleCS.teamNum == TeamNum.TEAM_ONE)
+        //{
+        //    foreach (GameObject item in allRole)
+        //    {
+        //        AStarPathUtil aStarPathUtil = new AStarPathUtil();
+        //        BaseRole br = item.GetComponent<BaseRole>();
+        //        if (br.teamNum == TeamNum.TEAM_TWO)
+        //        {
+                    
+
+
+        //            aStarPathUtil.Reset(this.width, this.height, (selectRoleCS.battleOriginPosX, selectRoleCS.battleOriginPosZ), (br.battleOriginPosX, br.battleOriginPosZ), obstacles);
+        //            List<AStarPathUtil.Node> path = aStarPathUtil.GetShortestPath();
+        //            GameObject showPathBallPrefab = Resources.Load<GameObject>("Prefab/SphereShowPath");
+        //            foreach (AStarPathUtil.Node n in path)
+        //            {
+        //                GameObject pgo = Instantiate(showPathBallPrefab);
+        //                pgo.transform.position = new Vector3(n.x+0.5f, 2, n.y+0.5f);
+        //                pathGO.Add(pgo);
+        //            }
+        //        }
+        //    }
+        //}
+        
     }
+
+    //List<GameObject> pathGO = new List<GameObject>();
+    //List<(int, int)> obstacles = new List<(int, int)>();
+    //private void TestAddObstacles()
+    //{
+    //    GameObject showPathBallPrefab = Resources.Load<GameObject>("Prefab/SphereRed");
+    //    GameObject pgo = Instantiate(showPathBallPrefab);
+    //    pgo.transform.position = new Vector3(10f + 0.5f, 1.9f, 0f + 0.5f);
+    //    obstacles.Add((10, 0));
+
+    //    pgo = Instantiate(showPathBallPrefab);
+    //    pgo.transform.position = new Vector3(0f + 0.5f, 1.9f, 10f + 0.5f);
+    //    obstacles.Add((0, 10));
+
+    //    pgo = Instantiate(showPathBallPrefab);
+    //    pgo.transform.position = new Vector3(1f + 0.5f, 1.9f, 10f + 0.5f);
+    //    obstacles.Add((1, 10));
+
+    //    pgo = Instantiate(showPathBallPrefab);
+    //    pgo.transform.position = new Vector3(2f + 0.5f, 1.9f, 10f + 0.5f);
+    //    obstacles.Add((2, 10));
+
+    //    pgo = Instantiate(showPathBallPrefab);
+    //    pgo.transform.position = new Vector3(3f + 0.5f, 1.9f, 10f + 0.5f);
+    //    obstacles.Add((3, 10));
+
+    //    pgo = Instantiate(showPathBallPrefab);
+    //    pgo.transform.position = new Vector3(4f + 0.5f, 1.9f, 10f + 0.5f);
+    //    obstacles.Add((4, 10));
+
+    //    pgo = Instantiate(showPathBallPrefab);
+    //    pgo.transform.position = new Vector3(5f + 0.5f, 1.9f, 10f + 0.5f);
+    //    obstacles.Add((5, 10));
+
+    //    pgo = Instantiate(showPathBallPrefab);
+    //    pgo.transform.position = new Vector3(6f + 0.5f, 1.9f, 10f + 0.5f);
+    //    obstacles.Add((6, 10));
+
+    //    pgo = Instantiate(showPathBallPrefab);
+    //    pgo.transform.position = new Vector3(7f + 0.5f, 1.9f, 10f + 0.5f);
+    //    obstacles.Add((7, 10));
+
+    //    pgo = Instantiate(showPathBallPrefab);
+    //    pgo.transform.position = new Vector3(8f + 0.5f, 1.9f, 10f + 0.5f);
+    //    obstacles.Add((8, 10));
+    //}
+
+    //private void TestDestory()
+    //{
+    //    foreach(GameObject go in pathGO)
+    //    {
+    //        Destroy(go);
+    //    }
+    //}
 
     private void ResetMouseAckRange()
     {

@@ -24,7 +24,8 @@ public class AStarPathUtil
 
     }
 
-    public int[][] map;
+    public int mapWidth;
+    public int mapHeight;
     public (int, int) start;
     public (int, int) target;
     public List<(int, int)> obstacles;
@@ -32,18 +33,19 @@ public class AStarPathUtil
     private List<Node> openList = new List<Node>();
     private List<Node> closeList = new List<Node>();
 
-    private AStarPathUtil()
+    public AStarPathUtil()
     {
     }
 
-    public AStarPathUtil(int[][] map, (int, int) start, (int, int) target, List<(int, int)> obstacles)
+    public AStarPathUtil(int mapWidth, int mapHeight, (int, int) start, (int, int) target, List<(int, int)> obstacles)
     {
-        Reset(map, start, target, obstacles);
+        Reset(mapWidth, mapHeight, start, target, obstacles);
     }
 
-    public void Reset(int[][] map, (int, int) start, (int, int) target, List<(int, int)> obstacles)
+    public void Reset(int mapWidth, int mapHeight, (int, int) start, (int, int) target, List<(int, int)> obstacles)
     {
-        this.map = map;
+        this.mapWidth = mapWidth;
+        this.mapHeight = mapHeight;
         this.start = start;
         this.target = target;
         this.obstacles = obstacles;
@@ -54,44 +56,53 @@ public class AStarPathUtil
         Node startNode = new Node(start.Item1, start.Item2, null, target);
         closeList.Add(startNode);
 
-        List<Node> _openList = GetNewValidityNeighbors(startNode, map.GetLength(0), map.GetLength(1));
-        openList.AddRange(_openList);
-
+        List<Node> neighbors = GetNewValidityNeighbors(startNode);
         //检查openlist中有没终点，有则结束
-        foreach (Node item in openList)
+        foreach (Node item in neighbors)
         {
-            if(target.Item1 == item.x && target.Item2 == item.y)
+            if (target.Item1 == item.x && target.Item2 == item.y)
             {
-                return closeList;
+                List<Node> path = new List<Node>();
+                path.Add(startNode);
+                return path;
             }
         }
+        openList.AddRange(neighbors);
         //================初始化完成
+
+
 
         Node smallestF;
         while ((smallestF = GetSmallestFValueFromOpenList()) != null)
         {
-            closeList.Add(smallestF);
             openList.Remove(smallestF);
+            closeList.Add(smallestF);
 
-            List<Node> _openList2 = GetNewValidityNeighbors(smallestF, map.GetLength(0), map.GetLength(1));
-            openList.AddRange(_openList2);
+            neighbors = GetNewValidityNeighbors(smallestF);
+            if (neighbors.Count == 0) continue;
 
-            //检查openlist中有没终点，有则结束
-            foreach (Node item in openList)
+            //检查新邻居中有没终点，有则结束
+            foreach (Node item in neighbors)
             {
                 if (target.Item1 == item.x && target.Item2 == item.y)
                 {
-                    List<Node> path = new List<Node>();
-                    //path.Add(item);
+                    Stack<Node> path = new Stack<Node>();
+                    List<Node> pathOrderByStartToEnd = new List<Node>();
                     Node node = item;
                     while (node.preNode != null)
                     {
                         node = node.preNode;
-                        path.Add(node);
+                        path.Push(node);
                     }
-                    return path;
+                    while (path.Count > 0)
+                    {
+                        pathOrderByStartToEnd.Add(path.Pop());
+                    }
+                    return pathOrderByStartToEnd;
                 }
             }
+
+            openList.AddRange(neighbors);
         }
 
         //不存在路径
@@ -115,7 +126,7 @@ public class AStarPathUtil
         return openList[index];
     }
 
-    private List<Node> GetNewValidityNeighbors(Node node, int mapWidth, int mapHeight)
+    private List<Node> GetNewValidityNeighbors(Node node)
     {
         List<Node> nodes = new List<Node>();
         if (IsValidityPosition(node.x, node.y + 1))
@@ -139,8 +150,6 @@ public class AStarPathUtil
 
     private bool IsValidityPosition(int x, int y)
     {
-        int mapWidth = this.map.GetLength(0);
-        int mapHeight = this.map.GetLength(1);
         //超出界限的位置
         if (x > mapWidth - 1) return false;
         if (x < 0) return false;

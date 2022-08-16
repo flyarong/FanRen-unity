@@ -40,11 +40,11 @@ public class RootBattleInit : BaseMono
             GameObject hanLiGameObj = roles[0];
             HanLi hanLiCS = hanLiGameObj.GetComponent<HanLi>();
             hanLiCS.Init();
-            hanLiCS.InitRoleBattelePos(15, 15); //todo
+            hanLiCS.InitRoleBattelePos(2, 7); //todo
             
             Enemy enemyCS = roles[1].GetComponent<Enemy>();
             enemyCS.Init(7, 1);
-            enemyCS.InitRoleBattelePos(25, 25);
+            enemyCS.InitRoleBattelePos(2, 22);
 
             GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().Init(roles);
             GameObject.FindGameObjectWithTag("Terrain").GetComponent<BattleController>().Init(roles);
