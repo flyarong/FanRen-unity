@@ -27,7 +27,7 @@ public class BattleController : BaseMono
     {
         Debug.Log("BattleController Start");
         //MyAudioManager.GetInstance().PlayBGM("BGM/BattleBGM01");
-        TestAddObstacles();
+        //TestAddObstacles();
     }
 
     public void Init(List<GameObject> allRole)
@@ -95,7 +95,7 @@ public class BattleController : BaseMono
             }
         }
 
-        TestDestory();
+        //TestDestory();
     }
 
     //»ØÍË
