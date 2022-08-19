@@ -14,6 +14,8 @@
 
 ![p1(1)](https://user-images.githubusercontent.com/1829123/183248140-1a44b46d-6b0d-4ff1-95f9-ba40f5063ddc.jpg)
 ![p2(1)](https://user-images.githubusercontent.com/1829123/183248144-a2b6753a-8be2-4faf-bcbf-25016d478bb1.jpg)
+![zxc(1)](https://user-images.githubusercontent.com/1829123/185625007-8a49857d-526c-434d-880c-6b79152bb814.png)
+
 
 ## 开发须知
 [开发须知](https://github.com/rtsbtx/FanRen/wiki/%E5%BC%80%E5%8F%91%E9%A1%BB%E7%9F%A5)
@@ -22,5 +24,6 @@
 * 大量使用了金庸群侠传3D重制版的模型素材 https://github.com/jynew/jynew
 （此项目团队也是让人好生佩服）
 * 片头来自猫片&阅文集团【凡人修仙传】动画大电影先导片4K https://www.bilibili.com/video/BV1mi4y1g75S?spm_id_from=333.337.search-card.all.click&vd_source=1faa3016bd1647e766c98ec02ba838ab
+
 
 
