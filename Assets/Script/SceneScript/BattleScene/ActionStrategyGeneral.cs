@@ -12,18 +12,25 @@ public class ActionStrategyGeneral : ActionStrategy
     public override void GenerateStrategy(GameObject activingRoleGO, List<GameObject> allRole, GameObject[,] mapGrids)
     {
         GameObject hanLiGO = null;
-        foreach(GameObject item in allRole)
+        List<(int, int)> obstacles = new List<(int, int)>();
+        BaseRole activingRole = activingRoleGO.GetComponent<BaseRole>();
+        foreach (GameObject item in allRole)
         {
             if (item.tag.Equals("Player"))
             {
                 hanLiGO = item;
-                break;
+            }
+            BaseRole itemRole = item.GetComponent<BaseRole>();
+            if (itemRole.teamNum == activingRole.teamNum) //∂””— «’œ∞≠ŒÔ
+            {
+                if (item == activingRoleGO) continue;
+                obstacles.Add((itemRole.battleOriginPosX, itemRole.battleOriginPosZ));
             }
         }
         BaseRole hanLiRole = hanLiGO.GetComponent<BaseRole>();
-        BaseRole activingRole = activingRoleGO.GetComponent<BaseRole>();
+        //BaseRole activingRole = activingRoleGO.GetComponent<BaseRole>();
         AStarPathUtil aStarPathUtil = new AStarPathUtil();
-        aStarPathUtil.Reset(mapGrids.GetLength(0), mapGrids.GetLength(1), (activingRole.battleOriginPosX, activingRole.battleOriginPosZ), (hanLiRole.battleOriginPosX, hanLiRole.battleOriginPosZ), null);
+        aStarPathUtil.Reset(mapGrids.GetLength(0), mapGrids.GetLength(1), (activingRole.battleOriginPosX, activingRole.battleOriginPosZ), (hanLiRole.battleOriginPosX, hanLiRole.battleOriginPosZ), obstacles);
         List<AStarPathUtil.Node> nodes = aStarPathUtil.GetShortestPath();
         AStarPathUtil.Node targetNode = nodes[nodes.Count-1];
 

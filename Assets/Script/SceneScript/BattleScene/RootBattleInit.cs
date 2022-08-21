@@ -73,7 +73,7 @@ public class RootBattleInit : BaseMono
                     Enemy enemyCS = enemyRoleGameObj.AddComponent<Enemy>();
                     enemyCS.Init(7, j+1);
                     enemyCS.InitRoleBattelePos(7 + j*2, 7 + j*2); //todo
-                    //enemyCS.SetActionStrategy(new ActionStrategyGeneral());
+                    enemyCS.SetActionStrategy(new ActionStrategyGeneral());
                     roleList.Add(enemyRoleGameObj);
 
                     if(enemyCS.roleId == 7) //Ó×È®

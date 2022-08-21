@@ -6,20 +6,24 @@ public class BattleCameraController : BaseMono
 {
     private Transform player;
     private Vector3 dir;
-    private bool stopUpdateFlag = false;
-
-    // Start is called before the first frame update
 
     private GameObject selectedRole;
+
+    //镜头切换人物的时候，相机不要跟随更新
+    private bool isCameraMoving = false;
 
     //Vector3 roleHeadPointToCamera = Vector3.zero;
 
     //GameObject terrainGO;
     private TerrainCollider terrainCollider;
 
+    private BattleController mBattleController;
+
     void Start()
     {
-        terrainCollider = GameObject.FindGameObjectWithTag("Terrain").GetComponent<TerrainCollider>();
+        GameObject terrainGO = GameObject.FindGameObjectWithTag("Terrain");
+        terrainCollider = terrainGO.GetComponent<TerrainCollider>();
+        mBattleController = terrainGO.GetComponent<BattleController>();
     }
 
     private Vector3 CalcScreenCenterPosOnTerrain()
@@ -37,6 +41,8 @@ public class BattleCameraController : BaseMono
         }
     }
 
+    Transform lastTarget;
+
     private void CameraFocusAt(Transform target)
     {
         Vector3 cp = CalcScreenCenterPosOnTerrain();
@@ -49,21 +55,30 @@ public class BattleCameraController : BaseMono
         //args.Add("looktarget", selectedRole.transform);
         args.Add("looptype", iTween.LoopType.none);
         args.Add("easeType", iTween.EaseType.easeOutQuint);
-        args.Add("time", 1f);
+        if(lastTarget == target)
+        {
+            args.Add("time", 0.01f);
+        }
+        else
+        {
+            args.Add("time", 0.6f);
+        }
         //args.Add("speed", 7);
         //args.Add("orienttopath", true);
         //Debug.Log("roleHeadPointToCamera y " + roleHeadPointToCamera);
         args.Add("position", Camera.main.transform.position + (tp - cp));
         args.Add("oncomplete", "OnComplete");
-        args.Add("onCompleteTarget", this.gameObject);
+        args.Add("oncompletetarget", this.gameObject);
         //looktarget
         iTween.MoveTo(this.gameObject, args);
+        this.lastTarget = target;
     }
 
     public void SetSelectedRole(GameObject selectedRole)
     {
+        isCameraMoving = true;
+        mBattleController.OnChangeRoleCameraMove(CameraState.Moving, selectedRole);
         this.selectedRole = selectedRole;
-        stopUpdateFlag = true;
         CameraFocusAt(selectedRole.transform);
     }
 
@@ -71,7 +86,8 @@ public class BattleCameraController : BaseMono
     {
         player = this.selectedRole.transform;
         dir = player.transform.position - transform.position;
-        stopUpdateFlag = false;
+        isCameraMoving = false;
+        mBattleController.OnChangeRoleCameraMove(CameraState.Stopped, this.selectedRole);
     }
 
     void LateUpdate()
@@ -82,7 +98,7 @@ public class BattleCameraController : BaseMono
         //    Cursor.lockState = Cursor.lockState == CursorLockMode.Locked ? CursorLockMode.None : CursorLockMode.Locked;
         //}
 
-        if (player == null || dir == null || stopUpdateFlag) return;
+        if (player == null || dir == null || isCameraMoving) return;
 
         transform.position = player.transform.position - dir;
 
@@ -139,4 +155,9 @@ public class BattleCameraController : BaseMono
 
     }
 
+}
+
+public enum CameraState
+{
+    Moving = 1, Stopped = 2
 }

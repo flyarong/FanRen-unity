@@ -535,39 +535,46 @@ public class BattleController : BaseMono
         return enemyCount;
     }
 
+    public void OnChangeRoleCameraMove(CameraState cameraState, GameObject targetRole)
+    {
+        Debug.Log("OnChangeRoleCameraMove CameraState " + cameraState);
+        if(cameraState == CameraState.Stopped && targetRole == this.activingRoleGO)
+        {
+            BaseRole selectRoleCS = this.activingRoleGO.GetComponent<BaseRole>();
+            selectRoleCS.roleInBattleStatus = RoleInBattleStatus.Activing;
+
+            ChangeGridOnClickRoleOrShentong();
+
+            TestAStart(selectRoleCS);
+
+            if (selectRoleCS.teamNum == TeamNum.TEAM_TWO && selectRoleCS.GetActionStrategy() != null) //轮到电脑行动
+            {
+                selectRoleCS.GetActionStrategy().GenerateStrategy(this.activingRoleGO, this.allRole, this.grids);
+                GameObject targetGridItem = selectRoleCS.GetActionStrategy().GetMoveTargetGridItem();
+                if (targetGridItem == this.grids[selectRoleCS.battleOriginPosX, selectRoleCS.battleOriginPosZ]) //目标就是原地
+                {
+                    //直接攻击
+                    ActionAfterMoveByAI();
+                }
+                else
+                {
+                    DoMove(targetGridItem);
+                }
+            }
+
+            //一般情况下优先攻击最近可攻击目标，如果有主角在内，优先攻击主角，
+            //优先选择伤害最高且主角在射程范围内的神通
+            //攻击范围内有机会抹杀目标的情况下，会更加优先，在前面的前提下，会尽可能同时攻击多个目标
+            //法修没有灵力会优先补给，体修则不需要
+        }
+    }
+
     private void DoSelectRole(GameObject activingGameObj)
     {
         this.activingRoleGO = activingGameObj;
 
-        BattleCameraController rcc = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<BattleCameraController>();
+        BattleCameraController rcc = Camera.main.GetComponent<BattleCameraController>();
         rcc.SetSelectedRole(activingRoleGO);
-
-        BaseRole selectRoleCS = this.activingRoleGO.GetComponent<BaseRole>();
-        selectRoleCS.roleInBattleStatus = RoleInBattleStatus.Activing;
-
-        ChangeGridOnClickRoleOrShentong();
-
-        TestAStart(selectRoleCS);
-
-        if(selectRoleCS.teamNum == TeamNum.TEAM_TWO && selectRoleCS.GetActionStrategy() != null) //轮到电脑行动
-        {
-            selectRoleCS.GetActionStrategy().GenerateStrategy(this.activingRoleGO, this.allRole, this.grids);
-            GameObject targetGridItem = selectRoleCS.GetActionStrategy().GetMoveTargetGridItem();
-            if(targetGridItem == this.grids[selectRoleCS.battleOriginPosX, selectRoleCS.battleOriginPosZ]) //目标就是原地
-            {
-                //直接攻击
-                ActionAfterMoveByAI();
-            }
-            else
-            {
-                DoMove(targetGridItem);
-            }
-        }
-
-        //一般情况下优先攻击最近可攻击目标，如果有主角在内，优先攻击主角，
-        //优先选择伤害最高且主角在射程范围内的神通
-        //攻击范围内有机会抹杀目标的情况下，会更加优先，在前面的前提下，会尽可能同时攻击多个目标
-        //法修没有灵力会优先补给，体修则不需要
     }
 
     //移动动画结束
@@ -618,7 +625,7 @@ public class BattleController : BaseMono
         //args.Add("lookahead", 0.9f);
         args.Add("path", path.ToArray());
         args.Add("looptype", iTween.LoopType.none);
-        args.Add("time", 1.4f);
+        args.Add("time", 1f);
         //args.Add();
         //args.Add();
         args.Add("oncomplete", "OnComplete");

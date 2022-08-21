@@ -1683,13 +1683,13 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1667280626}
-  m_Father: {fileID: 688349525}
+  m_Father: {fileID: 1050157943}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.03, y: 0.61}
-  m_AnchorMax: {x: 0.27, y: 0.78}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -60}
+  m_SizeDelta: {x: 600, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &443161497
 MonoBehaviour:
@@ -1786,7 +1786,7 @@ RectTransform:
   - {fileID: 786135305}
   - {fileID: 1671529630}
   m_Father: {fileID: 688349525}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.3, y: 0.1}
   m_AnchorMax: {x: 0.95, y: 0.8}
@@ -2604,12 +2604,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 443161496}
   - {fileID: 468692550}
   - {fileID: 1568194469}
   - {fileID: 1119155507}
   m_Father: {fileID: 1050157943}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0.2}
@@ -3618,6 +3617,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 443161496}
   - {fileID: 688349525}
   - {fileID: 1476065874}
   m_Father: {fileID: 0}
@@ -3965,7 +3965,7 @@ RectTransform:
   m_Children:
   - {fileID: 1547671886}
   m_Father: {fileID: 688349525}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.158, y: 0.1}
   m_AnchorMax: {x: 0.27, y: 0.4}
@@ -5001,7 +5001,7 @@ RectTransform:
   - {fileID: 821756914}
   - {fileID: 104074796}
   m_Father: {fileID: 1050157943}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -5643,7 +5643,7 @@ RectTransform:
   m_Children:
   - {fileID: 2066042099}
   m_Father: {fileID: 688349525}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.03, y: 0.1}
   m_AnchorMax: {x: 0.142, y: 0.4}
