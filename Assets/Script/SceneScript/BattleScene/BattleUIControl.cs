@@ -15,6 +15,7 @@ public class BattleUIControl : BaseMono
 
     private List<GameObject> allRole;
 
+    public GameObject battleUIPanel;
     public GameObject winUIGameObj;
 
     //private List<SlideAvatarController> allSlideAvatarCS = new List<SlideAvatarController>();
@@ -49,7 +50,7 @@ public class BattleUIControl : BaseMono
             GameObject sliderAvatarGO = Instantiate(sliderAvatarPrefab, avatarParent.transform);
             SlideAvatarController slideAvatarController = sliderAvatarGO.GetComponent<SlideAvatarController>();
             //todo 头像滑动速度公式待定
-            slideAvatarController.speed = roleCS.speed / 10f;
+            slideAvatarController.speed = roleCS.speed / 5f;
             sliderAvatarGO.GetComponent<Image>().sprite = Resources.Load<Sprite>(roleCS.roleAvatar);
             if (roleCS.teamNum == TeamNum.TEAM_ONE)
             {
@@ -181,9 +182,18 @@ public class BattleUIControl : BaseMono
         //}
 
         this.selectedRoleCS = activingRoleGO.GetComponent<BaseRole>();
-        ShowAndHideShentongButton();
-        passButton.SetActive(true);
-        resetButton.SetActive(true);
+        if(selectedRoleCS.teamNum == TeamNum.TEAM_TWO && selectedRoleCS.GetActionStrategy() != null) //有AI
+        {
+            this.battleUIPanel.SetActive(false);
+        }
+        else //无AI
+        {
+            this.battleUIPanel.SetActive(true);
+            ShowAndHideShentongButton();
+            passButton.SetActive(true);
+            resetButton.SetActive(true);
+        }
+        
     }
 
     
@@ -207,6 +217,12 @@ public class BattleUIControl : BaseMono
         //{
         //    if (sac.gameObject.activeInHierarchy && sac.gameObject.activeSelf) sac.RePlayRun();
         //}
+
+        KeepSliderAvatarGoing();
+    }
+
+    public void KeepSliderAvatarGoing()
+    {
         foreach (GameObject roleGO in this.allRole)
         {
             if (roleGO == null || !roleGO.activeInHierarchy || !roleGO.activeSelf) continue;

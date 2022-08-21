@@ -58,8 +58,8 @@ public class SlideAvatarController : BaseMono
             {
                 reachedFlag = true;
                 stopRunFlag = true;
-                battleController.OnChangeRoleAction(roleGO);
                 battleUIControlCS.OnChangeRoleAction(roleGO);
+                battleController.OnChangeRoleAction(roleGO);
             }
         }
     }

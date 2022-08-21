@@ -3642,6 +3642,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   uniquePrefenceKey: 
   gameObjectType: 0
+  battleUIPanel: {fileID: 688349524}
   winUIGameObj: {fileID: 1476065873}
 --- !u!1 &1065136512
 GameObject:

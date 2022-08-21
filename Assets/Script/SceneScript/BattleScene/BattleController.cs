@@ -67,7 +67,9 @@ public class BattleController : BaseMono
         DoSelectRole(roleGO);
     }
 
-    //点击了待机按钮回调,此方法只允许外部调用，不允许内部调用
+    /// <summary>
+    /// 点击了待机按钮回调,此方法只允许外部调用，不允许内部调用
+    /// </summary>
     public void OnClickPass()
     {
         //if (isPlayingAnim) 
@@ -125,9 +127,12 @@ public class BattleController : BaseMono
     // Update is called once per frame
     void Update()
     {
-        if (base.IsClickUpOnUI()) return;
-        OnMouseLeftClick();
-        OnMouseMoveToCanAckGrid();
+        if(this.activingRoleGO != null && this.activingRoleGO.GetComponent<BaseRole>().teamNum == TeamNum.TEAM_ONE)
+        {
+            if (base.IsClickUpOnUI()) return;
+            OnMouseLeftClick();
+            OnMouseMoveToCanAckGrid(null);
+        }
     }
 
     //===========> 换神通或者待机，需要重新初始化
@@ -140,224 +145,227 @@ public class BattleController : BaseMono
     private List<GameObject> lastChangeColorGOsForPlane = new List<GameObject>();
     //<===========
 
-    private void OnMouseMoveToCanAckGrid()
+    private void OnMouseMoveToCanAckGrid(GameObject moveToGridItemByAI)
     {
         if (isPlayingAnim) return;
-        if (activingRoleGO != null)
+        if (activingRoleGO == null) return;
+        BaseRole roleCS = activingRoleGO.GetComponent<BaseRole>();
+        if (roleCS.selectedShentong != null && roleCS.selectedShentong.effType == ShentongEffType.Gong_Ji)
         {
-            BaseRole roleCS = activingRoleGO.GetComponent<BaseRole>();
-            if(roleCS.selectedShentong != null && roleCS.selectedShentong.effType == ShentongEffType.Gong_Ji)
+
+            GameObject clickGridGameObj;
+            if (moveToGridItemByAI != null) //AI
+            {
+                clickGridGameObj = moveToGridItemByAI;
+            }
+            else //人工
             {
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hitInfo;
-                if (Physics.Raycast(ray, out hitInfo))
+                if (!Physics.Raycast(ray, out hitInfo))
                 {
-                    GameObject clickGridGameObj = hitInfo.collider.gameObject;
+                    Debug.LogWarning("射线获取预期GameObject异常");
+                    return;
+                }
+                clickGridGameObj = hitInfo.collider.gameObject;
+            }
 
-                    //避免反复执行
-                    if (lastMoveGameObject != clickGridGameObj) 
-                    {                        
-                        //只在红色色块上移动鼠标有效
-                        if ("canAck".Equals(clickGridGameObj.tag))
+            //避免反复执行
+            if (lastMoveGameObject != clickGridGameObj)
+            {
+                //只在红色色块上移动鼠标有效
+                if ("canAck".Equals(clickGridGameObj.tag))
+                {
+
+                    if (roleCS.selectedShentong.rangeType == ShentongRangeType.Point)
+                    {
+                        if (lastChangeColorGOForPoint != null)
                         {
-
-                            if (roleCS.selectedShentong.rangeType == ShentongRangeType.Point)
-                            {
-                                if (lastChangeColorGOForPoint != null)
-                                {
-                                    lastChangeColorGOForPoint.tag = "canAck";
-                                    lastChangeColorGOForPoint.GetComponent<Renderer>().material = ackGridMat;
-                                }
-                                clickGridGameObj.GetComponent<Renderer>().material = ackGridMouseMoveMat;
-                                lastChangeColorGOForPoint = clickGridGameObj;
-                            }
-                            else if (roleCS.selectedShentong.rangeType == ShentongRangeType.Line)
-                            {                                
-                                if(!lastNeedChangeColorGameObjects.Contains(clickGridGameObj))
-                                {
-
-                                    //还原
-                                    if (lastNeedChangeColorGameObjects.Count > 0)
-                                    {
-                                        foreach(GameObject tmp in lastNeedChangeColorGameObjects)
-                                        {
-                                            tmp.tag = "canAck";
-                                            tmp.GetComponent<Renderer>().material = ackGridMat;
-                                        }
-                                        lastNeedChangeColorGameObjects.Clear();
-                                    }
-
-                                    string[] pos = clickGridGameObj.name.Split(',');
-                                    int x = int.Parse(pos[0]);
-                                    int z = int.Parse(pos[1]);
-                                    needChangeColorGameObjects.Clear();
-
-                                    //遍历x轴存起来
-                                    //GameObject roleGrid = null;
-                                    for (int i = 0; i < width; i++)
-                                    {
-                                        if (this.grids[x, i].tag.Equals("canAck"))
-                                        {
-                                            needChangeColorGameObjects.Add(this.grids[x, i]);
-                                        }
-                                        else
-                                        {
-                                            if(roleCS.battleToPosX == x && roleCS.battleToPosZ == i)
-                                            {
-                                                needChangeColorGameObjects.Add(this.grids[x, i]); //加入角色所站的grid，是为了给后面的循环做标记                                                
-                                            } 
-                                        }
-                                    }
-                                    
-                                    if (needChangeColorGameObjects.Count == 1) //只有1个说明遍历x轴错了
-                                    {                                        
-                                        needChangeColorGameObjects.Clear();                                        
-                                        for (int i = 0; i < height; i++) //应该遍历z轴存起来
-                                        {
-                                            if (this.grids[i, z].tag.Equals("canAck"))
-                                            {
-                                                needChangeColorGameObjects.Add(this.grids[i, z]);
-                                            }
-                                            else
-                                            {
-                                                if (roleCS.battleToPosX == i && roleCS.battleToPosZ == z)
-                                                {
-                                                    needChangeColorGameObjects.Add(this.grids[i, z]); //加入角色所站的grid，是为了给后面的循环做标记                                                    
-                                                }
-                                            }
-                                        }
-                                    }                                    
-
-                                    //获取鼠标所在的grid处于集合的位置，然后双向循环
-                                    int clickGOIndex = needChangeColorGameObjects.IndexOf(clickGridGameObj);
-                                    for(int i=clickGOIndex; i< int.MaxValue; i++)
-                                    {
-                                        if (i >= needChangeColorGameObjects.Count || !needChangeColorGameObjects[i].tag.Equals("canAck"))//如果遇到角色所站的grid，则停止
-                                        {
-                                            break;
-                                        }
-                                        needChangeColorGameObjects[i].GetComponent<Renderer>().material = ackGridMouseMoveMat;
-                                        lastNeedChangeColorGameObjects.Add(needChangeColorGameObjects[i]);                                        
-                                    }
-                                    for (int i = clickGOIndex; i >= 0; i--)
-                                    {
-                                        if (!needChangeColorGameObjects[i].tag.Equals("canAck"))//如果遇到角色所站的grid，则停止
-                                        {
-                                            break;
-                                        }
-                                        needChangeColorGameObjects[i].GetComponent<Renderer>().material = ackGridMouseMoveMat;
-                                        lastNeedChangeColorGameObjects.Add(needChangeColorGameObjects[i]);
-                                    }
-                                    
-                                }
-                            }
-                            else if (roleCS.selectedShentong.rangeType == ShentongRangeType.Plane)
-                            {
-                                if(lastChangeColorGOsForPlane.Count > 0)
-                                {
-                                    foreach (GameObject tmp in lastChangeColorGOsForPlane)
-                                    {
-                                        if (tmp.tag.Equals("Untagged"))
-                                        {
-                                            tmp.GetComponent<Renderer>().material = gridMat;
-                                        }
-                                        else if (tmp.tag.Equals("canMove"))
-                                        {
-                                            tmp.GetComponent<Renderer>().material = roleCanMoveGridMat;
-                                        }
-                                        else if (tmp.tag.Equals("canAck"))
-                                        {
-                                            tmp.GetComponent<Renderer>().material = ackGridMat;
-                                        }
-                                    }
-                                    lastChangeColorGOsForPlane.Clear();
-                                }                                
-
-                                string[] pos = clickGridGameObj.name.Split(',');
-                                int x = int.Parse(pos[0]);
-                                int z = int.Parse(pos[1]);
-                                int planeR = activingRoleGO.GetComponent<BaseRole>().selectedShentong.planeRadius;
-                                //把需要循环的范围缩小
-                                int minX = x - planeR < 0 ? 0 : x - planeR;
-                                int maxX = x + planeR >= width ? width : x + planeR;
-                                int minZ = z - planeR < 0 ? 0 : z - planeR;
-                                int maxZ = z + planeR >= height ? height : z + planeR;
-                                for(int i = minX; i <= maxX; i++)
-                                {
-                                    for(int j = minZ; j <= maxZ; j++)
-                                    {
-                                        if ((Mathf.Abs(x-i) + Mathf.Abs(z-j)) <= planeR)
-                                        {
-                                            if(i>=0 && j>=0 && i<width && j < height)
-                                            {
-                                                if(this.grids[i, j].tag.Equals("canAck"))
-                                                {
-                                                    //重叠色                                                    
-                                                    this.grids[i, j].GetComponent<Renderer>().material = overlapColorMat;
-                                                }
-                                                else
-                                                {
-                                                    this.grids[i, j].GetComponent<Renderer>().material = ackGridMouseMoveMat;
-                                                }                                                
-                                                lastChangeColorGOsForPlane.Add(this.grids[i, j]);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
+                            lastChangeColorGOForPoint.tag = "canAck";
+                            lastChangeColorGOForPoint.GetComponent<Renderer>().material = ackGridMat;
                         }
-                        else
+                        clickGridGameObj.GetComponent<Renderer>().material = ackGridMouseMoveMat;
+                        lastChangeColorGOForPoint = clickGridGameObj;
+                    }
+                    else if (roleCS.selectedShentong.rangeType == ShentongRangeType.Line)
+                    {
+                        if (!lastNeedChangeColorGameObjects.Contains(clickGridGameObj))
                         {
-                            if (roleCS.selectedShentong.rangeType == ShentongRangeType.Point && lastChangeColorGOForPoint != null)
-                            {
-                                Debug.Log("clear lastChangeColorGOForPoint");
-                                lastChangeColorGOForPoint.GetComponent<Renderer>().material = ackGridMat;
-                            }
-                            else if (roleCS.selectedShentong.rangeType == ShentongRangeType.Line && lastNeedChangeColorGameObjects.Count > 0)
-                            {
 
+                            //还原
+                            if (lastNeedChangeColorGameObjects.Count > 0)
+                            {
                                 foreach (GameObject tmp in lastNeedChangeColorGameObjects)
                                 {
                                     tmp.tag = "canAck";
                                     tmp.GetComponent<Renderer>().material = ackGridMat;
                                 }
-                                Debug.Log("clear lastNeedChangeColorGameObjects");
                                 lastNeedChangeColorGameObjects.Clear();
                             }
-                            else if (roleCS.selectedShentong.rangeType == ShentongRangeType.Plane && lastChangeColorGOsForPlane.Count > 0)
+
+                            string[] pos = clickGridGameObj.name.Split(',');
+                            int x = int.Parse(pos[0]);
+                            int z = int.Parse(pos[1]);
+                            needChangeColorGameObjects.Clear();
+
+                            //遍历x轴存起来
+                            //GameObject roleGrid = null;
+                            for (int i = 0; i < width; i++)
                             {
-                                foreach (GameObject tmp in lastChangeColorGOsForPlane)
+                                if (this.grids[x, i].tag.Equals("canAck"))
                                 {
-                                    if (tmp.tag.Equals("Untagged"))
+                                    needChangeColorGameObjects.Add(this.grids[x, i]);
+                                }
+                                else
+                                {
+                                    if (roleCS.battleToPosX == x && roleCS.battleToPosZ == i)
                                     {
-                                        tmp.GetComponent<Renderer>().material = gridMat;
-                                    }
-                                    else if (tmp.tag.Equals("canMove"))
-                                    {
-                                        tmp.GetComponent<Renderer>().material = roleCanMoveGridMat;
-                                    }
-                                    else if (tmp.tag.Equals("canAck"))
-                                    {
-                                        tmp.GetComponent<Renderer>().material = ackGridMat;
+                                        needChangeColorGameObjects.Add(this.grids[x, i]); //加入角色所站的grid，是为了给后面的循环做标记                                                
                                     }
                                 }
-                                Debug.Log("clear lastChangeColorGOsForPlane");
-                                lastChangeColorGOsForPlane.Clear();
                             }
+
+                            if (needChangeColorGameObjects.Count == 1) //只有1个说明遍历x轴错了
+                            {
+                                needChangeColorGameObjects.Clear();
+                                for (int i = 0; i < height; i++) //应该遍历z轴存起来
+                                {
+                                    if (this.grids[i, z].tag.Equals("canAck"))
+                                    {
+                                        needChangeColorGameObjects.Add(this.grids[i, z]);
+                                    }
+                                    else
+                                    {
+                                        if (roleCS.battleToPosX == i && roleCS.battleToPosZ == z)
+                                        {
+                                            needChangeColorGameObjects.Add(this.grids[i, z]); //加入角色所站的grid，是为了给后面的循环做标记                                                    
+                                        }
+                                    }
+                                }
+                            }
+
+                            //获取鼠标所在的grid处于集合的位置，然后双向循环
+                            int clickGOIndex = needChangeColorGameObjects.IndexOf(clickGridGameObj);
+                            for (int i = clickGOIndex; i < int.MaxValue; i++)
+                            {
+                                if (i >= needChangeColorGameObjects.Count || !needChangeColorGameObjects[i].tag.Equals("canAck"))//如果遇到角色所站的grid，则停止
+                                {
+                                    break;
+                                }
+                                needChangeColorGameObjects[i].GetComponent<Renderer>().material = ackGridMouseMoveMat;
+                                lastNeedChangeColorGameObjects.Add(needChangeColorGameObjects[i]);
+                            }
+                            for (int i = clickGOIndex; i >= 0; i--)
+                            {
+                                if (!needChangeColorGameObjects[i].tag.Equals("canAck"))//如果遇到角色所站的grid，则停止
+                                {
+                                    break;
+                                }
+                                needChangeColorGameObjects[i].GetComponent<Renderer>().material = ackGridMouseMoveMat;
+                                lastNeedChangeColorGameObjects.Add(needChangeColorGameObjects[i]);
+                            }
+
+                        }
+                    }
+                    else if (roleCS.selectedShentong.rangeType == ShentongRangeType.Plane)
+                    {
+                        if (lastChangeColorGOsForPlane.Count > 0)
+                        {
+                            foreach (GameObject tmp in lastChangeColorGOsForPlane)
+                            {
+                                if (tmp.tag.Equals("Untagged"))
+                                {
+                                    tmp.GetComponent<Renderer>().material = gridMat;
+                                }
+                                else if (tmp.tag.Equals("canMove"))
+                                {
+                                    tmp.GetComponent<Renderer>().material = roleCanMoveGridMat;
+                                }
+                                else if (tmp.tag.Equals("canAck"))
+                                {
+                                    tmp.GetComponent<Renderer>().material = ackGridMat;
+                                }
+                            }
+                            lastChangeColorGOsForPlane.Clear();
                         }
 
-                        
-
-                        lastMoveGameObject = clickGridGameObj;
+                        string[] pos = clickGridGameObj.name.Split(',');
+                        int x = int.Parse(pos[0]);
+                        int z = int.Parse(pos[1]);
+                        int planeR = activingRoleGO.GetComponent<BaseRole>().selectedShentong.planeRadius;
+                        //把需要循环的范围缩小
+                        int minX = x - planeR < 0 ? 0 : x - planeR;
+                        int maxX = x + planeR >= width ? width : x + planeR;
+                        int minZ = z - planeR < 0 ? 0 : z - planeR;
+                        int maxZ = z + planeR >= height ? height : z + planeR;
+                        for (int i = minX; i <= maxX; i++)
+                        {
+                            for (int j = minZ; j <= maxZ; j++)
+                            {
+                                if ((Mathf.Abs(x - i) + Mathf.Abs(z - j)) <= planeR)
+                                {
+                                    if (i >= 0 && j >= 0 && i < width && j < height)
+                                    {
+                                        if (this.grids[i, j].tag.Equals("canAck"))
+                                        {
+                                            //重叠色                                                    
+                                            this.grids[i, j].GetComponent<Renderer>().material = overlapColorMat;
+                                        }
+                                        else
+                                        {
+                                            this.grids[i, j].GetComponent<Renderer>().material = ackGridMouseMoveMat;
+                                        }
+                                        lastChangeColorGOsForPlane.Add(this.grids[i, j]);
+                                    }
+                                }
+                            }
+                        }
                     }
-                    
-                        
-
-
 
                 }
+                else
+                {
+                    if (roleCS.selectedShentong.rangeType == ShentongRangeType.Point && lastChangeColorGOForPoint != null)
+                    {
+                        Debug.Log("clear lastChangeColorGOForPoint");
+                        lastChangeColorGOForPoint.GetComponent<Renderer>().material = ackGridMat;
+                    }
+                    else if (roleCS.selectedShentong.rangeType == ShentongRangeType.Line && lastNeedChangeColorGameObjects.Count > 0)
+                    {
+
+                        foreach (GameObject tmp in lastNeedChangeColorGameObjects)
+                        {
+                            tmp.tag = "canAck";
+                            tmp.GetComponent<Renderer>().material = ackGridMat;
+                        }
+                        Debug.Log("clear lastNeedChangeColorGameObjects");
+                        lastNeedChangeColorGameObjects.Clear();
+                    }
+                    else if (roleCS.selectedShentong.rangeType == ShentongRangeType.Plane && lastChangeColorGOsForPlane.Count > 0)
+                    {
+                        foreach (GameObject tmp in lastChangeColorGOsForPlane)
+                        {
+                            if (tmp.tag.Equals("Untagged"))
+                            {
+                                tmp.GetComponent<Renderer>().material = gridMat;
+                            }
+                            else if (tmp.tag.Equals("canMove"))
+                            {
+                                tmp.GetComponent<Renderer>().material = roleCanMoveGridMat;
+                            }
+                            else if (tmp.tag.Equals("canAck"))
+                            {
+                                tmp.GetComponent<Renderer>().material = ackGridMat;
+                            }
+                        }
+                        Debug.Log("clear lastChangeColorGOsForPlane");
+                        lastChangeColorGOsForPlane.Clear();
+                    }
+                }
+
+                lastMoveGameObject = clickGridGameObj;
             }
+
         }
     }
 
@@ -399,144 +407,14 @@ public class BattleController : BaseMono
                     return;
                 }
 
-
-
                 //点击了可移动的地板
                 if (clickGameObj.tag.Equals("canMove") && activingRoleGO != null && activingRoleGO.GetComponent<BaseRole>().selectedShentong == null)
                 {
-                    //点击了可移动的地板
-                    //selectedGO.transform.LookAt(clickGameObj.transform);
-                    //this.transform.Translate(Vector3.forward * 10);
-
-                    if (HasRoleOnTheGrid(clickGameObj))
-                    {
-                        return;
-                    }
-
-                    List<Vector3> path = new List<Vector3>();
-                    path.Add(new Vector3(activingRoleGO.transform.position.x, activingRoleGO.transform.position.y + 5, activingRoleGO.transform.position.z));
-                    path.Add(new Vector3(clickGameObj.transform.position.x, 3f, clickGameObj.transform.position.z));
-                    path.Add(new Vector3(clickGameObj.transform.position.x, 0f, clickGameObj.transform.position.z));
-
-                    activingRoleGO.transform.LookAt(path[path.Count - 1]);
-
-                    Hashtable args = new Hashtable();
-                    //lookahead
-                    //args.Add("lookahead", 0.9f);
-                    args.Add("path", path.ToArray());
-                    args.Add("looptype", iTween.LoopType.none);
-                    args.Add("time", 1.4f);
-                    //args.Add();
-                    //args.Add();
-                    args.Add("oncomplete", "OnComplete");
-                    args.Add("onCompleteTarget", this.gameObject);
-                    //args.Add("speed", 7);
-                    //args.Add("orienttopath", true);
-                    //args.Add("position", );
-                    isPlayingAnim = true;
-                    Debug.Log("移动动画开始");
-
-                    activingRoleGO.GetComponent<Animator>().SetBool("isRun", true);
-                    iTween.MoveTo(activingRoleGO, args);
-
-
-
-                    string[] indexs = clickGameObj.name.Split(',');
-                    BaseRole role = activingRoleGO.GetComponent<BaseRole>();
-                    role.battleToPosX = int.Parse(indexs[0]);
-                    role.battleToPosZ = int.Parse(indexs[1]);
-
-                    
-                }
-                else if (clickGameObj.GetComponent<BaseMono>().gameObjectType == GameObjectType.Role) //点击在了角色身上
-                {
-                    Debug.LogError("???????????????????点击在了角色身上??????? 这行log永远都不会打印，打印了必然有逻辑错误 " + clickGameObj.name);
-
-                    //看不懂这里的逻辑
-                    if(activingRoleGO != null && activingRoleGO.GetComponent<BaseRole>().roleInBattleStatus == RoleInBattleStatus.Activing) //全部头像都在移动的时候 activingRoleGO is null
-                    {
-                        return;
-                    }
-                    //看不懂这里的逻辑
-                    DoSelectRole(clickGameObj);
+                    this.DoMove(clickGameObj);
                 }
                 else if (clickGameObj.tag.Equals("canAck") && activingRoleGO != null && activingRoleGO.GetComponent<BaseRole>().selectedShentong != null)
                 {
-
-                    Vector3 targetP = clickGameObj.transform.position;
-                    targetP.y = activingRoleGO.transform.position.y;
-                    activingRoleGO.transform.LookAt(targetP);
-                    
-
-                    bool flag = true;
-                    isPlayingAnim = true;
-                    Debug.Log("开始依次播放人物攻击动画、神通动画+神通音效"); //人物做完动作后才开始播放神通动画和神通音效，都结束后才开始结算攻防(如果计算量大可以播放动画的时候异步结算)
-                    Shentong shentong = activingRoleGO.GetComponent<BaseRole>().selectedShentong;
-
-                    //todo 需要重构，去掉if else改成插拔
-                    if (shentong.rangeType == ShentongRangeType.Point)
-                    {
-                        activingRoleGO.GetComponent<BaseRole>().StartRoleHitAnim(delegate () {
-                            MyAudioManager.GetInstance().PlaySE(shentong.soundEffPath);
-
-                            GameObject shentongEffPrefab = Resources.Load<GameObject>(shentong.effPath);
-                            ParticleSystem particleSystem = shentongEffPrefab.GetComponent<ParticleSystem>();
-                            MainModule mainModule = particleSystem.main;
-                            mainModule.stopAction = ParticleSystemStopAction.Callback;
-
-                            GameObject stEffGO = Instantiate(shentongEffPrefab);
-                            stEffGO.transform.position = new Vector3(clickGameObj.transform.position.x, 1, clickGameObj.transform.position.z);
-                        });
-                    }
-                    else if (shentong.rangeType == ShentongRangeType.Line)
-                    {
-                        activingRoleGO.GetComponent<BaseRole>().StartRoleHitAnim(delegate () {
-                            MyAudioManager.GetInstance().PlaySE(shentong.soundEffPath);
-
-                            GameObject shentongEffPrefab = Resources.Load<GameObject>(shentong.effPath);
-                            ParticleSystem particleSystem = shentongEffPrefab.GetComponent<ParticleSystem>();
-                            MainModule mainModule = particleSystem.main;
-                            mainModule.stopAction = ParticleSystemStopAction.Destroy;
-
-                            foreach (GameObject tmp in lastNeedChangeColorGameObjects)
-                            {
-                                GameObject stEffGO = Instantiate(shentongEffPrefab);
-                                if (flag)
-                                {
-                                    flag = false;
-                                    particleSystem = stEffGO.GetComponent<ParticleSystem>();
-                                    mainModule = particleSystem.main;
-                                    mainModule.stopAction = ParticleSystemStopAction.Callback;
-                                }
-                                stEffGO.transform.position = new Vector3(tmp.transform.position.x, 1, tmp.transform.position.z);
-                            }
-                        });
-                    }
-                    else if (shentong.rangeType == ShentongRangeType.Plane)
-                    {
-                        activingRoleGO.GetComponent<BaseRole>().StartRoleHitAnim(delegate () {
-                            MyAudioManager.GetInstance().PlaySE(shentong.soundEffPath);
-
-                            GameObject shentongEffPrefab = Resources.Load<GameObject>(shentong.effPath);
-                            ParticleSystem particleSystem = shentongEffPrefab.GetComponent<ParticleSystem>();
-                            MainModule mainModule = particleSystem.main;
-                            mainModule.stopAction = ParticleSystemStopAction.Destroy;
-
-                            foreach (GameObject tmp in lastChangeColorGOsForPlane)
-                            {
-                                GameObject stEffGO = Instantiate(shentongEffPrefab);
-                                if (flag)
-                                {
-                                    flag = false;
-                                    particleSystem = stEffGO.GetComponent<ParticleSystem>();
-                                    mainModule = particleSystem.main;
-                                    mainModule.stopAction = ParticleSystemStopAction.Callback;
-                                }
-                                stEffGO.transform.position = new Vector3(tmp.transform.position.x, 1, tmp.transform.position.z);
-                            }
-                        });
-                    }
-                    //enemyCount = HandleAfterAck();
+                    this.DoAttack(clickGameObj);
                 }
 
             }
@@ -548,14 +426,6 @@ public class BattleController : BaseMono
 
     //还没死的敌人数量
     int enemyCount;
-
-    //移动动画结束
-    private void OnComplete()
-    {
-        Debug.Log("移动动画结束");
-        isPlayingAnim = false;
-        activingRoleGO.GetComponent<Animator>().SetBool("isRun", false);
-    }
 
     //神通动画结束回调
     public void OnShentongParticleSystemStopped()
@@ -669,105 +539,178 @@ public class BattleController : BaseMono
     {
         this.activingRoleGO = activingGameObj;
 
-        //Debug.Log("click object name is " + clickGameObj.name);
+        BattleCameraController rcc = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<BattleCameraController>();
+        rcc.SetSelectedRole(activingRoleGO);
 
         BaseRole selectRoleCS = this.activingRoleGO.GetComponent<BaseRole>();
         selectRoleCS.roleInBattleStatus = RoleInBattleStatus.Activing;
 
-        //GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().OnRoleSelected(selectRoleCS);
-        //passButton?.SetActive(true);
-        //resetButton?.SetActive(true);
-
         ChangeGridOnClickRoleOrShentong();
 
-        BattleCameraController rcc = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<BattleCameraController>();
-        rcc.SetSelectedRole(activingRoleGO);
+        TestAStart(selectRoleCS);
 
-        //test A*
-        if (testAstar)
+        if(selectRoleCS.teamNum == TeamNum.TEAM_TWO && selectRoleCS.GetActionStrategy() != null) //轮到电脑行动
         {
-            if (selectRoleCS.teamNum == TeamNum.TEAM_ONE)
+            selectRoleCS.GetActionStrategy().GenerateStrategy(this.activingRoleGO, this.allRole, this.grids);
+            GameObject targetGridItem = selectRoleCS.GetActionStrategy().GetMoveTargetGridItem();
+            if(targetGridItem == this.grids[selectRoleCS.battleOriginPosX, selectRoleCS.battleOriginPosZ]) //目标就是原地
             {
-                foreach (GameObject item in allRole)
-                {
-                    AStarPathUtil aStarPathUtil = new AStarPathUtil();
-                    BaseRole br = item.GetComponent<BaseRole>();
-                    if (br.teamNum == TeamNum.TEAM_TWO)
-                    {
-                        aStarPathUtil.Reset(this.width, this.height, (selectRoleCS.battleOriginPosX, selectRoleCS.battleOriginPosZ), (br.battleOriginPosX, br.battleOriginPosZ), obstacles);
-                        List<AStarPathUtil.Node> path = aStarPathUtil.GetShortestPath();
-                        GameObject showPathBallPrefab = Resources.Load<GameObject>("Prefab/SphereShowPath");
-                        foreach (AStarPathUtil.Node n in path)
-                        {
-                            GameObject pgo = Instantiate(showPathBallPrefab);
-                            pgo.transform.position = new Vector3(n.x + 0.5f, 2, n.y + 0.5f);
-                            pathGO.Add(pgo);
-                        }
-                    }
-                }
+                //直接攻击
+                ActionAfterMoveByAI();
+            }
+            else
+            {
+                DoMove(targetGridItem);
             }
         }
 
+        //一般情况下优先攻击最近可攻击目标，如果有主角在内，优先攻击主角，
+        //优先选择伤害最高且主角在射程范围内的神通
+        //攻击范围内有机会抹杀目标的情况下，会更加优先，在前面的前提下，会尽可能同时攻击多个目标
+        //法修没有灵力会优先补给，体修则不需要
     }
 
-    //test A*
-    List<GameObject> pathGO = new List<GameObject>();
-    //test A*
-    List<(int, int)> obstacles = new List<(int, int)>();
-
-    //test A*
-    private void TestAddObstacles()
+    //移动动画结束
+    private void OnComplete()
     {
-        if (!testAstar) return;
-        GameObject showPathBallPrefab = Resources.Load<GameObject>("Prefab/SphereRed");
-        GameObject pgo = Instantiate(showPathBallPrefab);
-        pgo.transform.position = new Vector3(10f + 0.5f, 1.9f, 0f + 0.5f);
-        obstacles.Add((10, 0));
+        Debug.Log("移动动画结束");
+        isPlayingAnim = false;
+        activingRoleGO.GetComponent<Animator>().SetBool("isRun", false);
 
-        pgo = Instantiate(showPathBallPrefab);
-        pgo.transform.position = new Vector3(0f + 0.5f, 1.9f, 10f + 0.5f);
-        obstacles.Add((0, 10));
-
-        pgo = Instantiate(showPathBallPrefab);
-        pgo.transform.position = new Vector3(1f + 0.5f, 1.9f, 10f + 0.5f);
-        obstacles.Add((1, 10));
-
-        pgo = Instantiate(showPathBallPrefab);
-        pgo.transform.position = new Vector3(2f + 0.5f, 1.9f, 10f + 0.5f);
-        obstacles.Add((2, 10));
-
-        pgo = Instantiate(showPathBallPrefab);
-        pgo.transform.position = new Vector3(3f + 0.5f, 1.9f, 10f + 0.5f);
-        obstacles.Add((3, 10));
-
-        pgo = Instantiate(showPathBallPrefab);
-        pgo.transform.position = new Vector3(4f + 0.5f, 1.9f, 10f + 0.5f);
-        obstacles.Add((4, 10));
-
-        pgo = Instantiate(showPathBallPrefab);
-        pgo.transform.position = new Vector3(5f + 0.5f, 1.9f, 10f + 0.5f);
-        obstacles.Add((5, 10));
-
-        pgo = Instantiate(showPathBallPrefab);
-        pgo.transform.position = new Vector3(6f + 0.5f, 1.9f, 10f + 0.5f);
-        obstacles.Add((6, 10));
-
-        pgo = Instantiate(showPathBallPrefab);
-        pgo.transform.position = new Vector3(7f + 0.5f, 1.9f, 10f + 0.5f);
-        obstacles.Add((7, 10));
-
-        pgo = Instantiate(showPathBallPrefab);
-        pgo.transform.position = new Vector3(8f + 0.5f, 1.9f, 10f + 0.5f);
-        obstacles.Add((8, 10));
+        ActionAfterMoveByAI();
     }
 
-    //test A*
-    private void TestDestory()
+    private void ActionAfterMoveByAI()
     {
-        if (!testAstar) return;
-        foreach (GameObject go in pathGO)
+        BaseRole activingRole = activingRoleGO.GetComponent<BaseRole>();
+        if (activingRole.teamNum == TeamNum.TEAM_TWO && activingRole.GetActionStrategy() != null)
         {
-            Destroy(go);
+            if (activingRole.GetActionStrategy().IsPassAfterMove())
+            {
+                GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().OnClickPassButton();
+            }
+            else
+            {
+                activingRole.selectedShentong = activingRole.GetActionStrategy().GetSelectShentong();
+                OnRoleSelectedShentong(activingRole.selectedShentong);
+                OnMouseMoveToCanAckGrid(activingRole.GetActionStrategy().GetAttackMapGridItem());
+                this.DoAttack(activingRole.GetActionStrategy().GetAttackMapGridItem());
+            }
+        }
+    }
+
+    private void DoMove(GameObject clickGameObj)
+    {
+        if (HasRoleOnTheGrid(clickGameObj))
+        {
+            return;
+        }
+
+        List<Vector3> path = new List<Vector3>();
+        path.Add(new Vector3(activingRoleGO.transform.position.x, activingRoleGO.transform.position.y + 5, activingRoleGO.transform.position.z));
+        path.Add(new Vector3(clickGameObj.transform.position.x, 3f, clickGameObj.transform.position.z));
+        path.Add(new Vector3(clickGameObj.transform.position.x, 0f, clickGameObj.transform.position.z));
+
+        activingRoleGO.transform.LookAt(path[path.Count - 1]);
+
+        Hashtable args = new Hashtable();
+        //lookahead
+        //args.Add("lookahead", 0.9f);
+        args.Add("path", path.ToArray());
+        args.Add("looptype", iTween.LoopType.none);
+        args.Add("time", 1.4f);
+        //args.Add();
+        //args.Add();
+        args.Add("oncomplete", "OnComplete");
+        args.Add("oncompletetarget", this.gameObject);
+        //args.Add("speed", 7);
+        //args.Add("orienttopath", true);
+        //args.Add("position", );
+        isPlayingAnim = true;
+        Debug.Log("移动动画开始");
+
+        activingRoleGO.GetComponent<Animator>().SetBool("isRun", true);
+        iTween.MoveTo(activingRoleGO, args);
+
+        string[] indexs = clickGameObj.name.Split(',');
+        BaseRole role = activingRoleGO.GetComponent<BaseRole>();
+        role.battleToPosX = int.Parse(indexs[0]);
+        role.battleToPosZ = int.Parse(indexs[1]);
+    }
+
+    private void DoAttack(GameObject clickGameObj)
+    {
+        Vector3 targetP = clickGameObj.transform.position;
+        targetP.y = activingRoleGO.transform.position.y;
+        activingRoleGO.transform.LookAt(targetP);
+
+        bool flag = true;
+        isPlayingAnim = true;
+        Debug.Log("开始依次播放人物攻击动画、神通动画+神通音效"); //人物做完动作后才开始播放神通动画和神通音效，都结束后才开始结算攻防(如果计算量大可以播放动画的时候异步结算)
+        Shentong shentong = activingRoleGO.GetComponent<BaseRole>().selectedShentong;
+
+        //todo 需要重构，去掉if else改成插拔
+        if (shentong.rangeType == ShentongRangeType.Point)
+        {
+            activingRoleGO.GetComponent<BaseRole>().StartRoleHitAnim(delegate () {
+                MyAudioManager.GetInstance().PlaySE(shentong.soundEffPath);
+
+                GameObject shentongEffPrefab = Resources.Load<GameObject>(shentong.effPath);
+                ParticleSystem particleSystem = shentongEffPrefab.GetComponent<ParticleSystem>();
+                MainModule mainModule = particleSystem.main;
+                mainModule.stopAction = ParticleSystemStopAction.Callback;
+
+                GameObject stEffGO = Instantiate(shentongEffPrefab);
+                stEffGO.transform.position = new Vector3(clickGameObj.transform.position.x, 1, clickGameObj.transform.position.z);
+            });
+        }
+        else if (shentong.rangeType == ShentongRangeType.Line)
+        {
+            activingRoleGO.GetComponent<BaseRole>().StartRoleHitAnim(delegate () {
+                MyAudioManager.GetInstance().PlaySE(shentong.soundEffPath);
+
+                GameObject shentongEffPrefab = Resources.Load<GameObject>(shentong.effPath);
+                ParticleSystem particleSystem = shentongEffPrefab.GetComponent<ParticleSystem>();
+                MainModule mainModule = particleSystem.main;
+                mainModule.stopAction = ParticleSystemStopAction.Destroy;
+
+                foreach (GameObject tmp in lastNeedChangeColorGameObjects)
+                {
+                    GameObject stEffGO = Instantiate(shentongEffPrefab);
+                    if (flag)
+                    {
+                        flag = false;
+                        particleSystem = stEffGO.GetComponent<ParticleSystem>();
+                        mainModule = particleSystem.main;
+                        mainModule.stopAction = ParticleSystemStopAction.Callback;
+                    }
+                    stEffGO.transform.position = new Vector3(tmp.transform.position.x, 1, tmp.transform.position.z);
+                }
+            });
+        }
+        else if (shentong.rangeType == ShentongRangeType.Plane)
+        {
+            activingRoleGO.GetComponent<BaseRole>().StartRoleHitAnim(delegate () {
+                MyAudioManager.GetInstance().PlaySE(shentong.soundEffPath);
+
+                GameObject shentongEffPrefab = Resources.Load<GameObject>(shentong.effPath);
+                ParticleSystem particleSystem = shentongEffPrefab.GetComponent<ParticleSystem>();
+                MainModule mainModule = particleSystem.main;
+                mainModule.stopAction = ParticleSystemStopAction.Destroy;
+
+                foreach (GameObject tmp in lastChangeColorGOsForPlane)
+                {
+                    GameObject stEffGO = Instantiate(shentongEffPrefab);
+                    if (flag)
+                    {
+                        flag = false;
+                        particleSystem = stEffGO.GetComponent<ParticleSystem>();
+                        mainModule = particleSystem.main;
+                        mainModule.stopAction = ParticleSystemStopAction.Callback;
+                    }
+                    stEffGO.transform.position = new Vector3(tmp.transform.position.x, 1, tmp.transform.position.z);
+                }
+            });
         }
     }
 
@@ -868,22 +811,22 @@ public class BattleController : BaseMono
                 disX = Math.Abs(x - clickRoleOriginX);
                 disY = Math.Abs(z - clickRoleOriginZ);
 
-                if ((disX + disY) < selectedRoleCS.GetMoveDistanceInBattle()) //404EFF蓝139,150,219,107,    A4D7A3绿164,214,163,107 
-                    {
-                        //变绿
-                        //Debug.Log("可以移动: " + x + "," + z);
-                        gridGO.tag = "canMove";
-                        if (renderer.material.color.r != roleCanMoveGridMat.color.r) renderer.material = roleCanMoveGridMat;
-                    }
-                    else
-                    {
-                        //变蓝
-                        //grids[x, z].GetComponent<Renderer>().material = gridMat;
-                        gridGO.tag = "Untagged";
-                        if (renderer.material.color.r != gridMat.color.r) renderer.material = gridMat;
-                    }
-                
-                
+                if ((disX + disY) <= selectedRoleCS.GetMoveDistanceInBattle()) //404EFF蓝139,150,219,107,    A4D7A3绿164,214,163,107 
+                {
+                    //变绿
+                    //Debug.Log("可以移动: " + x + "," + z);
+                    gridGO.tag = "canMove";
+                    if (renderer.material.color.r != roleCanMoveGridMat.color.r) renderer.material = roleCanMoveGridMat;
+                }
+                else
+                {
+                    //变蓝
+                    //grids[x, z].GetComponent<Renderer>().material = gridMat;
+                    gridGO.tag = "Untagged";
+                    if (renderer.material.color.r != gridMat.color.r) renderer.material = gridMat;
+                }
+
+
             }
         }
     }
@@ -892,6 +835,100 @@ public class BattleController : BaseMono
     {
         //MyAudioManager.GetInstance().StopBGM();
         Resources.UnloadUnusedAssets();
+    }
+
+
+
+
+
+
+
+    //test A*
+    List<GameObject> pathGO = new List<GameObject>();
+    //test A*
+    List<(int, int)> obstacles = new List<(int, int)>();
+
+    //test A*
+    private void TestAStart(BaseRole selectRoleCS)
+    {
+        if (!testAstar) return;
+        //test A*
+        if (selectRoleCS.teamNum == TeamNum.TEAM_ONE)
+        {
+            foreach (GameObject item in allRole)
+            {
+                AStarPathUtil aStarPathUtil = new AStarPathUtil();
+                BaseRole br = item.GetComponent<BaseRole>();
+                if (br.teamNum == TeamNum.TEAM_TWO)
+                {
+                    aStarPathUtil.Reset(this.width, this.height, (selectRoleCS.battleOriginPosX, selectRoleCS.battleOriginPosZ), (br.battleOriginPosX, br.battleOriginPosZ), obstacles);
+                    List<AStarPathUtil.Node> path = aStarPathUtil.GetShortestPath();
+                    GameObject showPathBallPrefab = Resources.Load<GameObject>("Prefab/SphereShowPath");
+                    foreach (AStarPathUtil.Node n in path)
+                    {
+                        GameObject pgo = Instantiate(showPathBallPrefab);
+                        pgo.transform.position = new Vector3(n.x + 0.5f, 2, n.y + 0.5f);
+                        pathGO.Add(pgo);
+                    }
+                }
+            }
+        }
+    }
+
+    //test A*
+    private void TestAddObstacles()
+    {
+        if (!testAstar) return;
+        GameObject showPathBallPrefab = Resources.Load<GameObject>("Prefab/SphereRed");
+        GameObject pgo = Instantiate(showPathBallPrefab);
+        pgo.transform.position = new Vector3(10f + 0.5f, 1.9f, 0f + 0.5f);
+        obstacles.Add((10, 0));
+
+        pgo = Instantiate(showPathBallPrefab);
+        pgo.transform.position = new Vector3(0f + 0.5f, 1.9f, 10f + 0.5f);
+        obstacles.Add((0, 10));
+
+        pgo = Instantiate(showPathBallPrefab);
+        pgo.transform.position = new Vector3(1f + 0.5f, 1.9f, 10f + 0.5f);
+        obstacles.Add((1, 10));
+
+        pgo = Instantiate(showPathBallPrefab);
+        pgo.transform.position = new Vector3(2f + 0.5f, 1.9f, 10f + 0.5f);
+        obstacles.Add((2, 10));
+
+        pgo = Instantiate(showPathBallPrefab);
+        pgo.transform.position = new Vector3(3f + 0.5f, 1.9f, 10f + 0.5f);
+        obstacles.Add((3, 10));
+
+        pgo = Instantiate(showPathBallPrefab);
+        pgo.transform.position = new Vector3(4f + 0.5f, 1.9f, 10f + 0.5f);
+        obstacles.Add((4, 10));
+
+        pgo = Instantiate(showPathBallPrefab);
+        pgo.transform.position = new Vector3(5f + 0.5f, 1.9f, 10f + 0.5f);
+        obstacles.Add((5, 10));
+
+        pgo = Instantiate(showPathBallPrefab);
+        pgo.transform.position = new Vector3(6f + 0.5f, 1.9f, 10f + 0.5f);
+        obstacles.Add((6, 10));
+
+        pgo = Instantiate(showPathBallPrefab);
+        pgo.transform.position = new Vector3(7f + 0.5f, 1.9f, 10f + 0.5f);
+        obstacles.Add((7, 10));
+
+        pgo = Instantiate(showPathBallPrefab);
+        pgo.transform.position = new Vector3(8f + 0.5f, 1.9f, 10f + 0.5f);
+        obstacles.Add((8, 10));
+    }
+
+    //test A*
+    private void TestDestory()
+    {
+        if (!testAstar) return;
+        foreach (GameObject go in pathGO)
+        {
+            Destroy(go);
+        }
     }
 
 }

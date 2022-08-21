@@ -45,6 +45,7 @@ public class RootBattleInit : BaseMono
             Enemy enemyCS = roles[1].GetComponent<Enemy>();
             enemyCS.Init(7, 1);
             enemyCS.InitRoleBattelePos(2, 22);
+            enemyCS.SetActionStrategy(new ActionStrategyGeneral());
 
             GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().Init(roles);
             GameObject.FindGameObjectWithTag("Terrain").GetComponent<BattleController>().Init(roles);
@@ -72,6 +73,7 @@ public class RootBattleInit : BaseMono
                     Enemy enemyCS = enemyRoleGameObj.AddComponent<Enemy>();
                     enemyCS.Init(7, j+1);
                     enemyCS.InitRoleBattelePos(7 + j*2, 7 + j*2); //todo
+                    //enemyCS.SetActionStrategy(new ActionStrategyGeneral());
                     roleList.Add(enemyRoleGameObj);
 
                     if(enemyCS.roleId == 7) //Ó×È®

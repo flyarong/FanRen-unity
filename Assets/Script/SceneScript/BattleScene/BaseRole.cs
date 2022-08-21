@@ -1,5 +1,6 @@
 using UnityEngine.UI;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class BaseRole : BaseMono
 {
@@ -173,16 +174,6 @@ public class BaseRole : BaseMono
         this.selectedShentong = null;
     }
 
-    //public string GetHpUIGameObjectName()
-    //{
-    //    return "hp_" + this.name;
-    //}
-
-    //public Slider GetHpSlide()
-    //{
-    //    return GameObject.Find(GetHpUIGameObjectName()).GetComponent<Slider>();
-    //}
-
     //返回是否死了
     public bool DoAck(BaseRole enemy)
     {
@@ -209,59 +200,20 @@ public class BaseRole : BaseMono
         }
     }
 
-    public void DoShentong()
-    {
+    private ActionStrategy mActionStrategy;
 
+    /// <summary>
+    /// 设置战场敌人的行为策略
+    /// </summary>
+    public void SetActionStrategy(ActionStrategy actionStrategy)
+    {
+        this.mActionStrategy = actionStrategy;
     }
 
-
-
-
-
-
-
-
-
-
-
-    // Update is called once per frame
-    void Update()
+    public ActionStrategy GetActionStrategy()
     {
-
+        return this.mActionStrategy;
     }
-
-    //选择了神通回调
-    //private RoleSelectShentongListener roleSelectShentongListener;
-
-    //public void SetRoleSelectShentongListener(RoleSelectShentongListener roleSelectShentongListener)
-    //{
-    //    this.roleSelectShentongListener = roleSelectShentongListener;
-    //}
-
-    //public interface RoleSelectShentongListener
-    //{
-    //    public void OnSelected(int index, Shentong shentong);
-    //}
-
-
-
-    //被选中回调
-    //private RoleOnSelectedListener roleOnSelectedListener;
-
-    //public void SetRoleOnSelectedListener(RoleOnSelectedListener roleOnSelectedListener)
-    //{
-    //    this.roleOnSelectedListener = roleOnSelectedListener;
-    //}
-
-    //public RoleOnSelectedListener GetRoleOnSelectedListener()
-    //{
-    //    return this.roleOnSelectedListener;
-    //}
-
-    //public interface RoleOnSelectedListener
-    //{
-    //    public void OnSelected();
-    //}
 
 }
 
@@ -284,3 +236,20 @@ public interface RoleHitAnimListener
     public void OnEndRoleHitAnim();
 }
 
+public abstract class ActionStrategy
+{
+
+    //protected GameObject moveTargetGridItem;
+    //protected Shentong selectShentong;
+    //protected GameObject attackMapGrid;
+
+    public abstract void GenerateStrategy(GameObject activingRole, List<GameObject> allRole, GameObject[,] mapGrids);
+
+    public abstract GameObject GetMoveTargetGridItem();
+
+    public abstract Shentong GetSelectShentong();
+
+    public abstract GameObject GetAttackMapGridItem();
+
+    public abstract bool IsPassAfterMove();
+}
