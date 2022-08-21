@@ -31,12 +31,16 @@ public class ActionStrategyGeneral : ActionStrategy
         //BaseRole activingRole = activingRoleGO.GetComponent<BaseRole>();
         AStarPathUtil aStarPathUtil = new AStarPathUtil();
         aStarPathUtil.Reset(mapGrids.GetLength(0), mapGrids.GetLength(1), (activingRole.battleOriginPosX, activingRole.battleOriginPosZ), (hanLiRole.battleOriginPosX, hanLiRole.battleOriginPosZ), obstacles);
-        List<AStarPathUtil.Node> nodes = aStarPathUtil.GetShortestPath();
-        AStarPathUtil.Node targetNode = nodes[nodes.Count-1];
+        List<AStarPathUtil.Node> nodes = aStarPathUtil.GetShortestPath(true);
+        
 
         //测试，直奔主角身边，用神通0攻击
-        int targetDistance = Mathf.Abs(targetNode.x - activingRole.battleOriginPosX) + Mathf.Abs(targetNode.y - activingRole.battleOriginPosZ);
-        if(targetDistance > activingRole.speed) //目标距离超过移动距离，选择最大的可移动距离
+
+        //两者之间的格数 + 1
+        int targetDistance = Mathf.Abs(hanLiRole.battleOriginPosX - activingRole.battleOriginPosX) + Mathf.Abs(hanLiRole.battleOriginPosZ - activingRole.battleOriginPosZ);
+        //可以攻击的最远距离
+        int attackDistance = activingRole.speed + activingRole.shentongInBattle[0].unitDistance;
+        if (targetDistance > attackDistance) //目标距离超过(移动+攻击)距离，选择最大的可移动距离
         {
             foreach(AStarPathUtil.Node node in nodes)
             {
@@ -48,10 +52,23 @@ public class ActionStrategyGeneral : ActionStrategy
             }
             this.isPassAfterMove = true;
         }
-        else //目标距离在移动距离范围内
+        else //目标距离在攻击范围内
         {
-            this.moveTargetGridItem = mapGrids[targetNode.x, targetNode.y];
-            this.isPassAfterMove = false;
+            if(nodes.Count > 0)
+            {
+                AStarPathUtil.Node targetNode = nodes[nodes.Count - 1];
+                this.moveTargetGridItem = mapGrids[targetNode.x, targetNode.y];
+                this.isPassAfterMove = false;
+            }
+            else if(nodes.Count == 0)
+            {
+                this.moveTargetGridItem = mapGrids[activingRole.battleOriginPosX, activingRole.battleOriginPosZ];
+                this.isPassAfterMove = false;
+            }
+            else
+            {
+                Debug.LogError("AI一般策略：无路可走");
+            }
         }
         
         this.selectShentong = activingRole.shentongInBattle[0];

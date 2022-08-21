@@ -51,7 +51,12 @@ public class AStarPathUtil
         this.obstacles = obstacles;
     }
 
-    public List<Node> GetShortestPath()
+    /// <summary>
+    /// 尽量获取最短路径
+    /// </summary>
+    /// <param name="trim">true 把自己和目标去掉，只留下中间的路径</param>
+    /// <returns></returns>
+    public List<Node> GetShortestPath(bool trim)
     {
         Node startNode = new Node(start.Item1, start.Item2, null, target);
         closeList.Add(startNode);
@@ -63,7 +68,11 @@ public class AStarPathUtil
             if (target.Item1 == item.x && target.Item2 == item.y)
             {
                 List<Node> path = new List<Node>();
-                path.Add(startNode);
+                if (!trim)
+                {
+                    path.Add(startNode);
+                    path.Add(item);
+                }
                 return path;
             }
         }
@@ -89,15 +98,18 @@ public class AStarPathUtil
                     Stack<Node> path = new Stack<Node>();
                     List<Node> pathOrderByStartToEnd = new List<Node>();
                     Node node = item;
+                    path.Push(node);
                     while (node.preNode != null)
                     {
                         node = node.preNode;
                         path.Push(node);
                     }
+                    if (trim) path.Pop(); //把自己去掉
                     while (path.Count > 0)
                     {
                         pathOrderByStartToEnd.Add(path.Pop());
                     }
+                    if (trim) pathOrderByStartToEnd.RemoveAt(pathOrderByStartToEnd.Count-1); //把目标去掉
                     return pathOrderByStartToEnd;
                 }
             }
@@ -106,7 +118,7 @@ public class AStarPathUtil
         }
 
         //不存在路径
-        return new List<Node>();
+        return null;
 
     }
 

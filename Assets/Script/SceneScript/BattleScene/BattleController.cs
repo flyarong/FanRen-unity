@@ -26,7 +26,7 @@ public class BattleController : BaseMono
     /// <summary>
     /// ≤‚ ‘A*À„∑®ø™πÿ
     /// </summary>
-    private bool testAstar = true;
+    private bool testAstar = false;
 
     void Start()
     {
@@ -869,12 +869,12 @@ public class BattleController : BaseMono
                 if (br.teamNum == TeamNum.TEAM_TWO)
                 {
                     aStarPathUtil.Reset(this.width, this.height, (selectRoleCS.battleOriginPosX, selectRoleCS.battleOriginPosZ), (br.battleOriginPosX, br.battleOriginPosZ), obstacles);
-                    List<AStarPathUtil.Node> path = aStarPathUtil.GetShortestPath();
+                    List<AStarPathUtil.Node> path = aStarPathUtil.GetShortestPath(true);
                     GameObject showPathBallPrefab = Resources.Load<GameObject>("Prefab/SphereShowPath");
                     foreach (AStarPathUtil.Node n in path)
                     {
                         GameObject pgo = Instantiate(showPathBallPrefab);
-                        pgo.transform.position = new Vector3(n.x + 0.5f, 2, n.y + 0.5f);
+                        pgo.transform.position = new Vector3(n.x + 0.5f, 0.5f, n.y + 0.5f);
                         pathGO.Add(pgo);
                     }
                 }
