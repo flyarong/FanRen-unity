@@ -19,13 +19,16 @@ public class ActionStrategyGeneral : ActionStrategy
             if (item.tag.Equals("Player"))
             {
                 hanLiGO = item;
+                continue; //目标不是障碍物
             }
+            if (item == activingRoleGO) continue; //自己不是障碍物
             BaseRole itemRole = item.GetComponent<BaseRole>();
-            if (itemRole.teamNum == activingRole.teamNum) //队友是障碍物
-            {
-                if (item == activingRoleGO) continue;
-                obstacles.Add((itemRole.battleOriginPosX, itemRole.battleOriginPosZ));
-            }
+            //if (itemRole.teamNum == activingRole.teamNum) //todo 队友是障碍物，非目标敌人也是障碍物
+            //{
+            //    if (item == activingRoleGO) continue;
+            //    obstacles.Add((itemRole.battleOriginPosX, itemRole.battleOriginPosZ));
+            //}
+            obstacles.Add((itemRole.battleOriginPosX, itemRole.battleOriginPosZ));
         }
         BaseRole hanLiRole = hanLiGO.GetComponent<BaseRole>();
         //BaseRole activingRole = activingRoleGO.GetComponent<BaseRole>();
@@ -33,42 +36,41 @@ public class ActionStrategyGeneral : ActionStrategy
         aStarPathUtil.Reset(mapGrids.GetLength(0), mapGrids.GetLength(1), (activingRole.battleOriginPosX, activingRole.battleOriginPosZ), (hanLiRole.battleOriginPosX, hanLiRole.battleOriginPosZ), obstacles);
         List<AStarPathUtil.Node> nodes = aStarPathUtil.GetShortestPath(true);
         
-
-        //测试，直奔主角身边，用神通0攻击
-
-        //两者之间的格数 + 1
-        int targetDistance = Mathf.Abs(hanLiRole.battleOriginPosX - activingRole.battleOriginPosX) + Mathf.Abs(hanLiRole.battleOriginPosZ - activingRole.battleOriginPosZ);
-        //可以攻击的最远距离
-        int attackDistance = activingRole.speed + activingRole.shentongInBattle[0].unitDistance;
-        if (targetDistance > attackDistance) //目标距离超过(移动+攻击)距离，选择最大的可移动距离
+        if(nodes != null)
         {
-            foreach(AStarPathUtil.Node node in nodes)
+            //测试，直奔主角身边，用普通攻击，攻击距离为1
+
+            //两者之间的格数 + 1
+            int targetDistance = nodes.Count + 1;
+            //可以攻击的最远距离
+            int attackDistance = activingRole.speed + activingRole.shentongInBattle[0].unitDistance;
+            if (targetDistance > attackDistance) //目标距离超过(移动+攻击)距离，选择最大的可移动距离
             {
-                if((Mathf.Abs(node.x - activingRole.battleOriginPosX) + Mathf.Abs(node.y - activingRole.battleOriginPosZ)) == activingRole.speed)
+                AStarPathUtil.Node maxSpeedCanReachNode = nodes[activingRole.speed-1];
+                this.moveTargetGridItem = mapGrids[maxSpeedCanReachNode.x, maxSpeedCanReachNode.y];
+                this.isPassAfterMove = true;
+            }
+            else //目标距离在攻击范围内
+            {
+                if (nodes.Count > 0)
                 {
-                    this.moveTargetGridItem = mapGrids[node.x, node.y];
-                    break;
+                    AStarPathUtil.Node targetNode = nodes[nodes.Count - 1]; //韩立身边的格子，如果可以使用其它神通，那么应该是一个可选的范围
+                    this.moveTargetGridItem = mapGrids[targetNode.x, targetNode.y];
+                    this.isPassAfterMove = false;
+                }
+                else if (nodes.Count == 0)
+                {
+                    this.moveTargetGridItem = mapGrids[activingRole.battleOriginPosX, activingRole.battleOriginPosZ];
+                    this.isPassAfterMove = false;
                 }
             }
-            this.isPassAfterMove = true;
         }
-        else //目标距离在攻击范围内
+        else
         {
-            if(nodes.Count > 0)
-            {
-                AStarPathUtil.Node targetNode = nodes[nodes.Count - 1];
-                this.moveTargetGridItem = mapGrids[targetNode.x, targetNode.y];
-                this.isPassAfterMove = false;
-            }
-            else if(nodes.Count == 0)
-            {
-                this.moveTargetGridItem = mapGrids[activingRole.battleOriginPosX, activingRole.battleOriginPosZ];
-                this.isPassAfterMove = false;
-            }
-            else
-            {
-                Debug.LogError("AI一般策略：无路可走");
-            }
+            //todo AI一般策略：无路可走，待在原地，尝试其它攻击方式
+            Debug.LogWarning("AI一般策略：无路可走，待在原地，尝试其它攻击方式");
+            this.moveTargetGridItem = mapGrids[activingRole.battleOriginPosX, activingRole.battleOriginPosZ];
+            this.isPassAfterMove = true;
         }
         
         this.selectShentong = activingRole.shentongInBattle[0];

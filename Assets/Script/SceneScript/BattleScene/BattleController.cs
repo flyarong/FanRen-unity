@@ -26,7 +26,7 @@ public class BattleController : BaseMono
     /// <summary>
     /// 测试A*算法开关
     /// </summary>
-    private bool testAstar = false;
+    private const bool testAstar = false;
 
     void Start()
     {
@@ -164,7 +164,7 @@ public class BattleController : BaseMono
                 RaycastHit hitInfo;
                 if (!Physics.Raycast(ray, out hitInfo))
                 {
-                    Debug.LogWarning("射线获取预期GameObject异常");
+                    //Debug.LogWarning("射线获取预期GameObject异常");
                     return;
                 }
                 clickGridGameObj = hitInfo.collider.gameObject;
@@ -748,21 +748,15 @@ public class BattleController : BaseMono
             return;
         }
 
-        //string[] posIndex = selectedGO.name.Split(',');
-        int clickRoleOriginX = selectedRoleCS.battleOriginPosX;
-        int clickRoleOriginZ = selectedRoleCS.battleOriginPosZ;
-        //Debug.Log("click object name is " + gameObj.name);
-
-        //Renderer renderer = gameObj.GetComponent<Renderer>();
-        //Material material = renderer.material;                
-
         Renderer renderer;
         GameObject gridGO;
-        int disX;
-        int disY;
+        //int disX;
+        //int disY;
 
         int disToX;
         int disToY;
+
+        List<GameObject> allCanMoveGrids = GetAllCanMoveGrids(selectedRoleCS);
 
         for (int x = 0; x < width; x++)
         {
@@ -772,20 +766,35 @@ public class BattleController : BaseMono
                 gridGO = grids[x, z];
                 gridGO.SetActive(true);
                 renderer = gridGO.GetComponent<Renderer>();
-
                 
-                if(selectedRoleCS.selectedShentong != null 
-                    && selectedRoleCS.selectedShentong.effType == ShentongEffType.Gong_Ji)
+                if(selectedRoleCS.selectedShentong != null) //选择了神通
                 {
 
-                    disToX = Math.Abs(x - selectedRoleCS.battleToPosX);
-                    disToY = Math.Abs(z - selectedRoleCS.battleToPosZ);
-
-                    if (selectedRoleCS.selectedShentong.rangeType == ShentongRangeType.Line)
+                    if(selectedRoleCS.selectedShentong.effType == ShentongEffType.Gong_Ji) //攻击类 神通
                     {
-                        if (selectedRoleCS.battleToPosX == x || selectedRoleCS.battleToPosZ == z)
+                        disToX = Math.Abs(x - selectedRoleCS.battleToPosX);
+                        disToY = Math.Abs(z - selectedRoleCS.battleToPosZ);
+
+                        if (selectedRoleCS.selectedShentong.rangeType == ShentongRangeType.Line)
                         {
-                            if((disToX + disToY) <= selectedRoleCS.selectedShentong.unitDistance && (disToX + disToY) != 0)
+                            if (selectedRoleCS.battleToPosX == x || selectedRoleCS.battleToPosZ == z)
+                            {
+                                if ((disToX + disToY) <= selectedRoleCS.selectedShentong.unitDistance && (disToX + disToY) != 0)
+                                {
+                                    //变红                           
+                                    gridGO.tag = "canAck";
+                                    if (renderer.material.color.r != ackGridMat.color.r)
+                                    {
+                                        renderer.material = ackGridMat;
+                                    }
+                                    continue;
+                                }
+                            }
+                        }
+                        else if (selectedRoleCS.selectedShentong.rangeType == ShentongRangeType.Point || selectedRoleCS.selectedShentong.rangeType == ShentongRangeType.Plane)
+                        {
+
+                            if ((disToX + disToY) <= selectedRoleCS.selectedShentong.unitDistance && (disToX + disToY) != 0)
                             {
                                 //变红                           
                                 gridGO.tag = "canAck";
@@ -794,48 +803,133 @@ public class BattleController : BaseMono
                                     renderer.material = ackGridMat;
                                 }
                                 continue;
-                            }                            
-                        }
-                    }
-                    else if (selectedRoleCS.selectedShentong.rangeType == ShentongRangeType.Point || selectedRoleCS.selectedShentong.rangeType == ShentongRangeType.Plane)
-                    {
-                        
-                        if ((disToX + disToY) <= selectedRoleCS.selectedShentong.unitDistance && (disToX + disToY) != 0)
-                        {
-                            //变红                           
-                            gridGO.tag = "canAck";
-                            if (renderer.material.color.r != ackGridMat.color.r) 
-                            {
-                                renderer.material = ackGridMat;
                             }
-                            continue;
                         }
-                    }  
+
+                    }else if (selectedRoleCS.selectedShentong.effType == ShentongEffType.Fang_Yu) //防御类神通
+                    {
+                        Debug.LogError("防御类神通");
+                    }else if (selectedRoleCS.selectedShentong.effType == ShentongEffType.Bian_Shen) //变身神通
+                    {
+                        Debug.LogError("变身神通");
+                    }
+
                     
                 }
 
+                //else //还没选择神通，那就是待移动状态或者待选择神通(初始状态)
+                //{
 
-                disX = Math.Abs(x - clickRoleOriginX);
-                disY = Math.Abs(z - clickRoleOriginZ);
+                //}
 
-                if ((disX + disY) <= selectedRoleCS.GetMoveDistanceInBattle()) //404EFF蓝139,150,219,107,    A4D7A3绿164,214,163,107 
+                if (allCanMoveGrids.Contains(gridGO))
                 {
-                    //变绿
-                    //Debug.Log("可以移动: " + x + "," + z);
                     gridGO.tag = "canMove";
                     if (renderer.material.color.r != roleCanMoveGridMat.color.r) renderer.material = roleCanMoveGridMat;
-                }
-                else
-                {
-                    //变蓝
-                    //grids[x, z].GetComponent<Renderer>().material = gridMat;
-                    gridGO.tag = "Untagged";
-                    if (renderer.material.color.r != gridMat.color.r) renderer.material = gridMat;
+                    continue;
                 }
 
+                gridGO.tag = "Untagged";
+                if (renderer.material.color.r != gridMat.color.r) renderer.material = gridMat;
+
+                //disX = Math.Abs(x - clickRoleOriginX);
+                //disY = Math.Abs(z - clickRoleOriginZ);
+
+                //if ((disX + disY) <= selectedRoleCS.GetMoveDistanceInBattle()) //404EFF蓝139,150,219,107,    A4D7A3绿164,214,163,107 
+                //{
+                //    //变绿
+                //    //todo 这种写法是无视障碍的，需要装备了风雷翅才可以
+                //    gridGO.tag = "canMove";
+                //    if (renderer.material.color.r != roleCanMoveGridMat.color.r) renderer.material = roleCanMoveGridMat;
+                //}
+                //else
+                //{
+                //    //变蓝
+                //    gridGO.tag = "Untagged";
+                //    if (renderer.material.color.r != gridMat.color.r) renderer.material = gridMat;
+                //}
 
             }
+        } //end for()
+
+        
+        
+    }
+
+    private List<GameObject> GetAllCanMoveGrids(BaseRole selectedRoleCS)
+    {
+        List<GameObject> zhangAiWuGridItems = new List<GameObject>();
+        foreach (GameObject roleGO in this.allRole) //所有角色都是障碍物
+        {
+            BaseRole role = roleGO.GetComponent<BaseRole>();
+            zhangAiWuGridItems.Add(this.grids[role.battleOriginPosX, role.battleOriginPosZ]);
         }
+
+        List<GameObject> allCanMoveGrids = new List<GameObject>();
+
+        List<GameObject> newNeighbourGrids = new List<GameObject>();
+        newNeighbourGrids.Add(this.grids[selectedRoleCS.battleOriginPosX, selectedRoleCS.battleOriginPosZ]);
+
+        int[] counter = new int[1];
+        counter[0] = 0;
+
+        //第一次扩散，一共需要扩散selectedRoleCS.speed次
+
+        HandleCanMoveGrids(allCanMoveGrids, zhangAiWuGridItems, newNeighbourGrids, counter, selectedRoleCS.speed);
+
+        return allCanMoveGrids;
+
+        //foreach (GameObject canMoveGridItem in allCanMoveGrids)
+        //{
+        //    canMoveGridItem.tag = "canMove";
+        //    Renderer renderer = canMoveGridItem.GetComponent<Renderer>();
+        //    if (renderer.material.color.r != roleCanMoveGridMat.color.r) renderer.material = roleCanMoveGridMat;
+        //}
+    }
+
+    private void HandleCanMoveGrids(List<GameObject> allCanMoveGrids, List<GameObject> zhangAiWuGridItems, List<GameObject> newNeighbourGrids, int[] counter, int maxLoopCount)
+    {
+        List<GameObject> _newNeighbourGrids = new List<GameObject>();
+        foreach (GameObject originGrid in newNeighbourGrids)
+        {
+            string[] position = originGrid.name.Split(",");
+            //正确写法应该是从原点扩散出去，才能让障碍物生效
+            int originX = int.Parse(position[0]);
+            int originZ = int.Parse(position[1]);
+
+            //不越界、不重复、非障碍物
+            GameObject neighbourGridItem;
+            if (originX - 1 >= 0)
+            {
+                neighbourGridItem = this.grids[originX - 1, originZ];
+                if (!allCanMoveGrids.Contains(neighbourGridItem) && !zhangAiWuGridItems.Contains(neighbourGridItem)) _newNeighbourGrids.Add(neighbourGridItem);
+            }
+
+            if (originX + 1 < this.width)
+            {
+                neighbourGridItem = this.grids[originX + 1, originZ];
+                if (!allCanMoveGrids.Contains(neighbourGridItem) && !zhangAiWuGridItems.Contains(neighbourGridItem)) _newNeighbourGrids.Add(neighbourGridItem);
+            }
+
+            if (originZ - 1 >= 0)
+            {
+                neighbourGridItem = this.grids[originX, originZ - 1];
+                if (!allCanMoveGrids.Contains(neighbourGridItem) && !zhangAiWuGridItems.Contains(neighbourGridItem)) _newNeighbourGrids.Add(neighbourGridItem);
+            }
+
+            if (originZ + 1 < this.height)
+            {
+                neighbourGridItem = this.grids[originX, originZ + 1];
+                if (!allCanMoveGrids.Contains(neighbourGridItem) && !zhangAiWuGridItems.Contains(neighbourGridItem)) _newNeighbourGrids.Add(neighbourGridItem);
+            }
+        }
+        allCanMoveGrids.AddRange(_newNeighbourGrids);
+        counter[0] += 1;
+        if (counter[0] >= maxLoopCount)
+        {
+            return;
+        }
+        HandleCanMoveGrids(allCanMoveGrids, zhangAiWuGridItems, _newNeighbourGrids, counter, maxLoopCount);
     }
 
     private void OnDestroy()
@@ -843,12 +937,6 @@ public class BattleController : BaseMono
         //MyAudioManager.GetInstance().StopBGM();
         Resources.UnloadUnusedAssets();
     }
-
-
-
-
-
-
 
     //test A*
     List<GameObject> pathGO = new List<GameObject>();
