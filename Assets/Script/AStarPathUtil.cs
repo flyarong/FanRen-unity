@@ -49,6 +49,8 @@ public class AStarPathUtil
         this.start = start;
         this.target = target;
         this.obstacles = obstacles;
+        openList.Clear();
+        closeList.Clear();
     }
 
     /// <summary>

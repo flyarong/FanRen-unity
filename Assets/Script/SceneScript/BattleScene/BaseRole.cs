@@ -12,6 +12,30 @@ public class BaseRole : BaseMono
     public int battleToPosX;
     public int battleToPosZ;
 
+    public int BattleToPosXWillOriginPosXIfNone
+    {
+        set {
+            battleToPosX = value;
+        }
+        get {
+            if (battleToPosX == -1) return battleOriginPosX;
+            return battleToPosX;
+        }
+    }
+
+    public int BattleToPosZWillOriginPosZIfNone
+    {
+        set
+        {
+            battleToPosZ = value;
+        }
+        get
+        {
+            if (battleToPosZ == -1) return battleOriginPosZ;
+            return battleToPosZ;
+        }
+    }
+
     //角色唯一id,数据库id
     public int roleId;
 
@@ -109,8 +133,8 @@ public class BaseRole : BaseMono
     {
         this.battleOriginPosX = startX;
         this.battleOriginPosZ = startZ;
-        this.battleToPosX = this.battleOriginPosX;
-        this.battleToPosZ = this.battleOriginPosZ;
+        this.battleToPosX = -1;
+        this.battleToPosZ = -1;
         this.gameObject.transform.position = new Vector3(startX + 0.5f, 0, startZ + 0.5f);
     }
 

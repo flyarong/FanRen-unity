@@ -207,7 +207,7 @@ public class BattleUIControl : BaseMono
         }
         else
         {
-            battleController.OnClickPass();
+            battleController.OnClickPassAllowInvokeOutsideOnly();
         }
 
         HideAllShentongButton();

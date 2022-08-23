@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -47,7 +48,7 @@ public class BattleController : BaseMono
             for (int z = 0; z < height; z++)
             {
                 GameObject cube = Instantiate(gridCubePrefab);
-                cube.transform.position = new Vector3(x + 0.5f, -0.4f, z + 0.5f);
+                cube.transform.position = new Vector3(x + 0.5f, -0.47f, z + 0.5f);
                 cube.name = x + "," + z;
                 cube.SetActive(false);
                 grids[x, z] = cube;
@@ -70,28 +71,41 @@ public class BattleController : BaseMono
     /// <summary>
     /// 点击了待机按钮回调,此方法只允许外部调用，不允许内部调用
     /// </summary>
-    public void OnClickPass()
+    /// /// <summary>
+    /// 点击了待机按钮回调,此方法只允许外部调用，不允许内部调用
+    /// </summary>
+    /// /// <summary>
+    /// 点击了待机按钮回调,此方法只允许外部调用，不允许内部调用
+    /// </summary>
+    /// /// <summary>
+    /// 点击了待机按钮回调,此方法只允许外部调用，不允许内部调用
+    /// </summary>
+    /// /// <summary>
+    /// 点击了待机按钮回调,此方法只允许外部调用，不允许内部调用
+    /// </summary>
+    /// /// <summary>
+    /// 点击了待机按钮回调,此方法只允许外部调用，不允许内部调用
+    /// </summary>
+    public void OnClickPassAllowInvokeOutsideOnly()
     {
-        //if (isPlayingAnim) 
-        //{
-        //    Debug.Log("动画正在播放，不可以待机");
-        //    return;
-        //}
-        //else
-        //{
-        //    Debug.Log("?????????");
-        //}
-            
         ResetMouseAckRange();
 
         BaseRole selectedRoleCS = activingRoleGO.GetComponent<BaseRole>();
         selectedRoleCS.roleInBattleStatus = RoleInBattleStatus.Waiting;
         selectedRoleCS.DoCancelShentong();
         
-        if (selectedRoleCS.battleToPosX != selectedRoleCS.battleOriginPosX) selectedRoleCS.battleOriginPosX = selectedRoleCS.battleToPosX;
-        if (selectedRoleCS.battleToPosZ != selectedRoleCS.battleOriginPosZ) selectedRoleCS.battleOriginPosZ = selectedRoleCS.battleToPosZ;
+        if(selectedRoleCS.battleToPosX >= 0)
+        {
+            selectedRoleCS.battleOriginPosX = selectedRoleCS.battleToPosX;
+        }
+        selectedRoleCS.battleToPosX = -1;
 
-        //GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().OnClickPassButton();
+        if (selectedRoleCS.battleToPosZ >= 0)
+        {
+            selectedRoleCS.battleOriginPosZ = selectedRoleCS.battleToPosZ;
+        }
+        selectedRoleCS.battleToPosZ = -1;
+
         activingRoleGO = null;
 
         for(int i=0; i<width; i++)
@@ -113,8 +127,8 @@ public class BattleController : BaseMono
         BaseRole selectedRoleCS = activingRoleGO.GetComponent<BaseRole>();
         selectedRoleCS.DoCancelShentong();
         
-        selectedRoleCS.battleToPosX = selectedRoleCS.battleOriginPosX;
-        selectedRoleCS.battleToPosZ = selectedRoleCS.battleOriginPosZ;
+        selectedRoleCS.battleToPosX = -1;
+        selectedRoleCS.battleToPosZ = -1;
         activingRoleGO.transform.position = new Vector3(selectedRoleCS.battleOriginPosX+0.5f, 0, selectedRoleCS.battleOriginPosZ+0.5f);
 
         ChangeGridOnClickRoleOrShentong();
@@ -218,7 +232,7 @@ public class BattleController : BaseMono
                                 }
                                 else
                                 {
-                                    if (roleCS.battleToPosX == x && roleCS.battleToPosZ == i)
+                                    if (roleCS.BattleToPosXWillOriginPosXIfNone == x && roleCS.BattleToPosZWillOriginPosZIfNone == i)
                                     {
                                         needChangeColorGameObjects.Add(this.grids[x, i]); //加入角色所站的grid，是为了给后面的循环做标记                                                
                                     }
@@ -236,7 +250,7 @@ public class BattleController : BaseMono
                                     }
                                     else
                                     {
-                                        if (roleCS.battleToPosX == i && roleCS.battleToPosZ == z)
+                                        if (roleCS.BattleToPosXWillOriginPosXIfNone == i && roleCS.BattleToPosZWillOriginPosZIfNone == z)
                                         {
                                             needChangeColorGameObjects.Add(this.grids[i, z]); //加入角色所站的grid，是为了给后面的循环做标记                                                    
                                         }
@@ -554,7 +568,7 @@ public class BattleController : BaseMono
                 if (targetGridItem == this.grids[selectRoleCS.battleOriginPosX, selectRoleCS.battleOriginPosZ]) //目标就是原地
                 {
                     //直接攻击
-                    ActionAfterMoveByAI();
+                    ActionAfterAIMove();
                 }
                 else
                 {
@@ -584,10 +598,10 @@ public class BattleController : BaseMono
         isPlayingAnim = false;
         activingRoleGO.GetComponent<Animator>().SetBool("isRun", false);
 
-        ActionAfterMoveByAI();
+        ActionAfterAIMove();
     }
 
-    private void ActionAfterMoveByAI()
+    private void ActionAfterAIMove()
     {
         BaseRole activingRole = activingRoleGO.GetComponent<BaseRole>();
         if (activingRole.teamNum == TeamNum.TEAM_TWO && activingRole.GetActionStrategy() != null)
@@ -606,43 +620,99 @@ public class BattleController : BaseMono
         }
     }
 
-    private void DoMove(GameObject clickGameObj)
+    private List<(int, int)> GetAllBattleObstacles()
     {
-        if (HasRoleOnTheGrid(clickGameObj))
+        List<(int, int)> battleObstacles = new List<(int, int)>();
+        foreach (GameObject roleGO in this.allRole)
+        {
+            if (roleGO == this.activingRoleGO) continue;
+            BaseRole role = roleGO.GetComponent<BaseRole>();
+            battleObstacles.Add((role.battleOriginPosX, role.battleOriginPosZ));
+        }
+        return battleObstacles;
+    }
+
+    private void DoMove(GameObject clickGridItem)
+    {
+        if (HasRoleOnTheGrid(clickGridItem))
         {
             return;
         }
 
+        BaseRole activingRole = this.activingRoleGO.GetComponent<BaseRole>();
+        AStarPathUtil aStarPathUtil = new AStarPathUtil();
+        string[] clickPosition = clickGridItem.name.Split(",");
+        List<(int, int)> battleObstacles = GetAllBattleObstacles();
+        aStarPathUtil.Reset(this.width, this.height, (activingRole.battleOriginPosX, activingRole.battleOriginPosZ), (int.Parse(clickPosition[0]), int.Parse(clickPosition[1])), battleObstacles);
+        List<AStarPathUtil.Node> aStartPaths = aStarPathUtil.GetShortestPath(false);
+
         List<Vector3> path = new List<Vector3>();
-        path.Add(new Vector3(activingRoleGO.transform.position.x, activingRoleGO.transform.position.y + 5, activingRoleGO.transform.position.z));
-        path.Add(new Vector3(clickGameObj.transform.position.x, 3f, clickGameObj.transform.position.z));
-        path.Add(new Vector3(clickGameObj.transform.position.x, 0f, clickGameObj.transform.position.z));
 
-        activingRoleGO.transform.LookAt(path[path.Count - 1]);
+        if (activingRole.battleToPosX == -1 && activingRole.battleToPosZ == -1) //说明回合内首次移动
+        {
+            Debug.Log("回合内首次移动");
+            for (int i = 1; i < aStartPaths.Count; i++)
+            {
+                AStarPathUtil.Node node = aStartPaths[i];
+                path.Add(new Vector3(node.x + 0.5f, this.activingRoleGO.transform.position.y, node.y + 0.5f));
+            }
+        }
+        else
+        {
+            Debug.LogWarning("回合内多次移动");
+            int startX = activingRole.battleToPosX;
+            int startZ = activingRole.battleToPosZ;
+            Debug.LogWarning("回合内多次移动 battleOriginPosX " + activingRole.battleOriginPosX + ", battleOriginPosZ " + activingRole.battleOriginPosZ);
+            Debug.LogWarning("回合内多次移动 battleToPosX " + startX + ", battleToPosZ " + startZ);
+            battleObstacles = GetAllBattleObstacles();
+            Debug.LogWarning("回合内多次移动 障碍物数量 ：" + battleObstacles.Count);
+            aStarPathUtil.Reset(this.width, this.height, (startX, startZ), (int.Parse(clickPosition[0]), int.Parse(clickPosition[1])), battleObstacles);
+            aStartPaths = aStarPathUtil.GetShortestPath(false);
+            for (int i = 1; i < aStartPaths.Count; i++)
+            {
+                AStarPathUtil.Node node = aStartPaths[i];
+                path.Add(new Vector3(node.x + 0.5f, this.activingRoleGO.transform.position.y, node.y + 0.5f));
+            }
 
-        Hashtable args = new Hashtable();
-        //lookahead
-        //args.Add("lookahead", 0.9f);
-        args.Add("path", path.ToArray());
-        args.Add("looptype", iTween.LoopType.none);
-        args.Add("time", 1f);
-        //args.Add();
-        //args.Add();
-        args.Add("oncomplete", "OnComplete");
-        args.Add("oncompletetarget", this.gameObject);
-        //args.Add("speed", 7);
+            //测试代码
+            //GameObject showPathBallPrefab = Resources.Load<GameObject>("Prefab/SphereShowPath");
+            //foreach(GameObject oldGO in pathGO)
+            //{
+            //    Destroy(oldGO);
+            //}
+            //pathGO.Clear();
+            //foreach (AStarPathUtil.Node n in aStartPaths)
+            //{
+            //    GameObject pgo = Instantiate(showPathBallPrefab);
+            //    pgo.transform.position = new Vector3(n.x + 0.5f, 0.5f, n.y + 0.5f);
+            //    pathGO.Add(pgo);
+            //}
+        }
+
+
+
+        //Hashtable args = new Hashtable();
+        //args.Add("path", path.ToArray());
+        //args.Add("looptype", iTween.LoopType.none);
+        //args.Add("speed", 5f);
         //args.Add("orienttopath", true);
-        //args.Add("position", );
-        isPlayingAnim = true;
-        Debug.Log("移动动画开始");
+        //args.Add("easeType", iTween.EaseType.spring);
+        //args.Add("oncomplete", "OnComplete");
+        //args.Add("oncompletetarget", this.gameObject);
+        //isPlayingAnim = true;
+        //Debug.Log("移动动画开始");
+        //iTween.MoveTo(activingRoleGO, args);
 
         activingRoleGO.GetComponent<Animator>().SetBool("isRun", true);
-        iTween.MoveTo(activingRoleGO, args);
 
-        string[] indexs = clickGameObj.name.Split(',');
-        BaseRole role = activingRoleGO.GetComponent<BaseRole>();
-        role.battleToPosX = int.Parse(indexs[0]);
-        role.battleToPosZ = int.Parse(indexs[1]);
+        Tween t = activingRoleGO.transform.DOPath(path.ToArray(), 0.1f * path.Count, PathType.Linear, PathMode.Full3D)
+            .SetOptions(false)
+            .SetLookAt(0.001f)
+            .SetEase(Ease.Linear)
+            .OnComplete(OnComplete);
+
+        activingRole.battleToPosX = int.Parse(clickPosition[0]);
+        activingRole.battleToPosZ = int.Parse(clickPosition[1]);
     }
 
     private void DoAttack(GameObject clickGameObj)
@@ -772,12 +842,12 @@ public class BattleController : BaseMono
 
                     if(selectedRoleCS.selectedShentong.effType == ShentongEffType.Gong_Ji) //攻击类 神通
                     {
-                        disToX = Math.Abs(x - selectedRoleCS.battleToPosX);
-                        disToY = Math.Abs(z - selectedRoleCS.battleToPosZ);
+                        disToX = Math.Abs(x - selectedRoleCS.BattleToPosXWillOriginPosXIfNone);
+                        disToY = Math.Abs(z - selectedRoleCS.BattleToPosZWillOriginPosZIfNone);
 
                         if (selectedRoleCS.selectedShentong.rangeType == ShentongRangeType.Line)
                         {
-                            if (selectedRoleCS.battleToPosX == x || selectedRoleCS.battleToPosZ == z)
+                            if (selectedRoleCS.BattleToPosXWillOriginPosXIfNone == x || selectedRoleCS.BattleToPosZWillOriginPosZIfNone == z)
                             {
                                 if ((disToX + disToY) <= selectedRoleCS.selectedShentong.unitDistance && (disToX + disToY) != 0)
                                 {
@@ -817,11 +887,6 @@ public class BattleController : BaseMono
                     
                 }
 
-                //else //还没选择神通，那就是待移动状态或者待选择神通(初始状态)
-                //{
-
-                //}
-
                 if (allCanMoveGrids.Contains(gridGO))
                 {
                     gridGO.tag = "canMove";
@@ -835,10 +900,10 @@ public class BattleController : BaseMono
                 //disX = Math.Abs(x - clickRoleOriginX);
                 //disY = Math.Abs(z - clickRoleOriginZ);
 
+                //todo 这种写法是无视障碍的，需要装备了风雷翅才可以，先保留注释在这里
                 //if ((disX + disY) <= selectedRoleCS.GetMoveDistanceInBattle()) //404EFF蓝139,150,219,107,    A4D7A3绿164,214,163,107 
                 //{
                 //    //变绿
-                //    //todo 这种写法是无视障碍的，需要装备了风雷翅才可以
                 //    gridGO.tag = "canMove";
                 //    if (renderer.material.color.r != roleCanMoveGridMat.color.r) renderer.material = roleCanMoveGridMat;
                 //}
@@ -856,6 +921,12 @@ public class BattleController : BaseMono
         
     }
 
+    /// <summary>
+    /// 获取平地所有障碍
+    /// (平地行走计算移动路径需要考虑平地障碍，如果装备了风雷翅之类可以忽略障碍对路径的影响，可以直达)
+    /// </summary>
+    /// <param name="selectedRoleCS"></param>
+    /// <returns></returns>
     private List<GameObject> GetAllCanMoveGrids(BaseRole selectedRoleCS)
     {
         List<GameObject> zhangAiWuGridItems = new List<GameObject>();
@@ -957,7 +1028,7 @@ public class BattleController : BaseMono
                 if (br.teamNum == TeamNum.TEAM_TWO)
                 {
                     aStarPathUtil.Reset(this.width, this.height, (selectRoleCS.battleOriginPosX, selectRoleCS.battleOriginPosZ), (br.battleOriginPosX, br.battleOriginPosZ), obstacles);
-                    List<AStarPathUtil.Node> path = aStarPathUtil.GetShortestPath(true);
+                    List<AStarPathUtil.Node> path = aStarPathUtil.GetShortestPath(false);
                     GameObject showPathBallPrefab = Resources.Load<GameObject>("Prefab/SphereShowPath");
                     foreach (AStarPathUtil.Node n in path)
                     {
