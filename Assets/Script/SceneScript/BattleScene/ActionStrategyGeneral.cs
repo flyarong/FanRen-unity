@@ -16,6 +16,7 @@ public class ActionStrategyGeneral : ActionStrategy
         BaseRole activingRole = activingRoleGO.GetComponent<BaseRole>();
         foreach (GameObject item in allRole)
         {
+            if (item == null || !item.activeInHierarchy || !item.activeSelf) continue;
             if (item.tag.Equals("Player"))
             {
                 hanLiGO = item;

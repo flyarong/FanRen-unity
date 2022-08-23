@@ -625,6 +625,7 @@ public class BattleController : BaseMono
         List<(int, int)> battleObstacles = new List<(int, int)>();
         foreach (GameObject roleGO in this.allRole)
         {
+            if (roleGO == null || !roleGO.activeInHierarchy || !roleGO.activeSelf) continue;
             if (roleGO == this.activingRoleGO) continue;
             BaseRole role = roleGO.GetComponent<BaseRole>();
             battleObstacles.Add((role.battleOriginPosX, role.battleOriginPosZ));
@@ -937,6 +938,7 @@ public class BattleController : BaseMono
         List<GameObject> zhangAiWuGridItems = new List<GameObject>();
         foreach (GameObject roleGO in this.allRole) //所有角色都是障碍物
         {
+            if (roleGO == null || !roleGO.activeInHierarchy || !roleGO.activeSelf) continue;
             BaseRole role = roleGO.GetComponent<BaseRole>();
             zhangAiWuGridItems.Add(this.grids[role.battleOriginPosX, role.battleOriginPosZ]);
         }
@@ -1028,6 +1030,7 @@ public class BattleController : BaseMono
         {
             foreach (GameObject item in allRole)
             {
+                if (item == null || !item.activeInHierarchy || !item.activeSelf) continue;
                 AStarPathUtil aStarPathUtil = new AStarPathUtil();
                 BaseRole br = item.GetComponent<BaseRole>();
                 if (br.teamNum == TeamNum.TEAM_TWO)
