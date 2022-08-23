@@ -662,11 +662,14 @@ public class BattleController : BaseMono
             Debug.LogWarning("回合内多次移动");
             int startX = activingRole.battleToPosX;
             int startZ = activingRole.battleToPosZ;
-            Debug.LogWarning("回合内多次移动 battleOriginPosX " + activingRole.battleOriginPosX + ", battleOriginPosZ " + activingRole.battleOriginPosZ);
-            Debug.LogWarning("回合内多次移动 battleToPosX " + startX + ", battleToPosZ " + startZ);
             battleObstacles = GetAllBattleObstacles();
-            Debug.LogWarning("回合内多次移动 障碍物数量 ：" + battleObstacles.Count);
-            aStarPathUtil.Reset(this.width, this.height, (startX, startZ), (int.Parse(clickPosition[0]), int.Parse(clickPosition[1])), battleObstacles);
+            List<(int, int)> allowPosition = new List<(int, int)>();
+            foreach(GameObject item in this.allCanMoveGrids)
+            {
+                string[] positionArray = item.name.Split(",");
+                allowPosition.Add((int.Parse(positionArray[0]), int.Parse(positionArray[1])));
+            }
+            aStarPathUtil.Reset(this.width, this.height, (startX, startZ), (int.Parse(clickPosition[0]), int.Parse(clickPosition[1])), battleObstacles, allowPosition);
             aStartPaths = aStarPathUtil.GetShortestPath(false);
             for (int i = 1; i < aStartPaths.Count; i++)
             {
@@ -808,6 +811,8 @@ public class BattleController : BaseMono
 
     //public Shentong selectedShentong;
 
+    private List<GameObject> allCanMoveGrids;
+
     public void ChangeGridOnClickRoleOrShentong()
     {
 
@@ -826,7 +831,7 @@ public class BattleController : BaseMono
         int disToX;
         int disToY;
 
-        List<GameObject> allCanMoveGrids = GetAllCanMoveGrids(selectedRoleCS);
+        allCanMoveGrids = GetAllCanMoveGrids(selectedRoleCS);
 
         for (int x = 0; x < width; x++)
         {
@@ -922,7 +927,7 @@ public class BattleController : BaseMono
     }
 
     /// <summary>
-    /// 获取平地所有障碍
+    /// 获取平地所有可以到达的格子
     /// (平地行走计算移动路径需要考虑平地障碍，如果装备了风雷翅之类可以忽略障碍对路径的影响，可以直达)
     /// </summary>
     /// <param name="selectedRoleCS"></param>

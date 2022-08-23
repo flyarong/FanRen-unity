@@ -29,6 +29,7 @@ public class AStarPathUtil
     public (int, int) start;
     public (int, int) target;
     public List<(int, int)> obstacles;
+    public List<(int, int)> constraintPositions;
 
     private List<Node> openList = new List<Node>();
     private List<Node> closeList = new List<Node>();
@@ -37,18 +38,14 @@ public class AStarPathUtil
     {
     }
 
-    public AStarPathUtil(int mapWidth, int mapHeight, (int, int) start, (int, int) target, List<(int, int)> obstacles)
-    {
-        Reset(mapWidth, mapHeight, start, target, obstacles);
-    }
-
-    public void Reset(int mapWidth, int mapHeight, (int, int) start, (int, int) target, List<(int, int)> obstacles)
+    public void Reset(int mapWidth, int mapHeight, (int, int) start, (int, int) target, List<(int, int)> obstacles = null, List<(int, int)> constraintPositions = null)
     {
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
         this.start = start;
         this.target = target;
         this.obstacles = obstacles;
+        this.constraintPositions = constraintPositions;
         openList.Clear();
         closeList.Clear();
     }
@@ -196,6 +193,21 @@ public class AStarPathUtil
             {
                 return false;
             }
+        }
+
+        
+        if (constraintPositions != null && constraintPositions.Count > 0)
+        {
+            bool isInAllow = false;
+            foreach ((int, int) allowItem in constraintPositions)
+            {
+                if (allowItem.Item1 == x && allowItem.Item2 == y)
+                {
+                    isInAllow = true;
+                    break;
+                }
+            }
+            if (!isInAllow) return false;
         }
 
         return true;
