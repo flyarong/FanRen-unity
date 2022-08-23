@@ -48,7 +48,7 @@ public class BattleController : BaseMono
             for (int z = 0; z < height; z++)
             {
                 GameObject cube = Instantiate(gridCubePrefab);
-                cube.transform.position = new Vector3(x + 0.5f, -0.47f, z + 0.5f);
+                cube.transform.position = new Vector3(x + 0.5f, 0.002f, z + 0.5f);
                 cube.name = x + "," + z;
                 cube.SetActive(false);
                 grids[x, z] = cube;
