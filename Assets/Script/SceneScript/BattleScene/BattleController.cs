@@ -441,7 +441,7 @@ public class BattleController : BaseMono
     //还没死的敌人数量
     int enemyCount;
 
-    //神通动画结束回调
+    //神通动画结束回调，结算
     public void OnShentongParticleSystemStopped()
     {
         enemyCount = HandleAfterAck();
@@ -634,6 +634,10 @@ public class BattleController : BaseMono
         return battleObstacles;
     }
 
+    /// <summary>
+    /// 移动，移动停止后会回调OnComplete
+    /// </summary>
+    /// <param name="clickGridItem"></param>
     private void DoMove(GameObject clickGridItem)
     {
         if (HasRoleOnTheGrid(clickGridItem))
@@ -721,6 +725,10 @@ public class BattleController : BaseMono
         activingRole.battleToPosZ = int.Parse(clickPosition[1]);
     }
 
+    /// <summary>
+    /// 攻击、播放人物攻击动画
+    /// </summary>
+    /// <param name="clickGameObj"></param>
     private void DoAttack(GameObject clickGameObj)
     {
         Vector3 targetP = clickGameObj.transform.position;
@@ -735,13 +743,13 @@ public class BattleController : BaseMono
         //todo 需要重构，去掉if else改成插拔
         if (shentong.rangeType == ShentongRangeType.Point)
         {
-            activingRoleGO.GetComponent<BaseRole>().StartRoleHitAnim(delegate () {
+            activingRoleGO.GetComponent<BaseRole>().StartRoleHitAnim(delegate () { //攻击动画播放完毕,开始播放神通动画 
                 MyAudioManager.GetInstance().PlaySE(shentong.soundEffPath);
 
                 GameObject shentongEffPrefab = Resources.Load<GameObject>(shentong.effPath);
                 ParticleSystem particleSystem = shentongEffPrefab.GetComponent<ParticleSystem>();
                 MainModule mainModule = particleSystem.main;
-                mainModule.stopAction = ParticleSystemStopAction.Callback;
+                mainModule.stopAction = ParticleSystemStopAction.Callback; //神通动画播放完毕回调 OnShentongParticleSystemStopped
 
                 GameObject stEffGO = Instantiate(shentongEffPrefab);
                 stEffGO.transform.position = new Vector3(clickGameObj.transform.position.x, 1, clickGameObj.transform.position.z);
