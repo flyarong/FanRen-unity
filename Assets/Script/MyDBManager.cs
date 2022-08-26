@@ -90,6 +90,7 @@ public class MyDBManager
             //public int roleId;
             string roleName = (string)sdr["roleName"];
             string roleAvatar = (string)sdr["roleAvatar"];
+            string battleModelPath = (string)sdr["battleModelPath"];
             int hp = (int)((Int64)sdr["hp"]);
             int maxHp = (int)((Int64)sdr["maxHp"]);
             int mp = (int)((Int64)sdr["mp"]);
@@ -111,6 +112,7 @@ public class MyDBManager
             roleInfo.speed = speed;
             roleInfo.gongJiLi = gongJiLi;
             roleInfo.fangYuLi = fangYuLi;
+            roleInfo.battleModelPath = battleModelPath;
 
             roleInfo.canGetItemId = canGetItemId;
             roleInfo.canGetItemPercent = canGetItemPercent;
@@ -576,6 +578,7 @@ public class RoleInfo
     public int gongJiLi;
     public int fangYuLi;
     public string roleAvatar;
+    public string battleModelPath;
 
     public string canGetItemId;
     public string canGetItemPercent;

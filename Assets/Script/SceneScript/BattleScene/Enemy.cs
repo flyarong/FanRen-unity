@@ -17,20 +17,19 @@ public class Enemy : BaseRole
     //    //slide.value = 100;
     //}
 
-    public void Init(int roleId, int index)
+    public void Init(RoleInfo enemyRoleInfo, int index)
     {
         //Shentong[] shentongs = new Shentong[12];
         //shentongs[0] = new Shentong("ÆÕÍ¨¹¥»÷", 2, 5, 10, "Ef/ZhaYanJianFa", "SoundEff/ZhaYanJianFa");
 
         //InitRoleData(100, 100, 50, 10, 5, shentongs, 11, 2, TeamNum.TEAM_TWO);
 
-        RoleInfo enemyRoleInfo = MyDBManager.GetInstance().GetRoleInfo(roleId);
-        List<Shentong> enemyRoleShentongs = MyDBManager.GetInstance().GetRoleShentong(roleId, 1, false);
+        List<Shentong> enemyRoleShentongs = MyDBManager.GetInstance().GetRoleShentong(enemyRoleInfo.roleId, 1, false);
 
         if (PlayerControl.IS_DEBUG && enemyRoleShentongs.Count == 0)
         {
-            MyDBManager.GetInstance().LearnShentong(roleId, 1, 1);
-            enemyRoleShentongs = MyDBManager.GetInstance().GetRoleShentong(roleId, 1, false);
+            MyDBManager.GetInstance().LearnShentong(enemyRoleInfo.roleId, 1, 1);
+            enemyRoleShentongs = MyDBManager.GetInstance().GetRoleShentong(enemyRoleInfo.roleId, 1, false);
         }
 
         Shentong[] tmp = new Shentong[12];

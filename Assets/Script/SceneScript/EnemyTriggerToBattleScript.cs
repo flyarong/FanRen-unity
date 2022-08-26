@@ -4,11 +4,12 @@ using UnityEngine.SceneManagement;
 public class EnemyTriggerToBattleScript : BaseMono, IColliderWithCC
 {
 
+    //数据库中角色id
     public int[] roleId;
-
+    //希望该角色在战场的数量
     public int[] countOfRoleId;
 
-    public string[] rolePrefabPath;
+    //public string[] rolePrefabPath;
 
     private void Start()
     {
@@ -23,7 +24,7 @@ public class EnemyTriggerToBattleScript : BaseMono, IColliderWithCC
 
             RootBattleInit.enemyRoleIds = roleId;
             RootBattleInit.countOfEnemyRole = countOfRoleId;
-            RootBattleInit.enemyRolePrefabPath = rolePrefabPath;
+            //RootBattleInit.enemyRolePrefabPath = rolePrefabPath;
             RootBattleInit.triggerToBattleGameObjUnionPreKey = this.uniquePrefenceKey;
 
             SaveUtil.SaveGameObjLastState(player);

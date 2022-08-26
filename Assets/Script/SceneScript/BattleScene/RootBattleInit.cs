@@ -10,7 +10,7 @@ public class RootBattleInit : BaseMono
 
     public static int[] countOfEnemyRole; //对应数量
 
-    public static string[] enemyRolePrefabPath; //人物预制体路径
+    //public static string[] enemyRolePrefabPath; //人物预制体路径
 
     public static string triggerToBattleGameObjUnionPreKey; //触发战斗的触发器标记，用来保存记录这个触发器以后不再显示了
 
@@ -18,7 +18,7 @@ public class RootBattleInit : BaseMono
     {
         enemyRoleIds = null;
         countOfEnemyRole = null;
-        enemyRolePrefabPath = null;
+        //enemyRolePrefabPath = null;
         triggerToBattleGameObjUnionPreKey = null;
 
         //可能还在播放成功或者失败音乐
@@ -32,7 +32,7 @@ public class RootBattleInit : BaseMono
 
         
 
-        if (enemyRoleIds == null) //todo for test
+        if (enemyRoleIds == null) //for test
         {
             roles[0].SetActive(true);
             roles[1].SetActive(true);
@@ -43,7 +43,8 @@ public class RootBattleInit : BaseMono
             hanLiCS.InitRoleBattelePos(2, 7); //todo
             
             Enemy enemyCS = roles[1].GetComponent<Enemy>();
-            enemyCS.Init(7, 1);
+            RoleInfo enemyRoleInfo = MyDBManager.GetInstance().GetRoleInfo(7);
+            enemyCS.Init(enemyRoleInfo, 1);
             enemyCS.InitRoleBattelePos(2, 22);
             enemyCS.SetActionStrategy(new ActionStrategyGeneral());
 
@@ -66,12 +67,13 @@ public class RootBattleInit : BaseMono
             MyDBManager.GetInstance().ConnDB();
             for (int i = 0; i < enemyRoleIds.Length; i++)
             {
+                RoleInfo enemyRoleInfo = MyDBManager.GetInstance().GetRoleInfo(enemyRoleIds[i]);
                 for (int j = 0; j < countOfEnemyRole[i]; j++)
                 {
-                    GameObject enemyRolePrefab = Resources.Load<GameObject>(enemyRolePrefabPath[i]);
+                    GameObject enemyRolePrefab = Resources.Load<GameObject>(enemyRoleInfo.battleModelPath);
                     GameObject enemyRoleGameObj = Instantiate(enemyRolePrefab);
                     Enemy enemyCS = enemyRoleGameObj.AddComponent<Enemy>();
-                    enemyCS.Init(7, j+1);
+                    enemyCS.Init(enemyRoleInfo, j+1);
                     enemyCS.InitRoleBattelePos(7 + j*2, 7 + j*2); //todo
                     enemyCS.SetActionStrategy(new ActionStrategyGeneral());
                     roleList.Add(enemyRoleGameObj);
