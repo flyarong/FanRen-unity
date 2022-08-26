@@ -564,22 +564,22 @@ public class BattleController : BaseMono
             if (selectRoleCS.teamNum == TeamNum.TEAM_TWO && selectRoleCS.GetActionStrategy() != null) //轮到电脑行动
             {
                 selectRoleCS.GetActionStrategy().GenerateStrategy(this.activingRoleGO, this.allRole, this.grids);
-                GameObject targetGridItem = selectRoleCS.GetActionStrategy().GetMoveTargetGridItem();
-                if (targetGridItem == this.grids[selectRoleCS.battleOriginPosX, selectRoleCS.battleOriginPosZ]) //目标就是原地
+                if (selectRoleCS.GetActionStrategy().IsPass()) //被冰冻等，不可行动
+                {
+                    GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().OnClickPassButton();
+                    return;
+                }
+                GameObject targetMoveGridItem = selectRoleCS.GetActionStrategy().GetMoveTargetGridItem();
+                if (targetMoveGridItem == this.grids[selectRoleCS.battleOriginPosX, selectRoleCS.battleOriginPosZ]) //移动目标就是原地
                 {
                     //直接攻击
                     ActionAfterAIMove();
                 }
                 else
                 {
-                    DoMove(targetGridItem);
+                    DoMove(targetMoveGridItem);
                 }
             }
-
-            //一般情况下优先攻击最近可攻击目标，如果有主角在内，优先攻击主角，
-            //优先选择伤害最高且主角在射程范围内的神通
-            //攻击范围内有机会抹杀目标的情况下，会更加优先，在前面的前提下，会尽可能同时攻击多个目标
-            //法修没有灵力会优先补给，体修则不需要
         }
     }
 
@@ -587,6 +587,7 @@ public class BattleController : BaseMono
     {
         this.activingRoleGO = activingGameObj;
 
+        //让镜头平滑移动到角色身上，镜头停止时候会回调OnChangeRoleCameraMove
         BattleCameraController rcc = Camera.main.GetComponent<BattleCameraController>();
         rcc.SetSelectedRole(activingRoleGO);
     }
@@ -639,6 +640,8 @@ public class BattleController : BaseMono
         {
             return;
         }
+
+        isPlayingAnim = true;
 
         BaseRole activingRole = this.activingRoleGO.GetComponent<BaseRole>();
         AStarPathUtil aStarPathUtil = new AStarPathUtil();
@@ -703,7 +706,6 @@ public class BattleController : BaseMono
         //args.Add("easeType", iTween.EaseType.spring);
         //args.Add("oncomplete", "OnComplete");
         //args.Add("oncompletetarget", this.gameObject);
-        //isPlayingAnim = true;
         //Debug.Log("移动动画开始");
         //iTween.MoveTo(activingRoleGO, args);
 

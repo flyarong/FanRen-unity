@@ -4,11 +4,23 @@ using UnityEngine;
 public class ActionStrategyGeneral : ActionStrategy
 {
 
+    //本回合走到哪一格
     protected GameObject moveTargetGridItem;
+    //选择什么神通
     protected Shentong selectShentong;
+    //攻击哪个格子
     protected GameObject attackMapGrid;
+    //移动后是否直接待机
     protected bool isPassAfterMove = false;
+    //本回合是否待机, 被冰冻等，不可行动
+    protected bool isPass = false;
 
+    /// <summary>
+    /// 继承本类，重写这个方法让NPC实现新的战斗策略，战场初始化的时候赋给角色即可
+    /// </summary>
+    /// <param name="activingRoleGO">角色的回合</param>
+    /// <param name="allRole">全部角色战场信息</param>
+    /// <param name="mapGrids">全部地图格子信息</param>
     public override void GenerateStrategy(GameObject activingRoleGO, List<GameObject> allRole, GameObject[,] mapGrids)
     {
         GameObject hanLiGO = null;
@@ -98,4 +110,25 @@ public class ActionStrategyGeneral : ActionStrategy
     {
         return this.isPassAfterMove;
     }
+
+    public override bool IsPass()
+    {
+        return this.isPass;
+    }
+}
+
+public class ActionStrategySmart : ActionStrategyGeneral
+{
+    //攻击一般原则，总输出最大
+    //主色血量少例如10%以下，可以一招干掉， 优先级最高，9999 (向主角移动，一路上有可以攻击的目标会顺手攻击，如果灵力不足，会优先补充灵力)
+    //敌人血量都健康的状态下，向主角移动
+    //一般情况下优先攻击最近可攻击目标，如果有主角在内，优先攻击主角，
+    //优先选择伤害最高且主角在射程范围内的神通
+    //攻击范围内有机会抹杀目标的情况下，会更加优先，在前面的前提下，会尽可能同时攻击多个目标
+    //法修没有灵力会优先补给，体修则不需要
+    public override void GenerateStrategy(GameObject activingRoleGO, List<GameObject> allRole, GameObject[,] mapGrids)
+    {
+
+    }
+
 }

@@ -276,4 +276,6 @@ public abstract class ActionStrategy
     public abstract GameObject GetAttackMapGridItem();
 
     public abstract bool IsPassAfterMove();
+
+    public abstract bool IsPass();
 }
