@@ -563,7 +563,7 @@ public class BattleController : BaseMono
 
             if (selectRoleCS.teamNum == TeamNum.TEAM_TWO && selectRoleCS.GetActionStrategy() != null) //轮到电脑行动
             {
-                selectRoleCS.GetActionStrategy().GenerateStrategy(this.activingRoleGO, this.allRole, this.grids);
+                selectRoleCS.GetActionStrategy().GenerateStrategy(this.activingRoleGO, this.allRole, this.grids, this.allCanMoveGrids);
                 if (selectRoleCS.GetActionStrategy().IsPass()) //被冰冻等，不可行动
                 {
                     GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().OnClickPassButton();
@@ -577,7 +577,7 @@ public class BattleController : BaseMono
                 }
                 else
                 {
-                    DoMove(targetMoveGridItem);
+                    this.DoMove(targetMoveGridItem);
                 }
             }
         }
@@ -824,15 +824,15 @@ public class BattleController : BaseMono
 
     private List<GameObject> allCanMoveGrids;
 
-    public void ChangeGridOnClickRoleOrShentong()
+    public List<GameObject> ChangeGridOnClickRoleOrShentong()
     {
 
         BaseRole selectedRoleCS = activingRoleGO.GetComponent<BaseRole>();
-        if(selectedRoleCS == null)
-        {
-            Debug.LogError("ChangeGridOnClickRole() baseRole is null");
-            return;
-        }
+        //if(selectedRoleCS == null)
+        //{
+        //    Debug.LogError("ChangeGridOnClickRole() baseRole is null");
+        //    return;
+        //}
 
         Renderer renderer;
         GameObject gridGO;
@@ -933,8 +933,8 @@ public class BattleController : BaseMono
             }
         } //end for()
 
-        
-        
+        return allCanMoveGrids;
+
     }
 
     /// <summary>
@@ -946,7 +946,7 @@ public class BattleController : BaseMono
     private List<GameObject> GetAllCanMoveGrids(BaseRole selectedRoleCS)
     {
         List<GameObject> zhangAiWuGridItems = new List<GameObject>();
-        foreach (GameObject roleGO in this.allRole) //所有角色都是障碍物
+        foreach (GameObject roleGO in this.allRole) //所有角色在可移动范围内都是障碍物
         {
             if (roleGO == null || !roleGO.activeInHierarchy || !roleGO.activeSelf) continue;
             BaseRole role = roleGO.GetComponent<BaseRole>();

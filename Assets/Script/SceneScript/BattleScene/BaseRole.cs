@@ -12,6 +12,9 @@ public class BaseRole : BaseMono
     public int battleToPosX;
     public int battleToPosZ;
 
+    //敌人或者友军身上携带的物品
+    public List<RoleItem> roleItems = new List<RoleItem>();
+
     public int BattleToPosXWillOriginPosXIfNone
     {
         set {
@@ -267,7 +270,7 @@ public abstract class ActionStrategy
     //protected Shentong selectShentong;
     //protected GameObject attackMapGrid;
 
-    public abstract void GenerateStrategy(GameObject activingRole, List<GameObject> allRole, GameObject[,] mapGrids);
+    public abstract void GenerateStrategy(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, List<GameObject> allCanMoveGridItems);
 
     public abstract GameObject GetMoveTargetGridItem();
 
