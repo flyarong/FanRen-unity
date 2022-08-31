@@ -15,6 +15,34 @@ public class BaseRole : BaseMono
     //敌人或者友军身上携带的物品
     public List<RoleItem> roleItems = new List<RoleItem>();
 
+    private RoleItem roleItemReadyForUse;
+
+    public void SetReadyToUseItem(RoleItem roleItem)
+    {
+        this.roleItemReadyForUse = roleItem;
+    }
+
+    public RoleItem GetReadyToUseItem(bool setNull)
+    {
+        if (setNull)
+        {
+            RoleItem tmp = this.roleItemReadyForUse;
+            this.roleItemReadyForUse = null;
+            return tmp;
+        }
+        else
+        {
+            return this.roleItemReadyForUse;
+        }
+    }
+
+    public (int, int) battleOriginPosition
+    {
+        get {
+            return (battleOriginPosX, battleOriginPosZ);
+        }
+    }
+
     public int BattleToPosXWillOriginPosXIfNone
     {
         set {
@@ -163,6 +191,14 @@ public class BaseRole : BaseMono
         //damageTextPrefab = Resources.Load<GameObject>("Prefab/TextDamage");
     }
 
+    public void UseRoleItem(RoleItem roleItem)
+    {
+        if(roleItem.itemType == ((int)FRItemType.DanYao)) //todo
+        {
+
+        }
+    }
+
     public void UpdateHP(int damage)
     {
         this.hp -= damage;
@@ -227,6 +263,87 @@ public class BaseRole : BaseMono
         }
     }
 
+    /// <summary>
+    /// 普通移动的算法，装备了风雷翅则使用曼哈顿距离
+    /// </summary>
+    /// <param name="mapGridItems"></param>
+    /// <param name="zhangAiWuGridItems"></param>
+    /// <returns></returns>
+    public List<GameObject> GetAllCanMoveGrids(GameObject[,] mapGridItems, List<GameObject> allRole)
+    {
+        List<GameObject> zhangAiWuGridItems = new List<GameObject>();
+        foreach (GameObject roleGO in allRole) //所有角色在可移动范围内都是障碍物
+        {
+            if (roleGO == null || !roleGO.activeInHierarchy || !roleGO.activeSelf) continue;
+            BaseRole role = roleGO.GetComponent<BaseRole>();
+            zhangAiWuGridItems.Add(mapGridItems[role.battleOriginPosX, role.battleOriginPosZ]);
+        }
+
+        List<GameObject> allCanMoveGrids = new List<GameObject>();
+
+        List<GameObject> newNeighbourGrids = new List<GameObject>();
+        newNeighbourGrids.Add(mapGridItems[battleOriginPosX, battleOriginPosZ]);
+
+        int[] counter = new int[1];
+        counter[0] = 0;
+
+        HandleCanMoveGrids(allCanMoveGrids, zhangAiWuGridItems, newNeighbourGrids, counter, mapGridItems);
+
+        return allCanMoveGrids;
+    }
+
+    private void HandleCanMoveGrids(List<GameObject> allCanMoveGrids, 
+        List<GameObject> zhangAiWuGridItems, 
+        List<GameObject> newNeighbourGrids, 
+        int[] counter, 
+        GameObject[,] mapGridItems)
+    {
+        List<GameObject> _newNeighbourGrids = new List<GameObject>();
+        foreach (GameObject originGrid in newNeighbourGrids)
+        {
+            string[] position = originGrid.name.Split(",");
+            //正确写法应该是从原点扩散出去，才能让障碍物生效
+            int originX = int.Parse(position[0]);
+            int originZ = int.Parse(position[1]);
+
+            //不越界、不重复、非障碍物
+            GameObject neighbourGridItem;
+            if (originX - 1 >= 0)
+            {
+                neighbourGridItem = mapGridItems[originX - 1, originZ];
+                if (!allCanMoveGrids.Contains(neighbourGridItem) && !zhangAiWuGridItems.Contains(neighbourGridItem)) _newNeighbourGrids.Add(neighbourGridItem);
+            }
+
+            if (originX + 1 < mapGridItems.GetLength(0))
+            {
+                neighbourGridItem = mapGridItems[originX + 1, originZ];
+                if (!allCanMoveGrids.Contains(neighbourGridItem) && !zhangAiWuGridItems.Contains(neighbourGridItem)) _newNeighbourGrids.Add(neighbourGridItem);
+            }
+
+            if (originZ - 1 >= 0)
+            {
+                neighbourGridItem = mapGridItems[originX, originZ - 1];
+                if (!allCanMoveGrids.Contains(neighbourGridItem) && !zhangAiWuGridItems.Contains(neighbourGridItem)) _newNeighbourGrids.Add(neighbourGridItem);
+            }
+
+            if (originZ + 1 < mapGridItems.GetLength(1))
+            {
+                neighbourGridItem = mapGridItems[originX, originZ + 1];
+                if (!allCanMoveGrids.Contains(neighbourGridItem) && !zhangAiWuGridItems.Contains(neighbourGridItem)) _newNeighbourGrids.Add(neighbourGridItem);
+            }
+        }
+        allCanMoveGrids.AddRange(_newNeighbourGrids);
+        counter[0] += 1;
+        if (counter[0] >= this.speed)
+        {
+            return;
+        }
+        HandleCanMoveGrids(allCanMoveGrids, zhangAiWuGridItems, _newNeighbourGrids, counter, mapGridItems);
+    }
+
+
+
+
     private ActionStrategy mActionStrategy;
 
     /// <summary>
@@ -281,4 +398,6 @@ public abstract class ActionStrategy
     public abstract bool IsPassAfterMove();
 
     public abstract bool IsPass();
+
+    public abstract RoleItem GetSelectRoleItem();
 }

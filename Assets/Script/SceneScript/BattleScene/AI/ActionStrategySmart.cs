@@ -13,10 +13,12 @@ public class ActionStrategySmart : ActionStrategyGeneral
     public override void GenerateStrategy(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, List<GameObject> allCanMoveGridItems)
     {
         new ActionNodeManager(activingRoleGO, allRoleGO, mapGridItems, allCanMoveGridItems, this)
-            .AddActionNode(new ActionNodePlayerHPLower15Percent(99.0f, "执行策略：主角hp_lower_15%"))
-            .AddActionNode(new ActionNodeMaxTotalDamage(98.0f, "执行策略：总伤害最大化"))
-            .AddActionNode(new ActionNodeAttackShortestDistance(97.0f, "执行策略：攻击最近的敌人"))
-            .Execute();
+           // .AddActionNode(new ActionNodePlayerHPLower15Percent(99.0f, "执行策略：主角hp_lower_15%"))
+           // .AddActionNode(new ActionNodeMaxTotalDamage(98.0f, "执行策略：总伤害最大化"))
+           // .AddActionNode(new ActionNodeAttackShortestDistance(97.0f, "执行策略：攻击最近的敌人"))
+           .AddActionNode(new ActionNodeMpNotEnough(99.0f, "判断mp"))
+           .AddActionNode(new ActionNodeGreedyAlgorithm(98.0f, "执行策略：贪心算法，穷举"))
+           .Execute();
     }
 
 }

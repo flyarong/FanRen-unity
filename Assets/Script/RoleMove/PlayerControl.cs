@@ -40,18 +40,6 @@ public class PlayerControl : MonoBehaviour
 
         HandleSaveOrLoad();
 
-        Debug.LogWarning("Awake() debug模式，主角默认学会三个神通");
-        if (IS_DEBUG)
-        {
-            MyDBManager.GetInstance().ConnDB();//ZhujueLearnShentong
-            if(MyDBManager.GetInstance().GetRoleShentong(1, 0, true).Count == 0)
-            {
-                MyDBManager.GetInstance().ZhujueLearnShentong(1, 1);
-                MyDBManager.GetInstance().ZhujueLearnShentong(2, 1);
-                MyDBManager.GetInstance().ZhujueLearnShentong(3, 1);
-            }
-        }
-
     }
 
     private void OnApplicationQuit()

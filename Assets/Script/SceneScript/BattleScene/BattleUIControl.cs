@@ -182,7 +182,7 @@ public class BattleUIControl : BaseMono
         //}
 
         this.selectedRoleCS = activingRoleGO.GetComponent<BaseRole>();
-        if(selectedRoleCS.teamNum == TeamNum.TEAM_TWO && selectedRoleCS.GetActionStrategy() != null) //ÓÐAI
+        if(selectedRoleCS.GetActionStrategy() != null) //ÓÐAI
         {
             this.battleUIPanel.SetActive(false);
         }

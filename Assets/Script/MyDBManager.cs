@@ -224,6 +224,9 @@ public class MyDBManager
             roleItem.itemDesc = (string)(sdr["itemDesc"]);
 
             roleItem.scarceLevel = (int)((Int64)sdr["scarceLevel"]);
+
+            roleItem.recoverHp = (int)((Int64)sdr["recoverHp"]);
+            roleItem.recoverMp = (int)((Int64)sdr["recoverMp"]);
         }
         sdr.Close();
         sdr.Dispose();
@@ -621,6 +624,9 @@ public class RoleItem
     public string imageName;
     public string itemDesc;
     public int scarceLevel;
+
+    public int recoverHp;
+    public int recoverMp;
 }
 
 //ÈÎÎñ×´Ì¬

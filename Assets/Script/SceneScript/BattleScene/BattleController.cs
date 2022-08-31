@@ -449,7 +449,7 @@ public class BattleController : BaseMono
         if (enemyCount == 0)
         {
             //敌人死光了，显示对应画面
-            if (this.activingRoleGO.GetComponent<HanLi>() != null)
+            if (this.activingRoleGO.GetComponent<HanLiScriptInBattle>() != null)
             {
                 Debug.Log("我方胜利，显示对应画面");
                 PlayerPrefs.SetInt(RootBattleInit.triggerToBattleGameObjUnionPreKey, 1); //终生关闭战斗触发器
@@ -561,7 +561,7 @@ public class BattleController : BaseMono
 
             TestAStart(selectRoleCS);
 
-            if (selectRoleCS.teamNum == TeamNum.TEAM_TWO && selectRoleCS.GetActionStrategy() != null) //轮到电脑行动
+            if (selectRoleCS.GetActionStrategy() != null) //轮到电脑行动
             {
                 selectRoleCS.GetActionStrategy().GenerateStrategy(this.activingRoleGO, this.allRole, this.grids, this.allCanMoveGrids);
                 if (selectRoleCS.GetActionStrategy().IsPass()) //被冰冻等，不可行动
@@ -569,11 +569,24 @@ public class BattleController : BaseMono
                     GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().OnClickPassButton();
                     return;
                 }
+
                 GameObject targetMoveGridItem = selectRoleCS.GetActionStrategy().GetMoveTargetGridItem();
                 if (targetMoveGridItem == this.grids[selectRoleCS.battleOriginPosX, selectRoleCS.battleOriginPosZ]) //移动目标就是原地
                 {
-                    //直接攻击
-                    ActionAfterAIMove();
+                    if(selectRoleCS.GetActionStrategy().GetSelectRoleItem() != null)
+                    {
+                        //todo 直接原地使用道具
+
+                    }
+                    else if (selectRoleCS.GetActionStrategy().GetSelectShentong() != null)
+                    {
+                        //直接原地攻击
+                        ActionAfterAIMove();
+                    }
+                    else
+                    {
+                        Debug.LogError("unexpect handle");
+                    }
                 }
                 else
                 {
@@ -605,18 +618,23 @@ public class BattleController : BaseMono
     private void ActionAfterAIMove()
     {
         BaseRole activingRole = activingRoleGO.GetComponent<BaseRole>();
-        if (activingRole.teamNum == TeamNum.TEAM_TWO && activingRole.GetActionStrategy() != null)
+        if (activingRole.GetActionStrategy() != null)
         {
-            if (activingRole.GetActionStrategy().IsPassAfterMove())
+            if (activingRole.GetActionStrategy().IsPassAfterMove()) //待机(调息) //todo 应该会稍微加点血和灵力
             {
                 GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().OnClickPassButton();
             }
-            else
+            else if(activingRole.GetActionStrategy().GetSelectShentong() != null) //施展神通
             {
                 activingRole.selectedShentong = activingRole.GetActionStrategy().GetSelectShentong();
                 OnRoleSelectedShentong(activingRole.selectedShentong);
                 OnMouseMoveToCanAckGrid(activingRole.GetActionStrategy().GetAttackMapGridItem());
                 this.DoAttack(activingRole.GetActionStrategy().GetAttackMapGridItem());
+            }
+            else if (activingRole.GetActionStrategy().GetSelectRoleItem() != null) //使用道具
+            {
+                //todo 
+                activingRole.UseRoleItem(activingRole.GetActionStrategy().GetSelectRoleItem());
             }
         }
     }

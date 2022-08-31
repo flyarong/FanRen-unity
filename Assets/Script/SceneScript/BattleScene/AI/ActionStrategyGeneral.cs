@@ -14,6 +14,8 @@ public class ActionStrategyGeneral : ActionStrategy
     private bool isPassAfterMove = false;
     //本回合是否待机, 被冰冻等，不可行动
     private bool isPass = false;
+    //选择了使用道具
+    private RoleItem selectRoleItem;
 
     /// <summary>
     /// 继承本类，重写这个方法让NPC实现新的战斗策略，战场初始化的时候赋给角色即可
@@ -135,5 +137,15 @@ public class ActionStrategyGeneral : ActionStrategy
     public void SetIsPass(bool isPass)
     {
         this.isPass = isPass;
+    }
+
+    public override RoleItem GetSelectRoleItem()
+    {
+        return this.selectRoleItem;
+    }
+
+    public void SetSelectRoleItem(RoleItem selectRoleItem)
+    {
+        this.selectRoleItem = selectRoleItem;
     }
 }

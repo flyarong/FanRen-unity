@@ -38,7 +38,7 @@ public class RootBattleInit : BaseMono
             roles[1].SetActive(true);
 
             GameObject hanLiGameObj = roles[0];
-            HanLi hanLiCS = hanLiGameObj.GetComponent<HanLi>();
+            HanLiScriptInBattle hanLiCS = hanLiGameObj.GetComponent<HanLiScriptInBattle>();
             hanLiCS.Init();
             hanLiCS.InitRoleBattelePos(2, 7); //todo
             
@@ -58,7 +58,7 @@ public class RootBattleInit : BaseMono
             //roles = new GameObject[enemyRoleIds.Length + 1]; //todo
             GameObject hanLiPrefab = Resources.Load<GameObject>("Prefab/RolePrefab/HanLiBattle");
             GameObject hanLiGameObj = Instantiate(hanLiPrefab);
-            HanLi hanLiCS = hanLiGameObj.GetComponent<HanLi>();
+            HanLiScriptInBattle hanLiCS = hanLiGameObj.GetComponent<HanLiScriptInBattle>();
             hanLiCS.Init();
             hanLiCS.InitRoleBattelePos(5, 5); //todo
             //roles[0] = hanLiGameObj;
