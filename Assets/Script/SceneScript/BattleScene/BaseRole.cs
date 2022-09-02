@@ -188,11 +188,21 @@ public class BaseRole : BaseMono
     public void UpdateHP(int damage)
     {
         this.hp -= damage;
-        Debug.Log(this.name + "更新血条 enemy.maxHp " + this.maxHp + ", enemy.hp " + this.hp);
-        Slider enemySlide = this.hpGO.GetComponent<Slider>();
-        enemySlide.maxValue = this.maxHp;
-        enemySlide.minValue = 0;
-        enemySlide.value = this.hp;
+        Debug.Log(this.name + "更新血条 maxHp " + this.maxHp + ", hp " + this.hp);
+        Slider hpSlide = this.hpGO.GetComponent<Slider>();
+        hpSlide.maxValue = this.maxHp;
+        hpSlide.minValue = 0;
+        hpSlide.value = this.hp;
+    }
+
+    public void UpdateMP(int consumeMP)
+    {
+        this.mp -= consumeMP;
+        Debug.Log(this.name + "更新灵力条 maxMp " + this.maxMp + ", mp " + this.mp);
+        Slider mpSlide = this.hpGO.transform.Find("MP_Slider").GetComponent<Slider>();
+        mpSlide.maxValue = this.maxMp;
+        mpSlide.minValue = 0;
+        mpSlide.value = this.mp;
     }
 
     public int GetMoveDistanceInBattle()
@@ -237,8 +247,9 @@ public class BaseRole : BaseMono
 
         if (enemy.hp > damage)
         {
-            this.mp -= this.selectedShentong.needMp;
+            //this.mp -= this.selectedShentong.needMp;
             enemy.UpdateHP(damage);
+            UpdateMP(this.selectedShentong.needMp);
             return false;
         }
         else

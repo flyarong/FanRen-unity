@@ -609,6 +609,7 @@ public class BattleController : BaseMono
     private void ActionAfterAIMove()
     {
         BaseRole activingRole = activingRoleGO.GetComponent<BaseRole>();
+        if (activingRole.GetActionStrategy() == null) return;
         if (activingRole.GetActionStrategy().IsPass()) //待机(调息) //todo 应该会稍微加点血和灵力
         {
             GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().OnClickPassButton();

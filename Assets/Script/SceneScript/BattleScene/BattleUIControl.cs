@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -78,14 +77,18 @@ public class BattleUIControl : BaseMono
             HPRotation hpRotation = hpSlideGameObject.GetComponent<HPRotation>();
             hpRotation.target = roleGO;
 
-            Slider slide = hpSlideGameObject.GetComponent<Slider>();
-            slide.maxValue = roleCS.maxHp;
-            slide.minValue = 0;
-            slide.value = roleCS.hp;
+            Slider hpSlider = hpSlideGameObject.GetComponent<Slider>();
+            hpSlider.maxValue = roleCS.maxHp;
+            hpSlider.minValue = 0;
+            hpSlider.value = roleCS.hp;
 
             roleCS.hpGO = hpSlideGameObject;
             roleCS.sliderAvatarGO = sliderAvatarGO;
 
+            Slider mpSlider = hpSlideGameObject.transform.Find("MP_Slider").GetComponent<Slider>();
+            mpSlider.maxValue = roleCS.maxMp;
+            mpSlider.minValue = 0;
+            mpSlider.value = roleCS.mp;
         }
 
 

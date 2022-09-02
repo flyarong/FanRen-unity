@@ -80,7 +80,7 @@ public class ActionStrategyGeneral : ActionStrategy
             this.isPass = true;
         }
         
-        activingRole.SetShentongReadyToUse(activingRole.shentongInBattle[0]);
+        activingRole.selectedShentong = activingRole.shentongInBattle[0];
         this.attackMapGrid = mapGridItems[hanLiRole.battleOriginPosX, hanLiRole.battleOriginPosZ];
     }
 
