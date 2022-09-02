@@ -15,26 +15,7 @@ public class BaseRole : BaseMono
     //敌人或者友军身上携带的物品
     public List<RoleItem> roleItems = new List<RoleItem>();
 
-    private RoleItem roleItemReadyForUse;
-
-    public void SetReadyToUseItem(RoleItem roleItem)
-    {
-        this.roleItemReadyForUse = roleItem;
-    }
-
-    public RoleItem GetReadyToUseItem(bool setNull)
-    {
-        if (setNull)
-        {
-            RoleItem tmp = this.roleItemReadyForUse;
-            this.roleItemReadyForUse = null;
-            return tmp;
-        }
-        else
-        {
-            return this.roleItemReadyForUse;
-        }
-    }
+    public RoleItem selectRoleItem;
 
     public (int, int) battleOriginPosition
     {
@@ -191,12 +172,17 @@ public class BaseRole : BaseMono
         //damageTextPrefab = Resources.Load<GameObject>("Prefab/TextDamage");
     }
 
-    public void UseRoleItem(RoleItem roleItem)
+    public void UseRoleItem()
     {
-        if(roleItem.itemType == ((int)FRItemType.DanYao)) //todo
-        {
+        //todo 使用道具
 
-        }
+
+
+        
+        
+        //使用完
+        this.roleItems.Remove(this.selectRoleItem);
+        this.selectRoleItem = null;
     }
 
     public void UpdateHP(int damage)
@@ -263,6 +249,8 @@ public class BaseRole : BaseMono
         }
     }
 
+    public List<GameObject> lastAllCanMoveGrids = new List<GameObject>();
+
     /// <summary>
     /// 普通移动的算法，装备了风雷翅则使用曼哈顿距离
     /// </summary>
@@ -279,7 +267,8 @@ public class BaseRole : BaseMono
             zhangAiWuGridItems.Add(mapGridItems[role.battleOriginPosX, role.battleOriginPosZ]);
         }
 
-        List<GameObject> allCanMoveGrids = new List<GameObject>();
+        //List<GameObject> allCanMoveGrids = new List<GameObject>();
+        lastAllCanMoveGrids.Clear();
 
         List<GameObject> newNeighbourGrids = new List<GameObject>();
         newNeighbourGrids.Add(mapGridItems[battleOriginPosX, battleOriginPosZ]);
@@ -287,9 +276,9 @@ public class BaseRole : BaseMono
         int[] counter = new int[1];
         counter[0] = 0;
 
-        HandleCanMoveGrids(allCanMoveGrids, zhangAiWuGridItems, newNeighbourGrids, counter, mapGridItems);
+        HandleCanMoveGrids(lastAllCanMoveGrids, zhangAiWuGridItems, newNeighbourGrids, counter, mapGridItems);
 
-        return allCanMoveGrids;
+        return lastAllCanMoveGrids;
     }
 
     private void HandleCanMoveGrids(List<GameObject> allCanMoveGrids, 
@@ -387,17 +376,12 @@ public abstract class ActionStrategy
     //protected Shentong selectShentong;
     //protected GameObject attackMapGrid;
 
-    public abstract void GenerateStrategy(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, List<GameObject> allCanMoveGridItems);
+    public abstract void GenerateStrategy(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems);
 
     public abstract GameObject GetMoveTargetGridItem();
 
-    public abstract Shentong GetSelectShentong();
-
     public abstract GameObject GetAttackMapGridItem();
-
-    public abstract bool IsPassAfterMove();
 
     public abstract bool IsPass();
 
-    public abstract RoleItem GetSelectRoleItem();
 }

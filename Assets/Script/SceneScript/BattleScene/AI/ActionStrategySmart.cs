@@ -10,13 +10,13 @@ public class ActionStrategySmart : ActionStrategyGeneral
     //优先选择伤害最高且主角在射程范围内的神通
     //攻击范围内有机会抹杀目标的情况下，会更加优先，在前面的前提下，会尽可能同时攻击多个目标
     //法修没有灵力会优先补给，体修则不需要
-    public override void GenerateStrategy(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, List<GameObject> allCanMoveGridItems)
+    public override void GenerateStrategy(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems)
     {
-        new ActionNodeManager(activingRoleGO, allRoleGO, mapGridItems, allCanMoveGridItems, this)
+        new ActionNodeManager(activingRoleGO, allRoleGO, mapGridItems, this)
            // .AddActionNode(new ActionNodePlayerHPLower15Percent(99.0f, "执行策略：主角hp_lower_15%"))
            // .AddActionNode(new ActionNodeMaxTotalDamage(98.0f, "执行策略：总伤害最大化"))
            // .AddActionNode(new ActionNodeAttackShortestDistance(97.0f, "执行策略：攻击最近的敌人"))
-           .AddActionNode(new ActionNodeMpNotEnough(99.0f, "判断mp"))
+           .AddActionNode(new ActionNodeMpNotEnough(99.0f, "判断是否要补充mp"))
            .AddActionNode(new ActionNodeGreedyAlgorithm(98.0f, "执行策略：贪心算法，穷举"))
            .Execute();
     }

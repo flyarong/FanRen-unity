@@ -549,6 +549,7 @@ public class BattleController : BaseMono
         return enemyCount;
     }
 
+    //正式行动
     public void OnChangeRoleCameraMove(CameraState cameraState, GameObject targetRole)
     {
         Debug.Log("OnChangeRoleCameraMove CameraState " + cameraState);
@@ -563,30 +564,18 @@ public class BattleController : BaseMono
 
             if (selectRoleCS.GetActionStrategy() != null) //轮到电脑行动
             {
-                selectRoleCS.GetActionStrategy().GenerateStrategy(this.activingRoleGO, this.allRole, this.grids, this.allCanMoveGrids);
-                if (selectRoleCS.GetActionStrategy().IsPass()) //被冰冻等，不可行动
-                {
-                    GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().OnClickPassButton();
-                    return;
-                }
+                selectRoleCS.GetActionStrategy().GenerateStrategy(this.activingRoleGO, this.allRole, this.grids); //生成行动策略
+
+                //if (selectRoleCS.GetActionStrategy().IsPass()) //被冰冻等，不可行动
+                //{
+                //    GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().OnClickPassButton();
+                //    return;
+                //}
 
                 GameObject targetMoveGridItem = selectRoleCS.GetActionStrategy().GetMoveTargetGridItem();
-                if (targetMoveGridItem == this.grids[selectRoleCS.battleOriginPosX, selectRoleCS.battleOriginPosZ]) //移动目标就是原地
+                if (targetMoveGridItem == this.grids[selectRoleCS.battleOriginPosX, selectRoleCS.battleOriginPosZ]) //移动目标就是原地不动(冰冻等状态也是待在原地)
                 {
-                    if(selectRoleCS.GetActionStrategy().GetSelectRoleItem() != null)
-                    {
-                        //todo 直接原地使用道具
-
-                    }
-                    else if (selectRoleCS.GetActionStrategy().GetSelectShentong() != null)
-                    {
-                        //直接原地攻击
-                        ActionAfterAIMove();
-                    }
-                    else
-                    {
-                        Debug.LogError("unexpect handle");
-                    }
+                    ActionAfterAIMove();
                 }
                 else
                 {
@@ -595,6 +584,8 @@ public class BattleController : BaseMono
             }
         }
     }
+
+    
 
     private void DoSelectRole(GameObject activingGameObj)
     {
@@ -618,24 +609,25 @@ public class BattleController : BaseMono
     private void ActionAfterAIMove()
     {
         BaseRole activingRole = activingRoleGO.GetComponent<BaseRole>();
-        if (activingRole.GetActionStrategy() != null)
+        if (activingRole.GetActionStrategy().IsPass()) //待机(调息) //todo 应该会稍微加点血和灵力
         {
-            if (activingRole.GetActionStrategy().IsPassAfterMove()) //待机(调息) //todo 应该会稍微加点血和灵力
-            {
-                GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().OnClickPassButton();
-            }
-            else if(activingRole.GetActionStrategy().GetSelectShentong() != null) //施展神通
-            {
-                activingRole.selectedShentong = activingRole.GetActionStrategy().GetSelectShentong();
-                OnRoleSelectedShentong(activingRole.selectedShentong);
-                OnMouseMoveToCanAckGrid(activingRole.GetActionStrategy().GetAttackMapGridItem());
-                this.DoAttack(activingRole.GetActionStrategy().GetAttackMapGridItem());
-            }
-            else if (activingRole.GetActionStrategy().GetSelectRoleItem() != null) //使用道具
-            {
-                //todo 
-                activingRole.UseRoleItem(activingRole.GetActionStrategy().GetSelectRoleItem());
-            }
+            GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().OnClickPassButton();
+        }
+        else if (activingRole.selectedShentong != null) //施展神通
+        {
+            //activingRole.selectedShentong = activingRole.GetActionStrategy().GetSelectShentong();
+            OnRoleSelectedShentong(activingRole.selectedShentong);
+            OnMouseMoveToCanAckGrid(activingRole.GetActionStrategy().GetAttackMapGridItem());
+            this.DoAttack(activingRole.GetActionStrategy().GetAttackMapGridItem());
+        }
+        else if (activingRole.selectRoleItem != null) //使用道具
+        {
+            //todo 
+            activingRole.UseRoleItem();
+        }
+        else
+        {
+            Debug.LogError("OnChangeRoleCameraMove() unexpect handle");
         }
     }
 
@@ -690,10 +682,9 @@ public class BattleController : BaseMono
             int startZ = activingRole.battleToPosZ;
             battleObstacles = GetAllBattleObstacles();
             List<(int, int)> allowPosition = new List<(int, int)>();
-            foreach(GameObject item in this.allCanMoveGrids)
+            foreach(GameObject gridItem in activingRole.lastAllCanMoveGrids)
             {
-                string[] positionArray = item.name.Split(",");
-                allowPosition.Add((int.Parse(positionArray[0]), int.Parse(positionArray[1])));
+                allowPosition.Add(MapUtil.GetPositionFromGridItemGO(gridItem));
             }
             aStarPathUtil.Reset(this.width, this.height, (startX, startZ), (int.Parse(clickPosition[0]), int.Parse(clickPosition[1])), battleObstacles, allowPosition);
             aStartPaths = aStarPathUtil.GetShortestPath(false);
@@ -702,34 +693,7 @@ public class BattleController : BaseMono
                 AStarPathUtil.Node node = aStartPaths[i];
                 path.Add(new Vector3(node.x + 0.5f, this.activingRoleGO.transform.position.y, node.y + 0.5f));
             }
-
-            //测试代码
-            //GameObject showPathBallPrefab = Resources.Load<GameObject>("Prefab/SphereShowPath");
-            //foreach(GameObject oldGO in pathGO)
-            //{
-            //    Destroy(oldGO);
-            //}
-            //pathGO.Clear();
-            //foreach (AStarPathUtil.Node n in aStartPaths)
-            //{
-            //    GameObject pgo = Instantiate(showPathBallPrefab);
-            //    pgo.transform.position = new Vector3(n.x + 0.5f, 0.5f, n.y + 0.5f);
-            //    pathGO.Add(pgo);
-            //}
         }
-
-
-
-        //Hashtable args = new Hashtable();
-        //args.Add("path", path.ToArray());
-        //args.Add("looptype", iTween.LoopType.none);
-        //args.Add("speed", 5f);
-        //args.Add("orienttopath", true);
-        //args.Add("easeType", iTween.EaseType.spring);
-        //args.Add("oncomplete", "OnComplete");
-        //args.Add("oncompletetarget", this.gameObject);
-        //Debug.Log("移动动画开始");
-        //iTween.MoveTo(activingRoleGO, args);
 
         activingRoleGO.GetComponent<Animator>().SetBool("isRun", true);
 
@@ -821,6 +785,8 @@ public class BattleController : BaseMono
                 }
             });
         }
+
+        //下一步逻辑在神通结束回调 OnShentongParticleSystemStopped
     }
 
     private void ResetMouseAckRange()
@@ -840,7 +806,7 @@ public class BattleController : BaseMono
 
     //public Shentong selectedShentong;
 
-    private List<GameObject> allCanMoveGrids;
+    //private List<GameObject> allCanMoveGrids;
 
     public List<GameObject> ChangeGridOnClickRoleOrShentong()
     {
@@ -860,7 +826,7 @@ public class BattleController : BaseMono
         int disToX;
         int disToY;
 
-        allCanMoveGrids = GetAllCanMoveGrids(selectedRoleCS);
+        List<GameObject> allCanMoveGrids = selectedRoleCS.GetAllCanMoveGrids(this.grids, this.allRole);
 
         for (int x = 0; x < width; x++)
         {
@@ -961,82 +927,82 @@ public class BattleController : BaseMono
     /// </summary>
     /// <param name="selectedRoleCS"></param>
     /// <returns></returns>
-    private List<GameObject> GetAllCanMoveGrids(BaseRole selectedRoleCS)
-    {
-        List<GameObject> zhangAiWuGridItems = new List<GameObject>();
-        foreach (GameObject roleGO in this.allRole) //所有角色在可移动范围内都是障碍物
-        {
-            if (roleGO == null || !roleGO.activeInHierarchy || !roleGO.activeSelf) continue;
-            BaseRole role = roleGO.GetComponent<BaseRole>();
-            zhangAiWuGridItems.Add(this.grids[role.battleOriginPosX, role.battleOriginPosZ]);
-        }
+    //private List<GameObject> GetAllCanMoveGrids(BaseRole selectedRoleCS)
+    //{
+    //    List<GameObject> zhangAiWuGridItems = new List<GameObject>();
+    //    foreach (GameObject roleGO in this.allRole) //所有角色在可移动范围内都是障碍物
+    //    {
+    //        if (roleGO == null || !roleGO.activeInHierarchy || !roleGO.activeSelf) continue;
+    //        BaseRole role = roleGO.GetComponent<BaseRole>();
+    //        zhangAiWuGridItems.Add(this.grids[role.battleOriginPosX, role.battleOriginPosZ]);
+    //    }
 
-        List<GameObject> allCanMoveGrids = new List<GameObject>();
+    //    List<GameObject> allCanMoveGrids = new List<GameObject>();
 
-        List<GameObject> newNeighbourGrids = new List<GameObject>();
-        newNeighbourGrids.Add(this.grids[selectedRoleCS.battleOriginPosX, selectedRoleCS.battleOriginPosZ]);
+    //    List<GameObject> newNeighbourGrids = new List<GameObject>();
+    //    newNeighbourGrids.Add(this.grids[selectedRoleCS.battleOriginPosX, selectedRoleCS.battleOriginPosZ]);
 
-        int[] counter = new int[1];
-        counter[0] = 0;
+    //    int[] counter = new int[1];
+    //    counter[0] = 0;
 
-        //第一次扩散，一共需要扩散selectedRoleCS.speed次
+    //    //第一次扩散，一共需要扩散selectedRoleCS.speed次
 
-        HandleCanMoveGrids(allCanMoveGrids, zhangAiWuGridItems, newNeighbourGrids, counter, selectedRoleCS.speed);
+    //    HandleCanMoveGrids(allCanMoveGrids, zhangAiWuGridItems, newNeighbourGrids, counter, selectedRoleCS.speed);
 
-        return allCanMoveGrids;
+    //    return allCanMoveGrids;
 
-        //foreach (GameObject canMoveGridItem in allCanMoveGrids)
-        //{
-        //    canMoveGridItem.tag = "canMove";
-        //    Renderer renderer = canMoveGridItem.GetComponent<Renderer>();
-        //    if (renderer.material.color.r != roleCanMoveGridMat.color.r) renderer.material = roleCanMoveGridMat;
-        //}
-    }
+    //    //foreach (GameObject canMoveGridItem in allCanMoveGrids)
+    //    //{
+    //    //    canMoveGridItem.tag = "canMove";
+    //    //    Renderer renderer = canMoveGridItem.GetComponent<Renderer>();
+    //    //    if (renderer.material.color.r != roleCanMoveGridMat.color.r) renderer.material = roleCanMoveGridMat;
+    //    //}
+    //}
 
-    private void HandleCanMoveGrids(List<GameObject> allCanMoveGrids, List<GameObject> zhangAiWuGridItems, List<GameObject> newNeighbourGrids, int[] counter, int maxLoopCount)
-    {
-        List<GameObject> _newNeighbourGrids = new List<GameObject>();
-        foreach (GameObject originGrid in newNeighbourGrids)
-        {
-            string[] position = originGrid.name.Split(",");
-            //正确写法应该是从原点扩散出去，才能让障碍物生效
-            int originX = int.Parse(position[0]);
-            int originZ = int.Parse(position[1]);
+    //private void HandleCanMoveGrids(List<GameObject> allCanMoveGrids, List<GameObject> zhangAiWuGridItems, List<GameObject> newNeighbourGrids, int[] counter, int maxLoopCount)
+    //{
+    //    List<GameObject> _newNeighbourGrids = new List<GameObject>();
+    //    foreach (GameObject originGrid in newNeighbourGrids)
+    //    {
+    //        string[] position = originGrid.name.Split(",");
+    //        //正确写法应该是从原点扩散出去，才能让障碍物生效
+    //        int originX = int.Parse(position[0]);
+    //        int originZ = int.Parse(position[1]);
 
-            //不越界、不重复、非障碍物
-            GameObject neighbourGridItem;
-            if (originX - 1 >= 0)
-            {
-                neighbourGridItem = this.grids[originX - 1, originZ];
-                if (!allCanMoveGrids.Contains(neighbourGridItem) && !zhangAiWuGridItems.Contains(neighbourGridItem)) _newNeighbourGrids.Add(neighbourGridItem);
-            }
+    //        //不越界、不重复、非障碍物
+    //        GameObject neighbourGridItem;
+    //        if (originX - 1 >= 0)
+    //        {
+    //            neighbourGridItem = this.grids[originX - 1, originZ];
+    //            if (!allCanMoveGrids.Contains(neighbourGridItem) && !zhangAiWuGridItems.Contains(neighbourGridItem)) _newNeighbourGrids.Add(neighbourGridItem);
+    //        }
 
-            if (originX + 1 < this.width)
-            {
-                neighbourGridItem = this.grids[originX + 1, originZ];
-                if (!allCanMoveGrids.Contains(neighbourGridItem) && !zhangAiWuGridItems.Contains(neighbourGridItem)) _newNeighbourGrids.Add(neighbourGridItem);
-            }
+    //        if (originX + 1 < this.width)
+    //        {
+    //            neighbourGridItem = this.grids[originX + 1, originZ];
+    //            if (!allCanMoveGrids.Contains(neighbourGridItem) && !zhangAiWuGridItems.Contains(neighbourGridItem)) _newNeighbourGrids.Add(neighbourGridItem);
+    //        }
 
-            if (originZ - 1 >= 0)
-            {
-                neighbourGridItem = this.grids[originX, originZ - 1];
-                if (!allCanMoveGrids.Contains(neighbourGridItem) && !zhangAiWuGridItems.Contains(neighbourGridItem)) _newNeighbourGrids.Add(neighbourGridItem);
-            }
+    //        if (originZ - 1 >= 0)
+    //        {
+    //            neighbourGridItem = this.grids[originX, originZ - 1];
+    //            if (!allCanMoveGrids.Contains(neighbourGridItem) && !zhangAiWuGridItems.Contains(neighbourGridItem)) _newNeighbourGrids.Add(neighbourGridItem);
+    //        }
 
-            if (originZ + 1 < this.height)
-            {
-                neighbourGridItem = this.grids[originX, originZ + 1];
-                if (!allCanMoveGrids.Contains(neighbourGridItem) && !zhangAiWuGridItems.Contains(neighbourGridItem)) _newNeighbourGrids.Add(neighbourGridItem);
-            }
-        }
-        allCanMoveGrids.AddRange(_newNeighbourGrids);
-        counter[0] += 1;
-        if (counter[0] >= maxLoopCount)
-        {
-            return;
-        }
-        HandleCanMoveGrids(allCanMoveGrids, zhangAiWuGridItems, _newNeighbourGrids, counter, maxLoopCount);
-    }
+    //        if (originZ + 1 < this.height)
+    //        {
+    //            neighbourGridItem = this.grids[originX, originZ + 1];
+    //            if (!allCanMoveGrids.Contains(neighbourGridItem) && !zhangAiWuGridItems.Contains(neighbourGridItem)) _newNeighbourGrids.Add(neighbourGridItem);
+    //        }
+    //    }
+    //    allCanMoveGrids.AddRange(_newNeighbourGrids);
+    //    counter[0] += 1;
+    //    if (counter[0] >= maxLoopCount)
+    //    {
+    //        return;
+    //    }
+    //    HandleCanMoveGrids(allCanMoveGrids, zhangAiWuGridItems, _newNeighbourGrids, counter, maxLoopCount);
+    //}
 
     private void OnDestroy()
     {

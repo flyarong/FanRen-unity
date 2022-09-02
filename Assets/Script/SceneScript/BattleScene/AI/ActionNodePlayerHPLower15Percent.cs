@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
+/// 主角Hp低于15%
 /// 要考虑的情况实在太多了，估计还是需要使用贪心算法穷举
 /// </summary>
 public class ActionNodePlayerHPLower15Percent : IActionNode
@@ -10,7 +11,7 @@ public class ActionNodePlayerHPLower15Percent : IActionNode
     {
     }
 
-    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, List<GameObject> allCanMoveGridItems, ActionStrategySmart actionStrategySmart)
+    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategySmart actionStrategySmart)
     {
         BaseRole activingRole = activingRoleGO.GetComponent<BaseRole>();
         if (activingRole.teamNum == TeamNum.TEAM_TWO) //敌人，目标击败主角
@@ -67,7 +68,7 @@ public class ActionNodePlayerHPLower15Percent : IActionNode
                 }
 
                 //先检测灵力是否足够施法
-                actionStrategySmart.SetSelectShentong(null);
+                activingRole.selectedShentong = null;
                 foreach (Shentong st in sortST)
                 {
                     //选择一个足够mp施展的神通且伤害最大的且主角在攻击范围内的 todo ...
@@ -79,7 +80,7 @@ public class ActionNodePlayerHPLower15Percent : IActionNode
                 }
 
                 //没有合适的神通，则做最大输出策略或者攻击可以秒杀的敌人或者如果mp太低则优先补充mp(mp低于30%优先补充)，hp低于20%，优先补hp
-                if (actionStrategySmart.GetSelectShentong() == null)
+                if (activingRole.selectedShentong == null)
                 {
                     if(activingRole.hp / activingRole.maxHp < 0.2f)
                     {
@@ -93,16 +94,17 @@ public class ActionNodePlayerHPLower15Percent : IActionNode
                             //如果是恢复mp道具，则使用
                             if (item.recoverMp > 0)
                             {
-                                actionStrategySmart.SetSelectRoleItem(item); //todo 使用完道具需要set null
+                                activingRole.selectRoleItem = item;
+                                //actionStrategySmart.SetSelectRoleItem(item); //todo 使用完道具需要set null
                                 activingRole.roleItems.Remove(item);
                                 break;
                             }
                         }
-                        if (actionStrategySmart.GetSelectRoleItem() == null) //没有恢复mp的道具了，只等靠待机调息恢复mp
+                        if (activingRole.selectRoleItem == null) //没有恢复mp的道具了，只等靠待机调息恢复mp
                         {
                             if (isNeedMove) //向主角移动后调息
                             {
-                                actionStrategySmart.SetIsPassAfterMove(true);
+                                actionStrategySmart.SetIsPass(true);
                             }
                             else //已经在主角身边，直接调息
                             {
@@ -138,37 +140,46 @@ public class ActionNodePlayerHPLower15Percent : IActionNode
 
 }
 
+/// <summary>
+/// 最大总输出
+/// </summary>
 public class ActionNodeMaxTotalDamage : IActionNode
 {
     public ActionNodeMaxTotalDamage(float priority, string name = null) : base(priority, name)
     {
     }
 
-    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, List<GameObject> allCanMoveGridItems, ActionStrategySmart actionStrategySmart)
+    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategySmart actionStrategySmart)
     {
         throw new System.NotImplementedException();
     }
 }
 
+/// <summary>
+/// 攻击最近的敌人
+/// </summary>
 public class ActionNodeAttackShortestDistance: IActionNode
 {
     public ActionNodeAttackShortestDistance(float priority, string name = null) : base(priority, name)
     {
     }
 
-    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, List<GameObject> allCanMoveGridItems, ActionStrategySmart actionStrategySmart)
+    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategySmart actionStrategySmart)
     {
         throw new System.NotImplementedException();
     }
 }
 
+/// <summary>
+/// 贪婪 穷举
+/// </summary>
 public class ActionNodeGreedyAlgorithm : IActionNode
 {
     public ActionNodeGreedyAlgorithm(float priority, string name = null) : base(priority, name)
     {
     }
 
-    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, List<GameObject> allCanMoveGridItems, ActionStrategySmart actionStrategySmart)
+    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategySmart actionStrategySmart)
     {
         return true;
     }
@@ -183,7 +194,6 @@ public class ActionNodeMpNotEnough : IActionNode
     public override bool Run(GameObject activingRoleGO, 
         List<GameObject> allRoleGO, 
         GameObject[,] mapGridItems, 
-        List<GameObject> activingRoleAllCanMoveGridItems, 
         ActionStrategySmart actionStrategySmart)
     {
         BaseRole activingRole = activingRoleGO.GetComponent<BaseRole>();
@@ -237,7 +247,7 @@ public class ActionNodeMpNotEnough : IActionNode
             Debug.LogWarning("远离主角行动");
             int maxDistance = 0;
             GameObject targetMapGridItem = null;
-            foreach(GameObject canMoveMapGridItem in activingRoleAllCanMoveGridItems)
+            foreach(GameObject canMoveMapGridItem in activingRole.lastAllCanMoveGrids)
             {
                 int distance = ManHaDunDistanceTrim(MapUtil.GetPositionFromGridItemGO(canMoveMapGridItem), hanLiScriptInBattle.battleOriginPosition);
                 if (distance > maxDistance) 
@@ -249,19 +259,18 @@ public class ActionNodeMpNotEnough : IActionNode
             actionStrategySmart.SetMoveTargetGridItem(targetMapGridItem);
         }
 
-        foreach(RoleItem item in activingRole.roleItems)
+        foreach(RoleItem item in activingRole.roleItems) //挑选道具恢复mp
         {
             if(item.recoverMp > 0)
             {
-                activingRole.SetReadyToUseItem(item);
-                activingRole.roleItems.Remove(item);
+                activingRole.selectRoleItem = item;
                 break;
             }
         }
 
-        if(activingRole.GetReadyToUseItem(false) == null) //无道具可用，->调息
+        if(activingRole.selectRoleItem == null) //无道具可用->调息
         {
-            actionStrategySmart.SetIsPassAfterMove(true);
+            actionStrategySmart.SetIsPass(true);
         }
 
         return true;

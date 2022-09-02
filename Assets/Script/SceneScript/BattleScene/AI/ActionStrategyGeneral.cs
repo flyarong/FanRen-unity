@@ -6,16 +6,12 @@ public class ActionStrategyGeneral : ActionStrategy
 
     //本回合走到哪一格
     private GameObject moveTargetGridItem;
-    //选择什么神通
-    private Shentong selectShentong;
     //攻击哪个格子
     private GameObject attackMapGrid;
-    //移动后是否直接待机
-    private bool isPassAfterMove = false;
     //本回合是否待机, 被冰冻等，不可行动
     private bool isPass = false;
     //选择了使用道具
-    private RoleItem selectRoleItem;
+    //private RoleItem selectRoleItem;
 
     /// <summary>
     /// 继承本类，重写这个方法让NPC实现新的战斗策略，战场初始化的时候赋给角色即可
@@ -24,7 +20,7 @@ public class ActionStrategyGeneral : ActionStrategy
     /// <param name="activingRoleGO">角色的回合</param>
     /// <param name="allRole">全部角色战场信息</param>
     /// <param name="mapGrids">全部地图格子信息</param>
-    public override void GenerateStrategy(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, List<GameObject> allCanMoveGridItems)
+    public override void GenerateStrategy(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems)
     {
         GameObject hanLiGO = null;
         List<(int, int)> obstacles = new List<(int, int)>();
@@ -59,7 +55,7 @@ public class ActionStrategyGeneral : ActionStrategy
             {
                 AStarPathUtil.Node maxSpeedCanReachNode = nodes[activingRole.speed-1];
                 this.moveTargetGridItem = mapGridItems[maxSpeedCanReachNode.x, maxSpeedCanReachNode.y];
-                this.isPassAfterMove = true;
+                this.isPass = true;
             }
             else //目标距离在攻击范围内
             {
@@ -67,12 +63,12 @@ public class ActionStrategyGeneral : ActionStrategy
                 {
                     AStarPathUtil.Node targetNode = nodes[nodes.Count - 1]; //韩立身边的格子，如果可以使用其它神通，那么应该是一个可选的范围
                     this.moveTargetGridItem = mapGridItems[targetNode.x, targetNode.y];
-                    this.isPassAfterMove = false;
+                    this.isPass = false;
                 }
                 else if (nodes.Count == 0)
                 {
                     this.moveTargetGridItem = mapGridItems[activingRole.battleOriginPosX, activingRole.battleOriginPosZ];
-                    this.isPassAfterMove = false;
+                    this.isPass = false;
                 }
             }
         }
@@ -81,10 +77,10 @@ public class ActionStrategyGeneral : ActionStrategy
             //todo AI一般策略：无路可走，待在原地，尝试其它攻击方式
             Debug.LogWarning("AI一般策略：无路可走，待在原地，尝试其它攻击方式");
             this.moveTargetGridItem = mapGridItems[activingRole.battleOriginPosX, activingRole.battleOriginPosZ];
-            this.isPassAfterMove = true;
+            this.isPass = true;
         }
         
-        this.selectShentong = activingRole.shentongInBattle[0];
+        activingRole.SetShentongReadyToUse(activingRole.shentongInBattle[0]);
         this.attackMapGrid = mapGridItems[hanLiRole.battleOriginPosX, hanLiRole.battleOriginPosZ];
     }
 
@@ -99,16 +95,6 @@ public class ActionStrategyGeneral : ActionStrategy
         this.moveTargetGridItem = moveTargetGridItem;
     }
 
-    public override Shentong GetSelectShentong()
-    {
-        return this.selectShentong;
-    }
-
-    public void SetSelectShentong(Shentong selectShentong)
-    {
-        this.selectShentong = selectShentong;
-    }
-
     public override GameObject GetAttackMapGridItem()
     {
         return this.attackMapGrid;
@@ -117,16 +103,6 @@ public class ActionStrategyGeneral : ActionStrategy
     public void SetAttackMapGridItem(GameObject attackMapGrid)
     {
         this.attackMapGrid = attackMapGrid;
-    }
-
-    public override bool IsPassAfterMove()
-    {
-        return this.isPassAfterMove;
-    }
-
-    public void SetIsPassAfterMove(bool isPassAfterMove)
-    {
-        this.isPassAfterMove = isPassAfterMove;
     }
 
     public override bool IsPass()
@@ -139,13 +115,4 @@ public class ActionStrategyGeneral : ActionStrategy
         this.isPass = isPass;
     }
 
-    public override RoleItem GetSelectRoleItem()
-    {
-        return this.selectRoleItem;
-    }
-
-    public void SetSelectRoleItem(RoleItem selectRoleItem)
-    {
-        this.selectRoleItem = selectRoleItem;
-    }
 }

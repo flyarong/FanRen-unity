@@ -8,17 +8,15 @@ public class ActionNodeManager
     public GameObject activingRoleGO;
     public List<GameObject> allRoleGO;
     public GameObject[,] mapGridItems;
-    public List<GameObject> allCanMoveGridItems;
 
     public ActionStrategySmart actionStrategySmart;
 
-    public ActionNodeManager(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, List<GameObject> allCanMoveGridItems, ActionStrategySmart actionStrategySmart)
+    public ActionNodeManager(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategySmart actionStrategySmart)
     {
         this.actionNodes = new SortedList<float, IActionNode>(new MyActionNodeSort());
         this.activingRoleGO = activingRoleGO;
         this.allRoleGO = allRoleGO;
         this.mapGridItems = mapGridItems;
-        this.allCanMoveGridItems = allCanMoveGridItems;
         this.actionStrategySmart = actionStrategySmart;
     }
 
@@ -39,7 +37,7 @@ public class ActionNodeManager
     {
         for (int i = 0; i < actionNodes.Count; i++)
         {
-            if (actionNodes[i].Run(activingRoleGO, allRoleGO, mapGridItems, allCanMoveGridItems, actionStrategySmart))
+            if (actionNodes[i].Run(activingRoleGO, allRoleGO, mapGridItems, actionStrategySmart))
             {
                 return;
             }
