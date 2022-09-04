@@ -91,10 +91,18 @@ public class BattleController : BaseMono
         ResetMouseAckRange();
 
         BaseRole selectedRoleCS = activingRoleGO.GetComponent<BaseRole>();
+
+        if (selectedRoleCS.selectedShentong == null && selectedRoleCS.selectRoleItem == null)
+        {
+            selectedRoleCS.DoRest();
+        }
+
         selectedRoleCS.roleInBattleStatus = RoleInBattleStatus.Waiting;
         selectedRoleCS.DoCancelShentong();
-        
-        if(selectedRoleCS.battleToPosX >= 0)
+        selectedRoleCS.DoCancelRoleItem();
+
+
+        if (selectedRoleCS.battleToPosX >= 0)
         {
             selectedRoleCS.battleOriginPosX = selectedRoleCS.battleToPosX;
         }
@@ -105,6 +113,8 @@ public class BattleController : BaseMono
             selectedRoleCS.battleOriginPosZ = selectedRoleCS.battleToPosZ;
         }
         selectedRoleCS.battleToPosZ = -1;
+
+        
 
         activingRoleGO = null;
 
@@ -126,7 +136,9 @@ public class BattleController : BaseMono
         ResetMouseAckRange();
         BaseRole selectedRoleCS = activingRoleGO.GetComponent<BaseRole>();
         selectedRoleCS.DoCancelShentong();
-        
+        selectedRoleCS.DoCancelRoleItem();
+
+
         selectedRoleCS.battleToPosX = -1;
         selectedRoleCS.battleToPosZ = -1;
         activingRoleGO.transform.position = new Vector3(selectedRoleCS.battleOriginPosX+0.5f, 0, selectedRoleCS.battleOriginPosZ+0.5f);
@@ -624,7 +636,7 @@ public class BattleController : BaseMono
         else if (activingRole.selectRoleItem != null) //使用道具
         {
             //todo 
-            activingRole.UseRoleItem();
+            activingRole.DoUseRoleItem();
         }
         else
         {

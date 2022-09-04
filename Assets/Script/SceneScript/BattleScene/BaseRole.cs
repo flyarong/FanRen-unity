@@ -172,7 +172,7 @@ public class BaseRole : BaseMono
         //damageTextPrefab = Resources.Load<GameObject>("Prefab/TextDamage");
     }
 
-    public void UseRoleItem()
+    public void DoUseRoleItem()
     {
         //todo 使用道具
 
@@ -182,7 +182,7 @@ public class BaseRole : BaseMono
         
         //使用完
         this.roleItems.Remove(this.selectRoleItem);
-        this.selectRoleItem = null;
+        //this.selectRoleItem = null;
     }
 
     public void UpdateHP(int damage)
@@ -203,6 +203,29 @@ public class BaseRole : BaseMono
         mpSlide.maxValue = this.maxMp;
         mpSlide.minValue = 0;
         mpSlide.value = this.mp;
+    }
+
+    /// <summary>
+    /// 调息恢复2% hp mp
+    /// </summary>
+    public void DoRest()
+    {
+        int rHp = (int)(this.maxHp * 0.02f);
+        if (rHp < 1) rHp = 1;
+        this.hp += rHp;
+        if (this.hp > this.maxHp) this.hp = this.maxHp;
+
+        int rMp = (int)(this.maxMp * 0.02f);
+        if (rMp < 1) rMp = 1;
+        this.mp += rMp;
+        if (this.mp > this.maxMp) this.mp = this.maxMp;
+
+        Debug.Log("调息恢复hp " + rHp + ", mp " + rMp);
+
+        UpdateHP(0);
+        UpdateMP(0);
+
+        GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().ShowRecoverTextUI(rHp, rMp, this.gameObject);
     }
 
     public int GetMoveDistanceInBattle()
@@ -231,6 +254,11 @@ public class BaseRole : BaseMono
     public void DoCancelShentong()
     {
         this.selectedShentong = null;
+    }
+
+    public void DoCancelRoleItem()
+    {
+        this.selectRoleItem = null;
     }
 
     //返回是否死了

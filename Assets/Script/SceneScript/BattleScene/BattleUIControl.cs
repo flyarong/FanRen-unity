@@ -221,6 +221,8 @@ public class BattleUIControl : BaseMono
         //    if (sac.gameObject.activeInHierarchy && sac.gameObject.activeSelf) sac.RePlayRun();
         //}
 
+        //如果本回合没有使用神通或者使用道具，则待机可以调息
+        
         KeepSliderAvatarGoing();
     }
 
@@ -295,6 +297,33 @@ public class BattleUIControl : BaseMono
 
         //Vector2 tp2 = RectTransformUtility.WorldToScreenPoint(Camera.main, targetGO.transform.position);
         //damageTextGO.GetComponent<RectTransform>().position = tp2;
+    }
+
+    public void ShowRecoverTextUI(int recoverHp, int recoverMp, GameObject targetGO)
+    {
+        GameObject damageTextGO = Instantiate(this.damageTextPrefab, this.transform);
+        damageTextGO.GetComponent<TextDamageController>().damageRole = targetGO;
+        string finalText = "";
+        if(recoverHp > 0 && recoverMp > 0)
+        {
+            damageTextGO.GetComponentInChildren<Text>().color = Color.white;
+            finalText = "气血+" + recoverHp + "\n灵力+" + recoverMp;
+        }
+        else if(recoverHp > 0 && recoverMp == 0)
+        {
+            damageTextGO.GetComponentInChildren<Text>().color = Color.green;
+            finalText = "气血+" + recoverHp;
+        }
+        else if (recoverHp == 0 && recoverMp > 0)
+        {
+            damageTextGO.GetComponentInChildren<Text>().color = Color.blue;
+            finalText = "灵力+" + recoverMp;
+        }else if (recoverHp == 0 && recoverMp == 0)
+        {
+            damageTextGO.GetComponentInChildren<Text>().color = Color.white;
+            finalText = "气血+" + 0 + "\n灵力+" + 0;
+        }
+        damageTextGO.GetComponent<Text>().text = finalText;
     }
 
     private void changeButtonColor(int clickButtonIndex)
