@@ -208,14 +208,14 @@ public class BaseRole : BaseMono
     /// <summary>
     /// µ÷Ï¢»Ö¸´2% hp mp
     /// </summary>
-    public void DoRest()
+    public void DoRest(float rPercent)
     {
-        int rHp = (int)(this.maxHp * 0.02f);
+        int rHp = (int)(this.maxHp * rPercent);
         if (rHp < 1) rHp = 1;
         this.hp += rHp;
         if (this.hp > this.maxHp) this.hp = this.maxHp;
 
-        int rMp = (int)(this.maxMp * 0.02f);
+        int rMp = (int)(this.maxMp * rPercent);
         if (rMp < 1) rMp = 1;
         this.mp += rMp;
         if (this.mp > this.maxMp) this.mp = this.maxMp;

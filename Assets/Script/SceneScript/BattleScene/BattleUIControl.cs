@@ -10,12 +10,15 @@ public class BattleUIControl : BaseMono
 
     private GameObject passButton;
     private GameObject resetButton;
+    private GameObject openBagButton;
+
     private GameObject[] buttons = new GameObject[12];
 
     private List<GameObject> allRole;
 
     public GameObject battleUIPanel;
     public GameObject winUIGameObj;
+    public GameObject battleBagUIGameObj;
 
     //private List<SlideAvatarController> allSlideAvatarCS = new List<SlideAvatarController>();
 
@@ -25,8 +28,10 @@ public class BattleUIControl : BaseMono
         this.allRole = allRole;
         passButton = GameObject.FindGameObjectWithTag("PassButton");
         resetButton = GameObject.FindGameObjectWithTag("ResetButton");
+        openBagButton = GameObject.Find("openBag");
         passButton.SetActive(false);
         resetButton.SetActive(false);
+        openBagButton.SetActive(false);
 
         for (int i = 0; i < 12; i++)
         {                        
@@ -69,6 +74,7 @@ public class BattleUIControl : BaseMono
             GameObject hpSliderPrefab = Resources.Load<GameObject>("Prefab/UIPrefab/HP_Slider");
 
             GameObject hpSlideGameObject = Instantiate(hpSliderPrefab, this.transform);
+            hpSlideGameObject.transform.SetAsFirstSibling();
             //hpSlideGameObject.name = roleCS.GetHpUIGameObjectName();
 
             Text roleName = hpSlideGameObject.GetComponentsInChildren<Text>()[0];
@@ -195,13 +201,17 @@ public class BattleUIControl : BaseMono
             ShowAndHideShentongButton();
             passButton.SetActive(true);
             resetButton.SetActive(true);
+            openBagButton.SetActive(true);
         }
         
     }
 
-    
+    public void OnClickOpenBag()
+    {
+        battleBagUIGameObj.SetActive(!battleBagUIGameObj.activeInHierarchy);
+    }
 
-    //点击待机按钮，会执行此方法
+    //点击待机(调息)按钮，会执行此方法
     public void OnClickPassButton()
     {
         if (battleController.isPlayingAnim)
@@ -216,13 +226,15 @@ public class BattleUIControl : BaseMono
         HideAllShentongButton();
         passButton.SetActive(false);
         resetButton.SetActive(false);
+        openBagButton.SetActive(false);
+
         //foreach (SlideAvatarController sac in allSlideAvatarCS)
         //{
         //    if (sac.gameObject.activeInHierarchy && sac.gameObject.activeSelf) sac.RePlayRun();
         //}
 
         //如果本回合没有使用神通或者使用道具，则待机可以调息
-        
+
         KeepSliderAvatarGoing();
     }
 

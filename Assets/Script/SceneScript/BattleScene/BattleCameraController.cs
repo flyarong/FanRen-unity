@@ -19,6 +19,9 @@ public class BattleCameraController : BaseMono
 
     private BattleController mBattleController;
 
+    //背包是一个列表，滑动鼠标滚轮可以上下拉动，和镜头的拉近拉远冲突了
+    public GameObject bagUIContainer;
+
     void Start()
     {
         GameObject terrainGO = GameObject.FindGameObjectWithTag("Terrain");
@@ -97,6 +100,12 @@ public class BattleCameraController : BaseMono
         //{
         //    Cursor.lockState = Cursor.lockState == CursorLockMode.Locked ? CursorLockMode.None : CursorLockMode.Locked;
         //}
+
+        //背包显示的时候不允许操作镜头
+        if(bagUIContainer != null && bagUIContainer.activeInHierarchy)
+        {
+            return;
+        }
 
         if (player == null || dir == null || isCameraMoving) return;
 

@@ -92,9 +92,13 @@ public class BattleController : BaseMono
 
         BaseRole selectedRoleCS = activingRoleGO.GetComponent<BaseRole>();
 
-        if (selectedRoleCS.selectedShentong == null && selectedRoleCS.selectRoleItem == null)
+        if (selectedRoleCS.selectedShentong == null && selectedRoleCS.selectRoleItem == null) //本回合没有施展神通或者使用道具恢复5%
         {
-            selectedRoleCS.DoRest();
+            selectedRoleCS.DoRest(0.05f);
+        }
+        else
+        {
+            selectedRoleCS.DoRest(0.01f);
         }
 
         selectedRoleCS.roleInBattleStatus = RoleInBattleStatus.Waiting;
