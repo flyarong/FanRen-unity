@@ -54,7 +54,7 @@ public class MyListView : MonoBehaviour
     /// <summary>
     /// 从数据库查
     /// </summary>
-    int dataSize = 68;
+    int dataSize = 111;
     int columnCount;
     float cellHeight;
     float spaceHeight;
@@ -134,12 +134,23 @@ public class MyListView : MonoBehaviour
         if (isLoadAll) return;
 
         scrollOffset = scrollContentRectTransform.anchoredPosition.y;
+        if (scrollOffset > maxScrollOffset) scrollOffset = maxScrollOffset;
+        if (scrollOffset < 0f) scrollOffset = 0f;
 
         //Debug.Log("bottomDataPointer " + bottomDataPointer);
         if (scrollOffset - preScrollOffset > 1 && scrollOffset > 1 && Input.GetMouseButton(0)) //向上滑动 && 垂直偏移量要大于0(1更加安全一点)避免滑到最顶部回弹导致底部自动增加行
         {
+            bool c1 = false;
+            if (mode == 0)
+            {
+                c1 = (int)(scrollOffset / (cellHeight + spaceHeight)) > lastRowIntervelNumber;
+            }
+            else if (mode == 1)
+            {
+                c1 = (int)((maxScrollOffset - scrollOffset) / (cellHeight + spaceHeight)) < lastRowIntervelNumber;
+            }
             //滚动超过1行的高度
-            if ((int)(scrollContentRectTransform.anchoredPosition.y / (cellHeight + spaceHeight)) > lastRowIntervelNumber && bottomDataPointer <= dataSize)
+            if (c1 && bottomDataPointer < dataSize)
             {
                 //if (bottomDataPointer < dataSize) {
                 Debug.Log("底部加载更多 " + scrollContentRectTransform.anchoredPosition.y);
@@ -161,21 +172,14 @@ public class MyListView : MonoBehaviour
                     }
                 }
 
-                //if (bottomDataPointer <= dataSize)
-                //{
                 Vector2 sd = scrollContentRectTransform.sizeDelta;
                 sd.y += (cellHeight + spaceHeight);
                 scrollContentRectTransform.sizeDelta = sd;
                 gridLayoutGroup.padding.top += (int)(cellHeight + spaceHeight);
-                Debug.Log("currentHeight " + scrollContentRectTransform.rect.height);
-                //}
-                //}
-                //else
+
+                //if(gridLayoutGroup.padding.bottom > originPaddingBottom)
                 //{
-                //int totalRows = dataSize % columnCount == 0 ? dataSize / columnCount : dataSize / columnCount + 1;
-                //int finalHeight = totalRows * (int)(cellHeight + spaceHeight) + 20;
-                //Debug.Log("currentHeight " + scrollContentRectTransform.rect.height);
-                //Debug.Log("到底部了 currentHeight " + scrollContentRectTransform.rect.height);
+                //    gridLayoutGroup.padding.bottom -= (int)(cellHeight + spaceHeight);
                 //}
 
             }
@@ -185,14 +189,19 @@ public class MyListView : MonoBehaviour
                 Debug.LogWarning("到了真正的底部，需要改变模式");
                 mode = 1;
             }
-            //垂直滚动偏移量 / (cellHeight + spaceHeight)
-            //lastRowIntervelNumber = (int)(scrollOffset / (cellHeight + spaceHeight));
-            //lastRowIntervelNumber = (int)(scrollOffset / (cellHeight + spaceHeight)); //需要增减行数的边界值
-            //preScrollOffset = scrollOffset;
         }
         else if (preScrollOffset - scrollOffset > 1 && Input.GetMouseButton(0)) //Input.GetMouseButton(0)防止scroll rect的松手自动回弹混乱逻辑
         {
-            if ((int)((maxScrollOffset - scrollOffset) / (cellHeight + spaceHeight)) > lastRowIntervelNumber && gridLayoutGroup.padding.top > originPaddingTop)
+            bool c1 = false;
+            if(mode == 0)
+            {
+                c1 = (int)(scrollOffset / (cellHeight + spaceHeight)) < lastRowIntervelNumber;
+            }
+            else if (mode == 1)
+            {
+                c1 = (int)((maxScrollOffset - scrollOffset) / (cellHeight + spaceHeight)) > lastRowIntervelNumber;
+            }
+            if (c1 && gridLayoutGroup.padding.top > originPaddingTop)
             {
                 Debug.Log("顶部加载原来的item " + scrollContentRectTransform.anchoredPosition.y);
                 for (int i = 0; i < columnCount; i++)
@@ -209,10 +218,10 @@ public class MyListView : MonoBehaviour
                 sd.y -= (cellHeight + spaceHeight);
                 scrollContentRectTransform.sizeDelta = sd;
                 gridLayoutGroup.padding.top -= (int)(cellHeight + spaceHeight);
-                if(mode == 1)
-                {
-                    gridLayoutGroup.padding.bottom += (int)(cellHeight + spaceHeight);
-                }
+                //if(mode == 1)
+                //{
+                //    gridLayoutGroup.padding.bottom += (int)(cellHeight + spaceHeight);
+                //}
             }
             if (scrollOffset <= 0f)
             {
