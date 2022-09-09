@@ -22,6 +22,7 @@ public class MyAudioManager: MonoBehaviour
     {
         instance = this;
         soundEffects = gameObject.AddComponent<AudioSource>();
+        soundEffects.volume = 0.5f;
         //bgm = gameObject.AddComponent<AudioSource>();
         //bgm.loop = true;
     }
