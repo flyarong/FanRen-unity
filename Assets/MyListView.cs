@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -69,6 +68,11 @@ public class MyListView : MonoBehaviour
 
     bool isLoadAll = false;
 
+    public void OnGridItemClick(GameObject gridItem)
+    {
+        Debug.Log("OnGridItemClick " + gridItem.transform.GetChild(0).name);
+    }
+
     private void initItemCache()
     {
 
@@ -78,7 +82,6 @@ public class MyListView : MonoBehaviour
         //占满1屏需要的总格子数量
         oneScreenNeedItems = oneScreenNeedRow * columnCount;
         Debug.Log("one screen needItems " + oneScreenNeedItems);
-        int n = 0;
         if (dataSize > (oneScreenNeedItems + columnCount * 2)) //数据量超出1屏+2行
         {
             int height = ((int)((oneScreenNeedRow + 2) * (cellHeight + spaceHeight))) + (int)spaceHeight;
@@ -86,12 +89,16 @@ public class MyListView : MonoBehaviour
             for (int i = 0; i < (oneScreenNeedItems + columnCount * 2); i++)
             {
                 GameObject cacheItem = Instantiate(bagGridItemPrefab, contentGameObj.transform);
-                cacheItem.name = "cacheItem " + n;
+                cacheItem.name = "cacheItem " + i;
+                cacheItem.transform.GetChild(0).name = i.ToString();
                 cacheItems.AddLast(cacheItem);
-                cacheItem.GetComponentInChildren<Text>().text = "青竹蜂云剑x" + n;
-                n++;
+                cacheItem.GetComponentInChildren<Text>().text = "青竹蜂云剑x" + i;
+                //cacheItem.GetComponentInChildren<Image>().sprite = ;
+                cacheItem.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    OnGridItemClick(cacheItem);
+                });
                 bottomDataPointer++;
-                //cacheItem.transform.SetParent(gridLayout.transform);
             }
             Vector2 sd = scrollContentRectTransform.sizeDelta;
             sd.y = height;
@@ -104,7 +111,12 @@ public class MyListView : MonoBehaviour
             {
                 GameObject item = Instantiate(bagGridItemPrefab, contentGameObj.transform);
                 //item.GetComponentInChildren<Image>().sprite = 
-                item.GetComponentInChildren<Text>().text = "青竹蜂云剑x8890";
+                item.GetComponentInChildren<Text>().text = "青竹蜂云剑x" + i;
+                item.transform.GetChild(0).name = i.ToString();
+                item.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    OnGridItemClick(item);
+                });
             }
             Vector2 sd = scrollContentRectTransform.sizeDelta;
             sd.y = (dataSize % columnCount == 0 ? dataSize / columnCount : dataSize / columnCount + 1) * (cellHeight + spaceHeight) + originPaddingBottom;
@@ -169,6 +181,8 @@ public class MyListView : MonoBehaviour
                     cacheItems.RemoveFirst();
                     cacheItems.AddLast(firstGO);
                     firstGO.GetComponentInChildren<Text>().text = "青竹蜂云剑x" + bottomDataPointer;
+                    //firstGO.GetComponentInChildren<Image>().sprite = ;
+                    firstGO.transform.GetChild(0).name = bottomDataPointer.ToString();
                     bottomDataPointer++;
                     if (bottomDataPointer > dataSize)
                     {
@@ -220,16 +234,15 @@ public class MyListView : MonoBehaviour
                     cacheItems.AddFirst(lastGO);
                     lastGO.SetActive(true);
                     lastGO.GetComponentInChildren<Text>().text = "青竹蜂云剑x" + (bottomDataPointer - ((oneScreenNeedRow + 2) * columnCount + 1));
+                    //lastGO.GetComponentInChildren<Image>().sprite = ;
+                    lastGO.transform.GetChild(0).name = (bottomDataPointer - ((oneScreenNeedRow + 2) * columnCount + 1)).ToString();
+
                     bottomDataPointer--;
                 }
                 Vector2 sd = scrollContentRectTransform.sizeDelta;
                 sd.y -= (cellHeight + spaceHeight);
                 scrollContentRectTransform.sizeDelta = sd;
                 gridLayoutGroup.padding.top -= (int)(cellHeight + spaceHeight);
-                //if(mode == 1)
-                //{
-                //    gridLayoutGroup.padding.bottom += (int)(cellHeight + spaceHeight);
-                //}
             }
             if (scrollOffset <= 0f)
             {
