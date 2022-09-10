@@ -129,18 +129,26 @@ public class MyListView : MonoBehaviour
     /// </summary>
     int mode = 0;
 
+    bool c1 = false;
+
     private void Update()
     {
         if (isLoadAll) return;
 
         scrollOffset = scrollContentRectTransform.anchoredPosition.y;
-        if (scrollOffset > maxScrollOffset) scrollOffset = maxScrollOffset;
-        if (scrollOffset < 0f) scrollOffset = 0f;
+        if(scrollOffset > maxScrollOffset)
+        {
+            scrollOffset = maxScrollOffset;
+        }
+        else if (scrollOffset < 0f)
+        {
+            scrollOffset = 0f;
+        }
 
         //Debug.Log("bottomDataPointer " + bottomDataPointer);
         if (scrollOffset - preScrollOffset > 1 && scrollOffset > 1 && Input.GetMouseButton(0)) //向上滑动 && 垂直偏移量要大于0(1更加安全一点)避免滑到最顶部回弹导致底部自动增加行
         {
-            bool c1 = false;
+            c1 = false;
             if (mode == 0)
             {
                 c1 = (int)(scrollOffset / (cellHeight + spaceHeight)) > lastRowIntervelNumber;
@@ -192,7 +200,7 @@ public class MyListView : MonoBehaviour
         }
         else if (preScrollOffset - scrollOffset > 1 && Input.GetMouseButton(0)) //Input.GetMouseButton(0)防止scroll rect的松手自动回弹混乱逻辑
         {
-            bool c1 = false;
+            c1 = false;
             if(mode == 0)
             {
                 c1 = (int)(scrollOffset / (cellHeight + spaceHeight)) < lastRowIntervelNumber;
