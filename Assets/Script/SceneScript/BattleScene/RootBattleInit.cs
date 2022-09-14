@@ -29,9 +29,6 @@ public class RootBattleInit : BaseMono
     void Start()
     {
         //roles = new GameObject[enemyRoleIds.Length + 1 + (∂””—?ø˛¿‹£ø¡È ﬁ£ø¡È≥Ê£ø)];
-
-        
-
         if (enemyRoleIds == null) //for test
         {
             roles[0].SetActive(true);
@@ -40,7 +37,7 @@ public class RootBattleInit : BaseMono
             GameObject hanLiGameObj = roles[0];
             HanLiScriptInBattle hanLiCS = hanLiGameObj.GetComponent<HanLiScriptInBattle>();
             hanLiCS.Init();
-            hanLiCS.InitRoleBattelePos(2, 7); //todo
+            hanLiCS.InitRoleBattelePos(2, 7); //todo ≈≈Œª¥˝∂®
             
             Enemy enemyCS = roles[1].GetComponent<Enemy>();
             RoleInfo enemyRoleInfo = MyDBManager.GetInstance().GetRoleInfo(7);
@@ -60,7 +57,7 @@ public class RootBattleInit : BaseMono
             GameObject hanLiGameObj = Instantiate(hanLiPrefab);
             HanLiScriptInBattle hanLiCS = hanLiGameObj.GetComponent<HanLiScriptInBattle>();
             hanLiCS.Init();
-            hanLiCS.InitRoleBattelePos(5, 5); //todo
+            hanLiCS.InitRoleBattelePos(5, 5); //todo ≈≈Œª¥˝∂®
             //roles[0] = hanLiGameObj;
             roleList.Add(hanLiGameObj);
 

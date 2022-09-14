@@ -12,12 +12,17 @@ public class HanLiScriptInBattle : BaseRole
 
         if (PlayerControl.IS_DEBUG && shenTongList.Count == 0)
         {
-            Debug.LogWarning("HanLi Init() debug模式，主角默认学会三个神通，储物袋有20块灵石");
+            Debug.LogWarning("HanLi Init() debug模式，主角默认学会三个神通");
             MyDBManager.GetInstance().ZhujueLearnShentong(1, 1);
             MyDBManager.GetInstance().ZhujueLearnShentong(2, 1);
             MyDBManager.GetInstance().ZhujueLearnShentong(3, 1);
-            MyDBManager.GetInstance().AddItemToBag(16, 20); //添加20块低阶灵石
             shenTongList = MyDBManager.GetInstance().GetRoleShentong(1, 1, true);
+        }
+
+        for (int i = 1; i <= 33; i++)
+        {
+            //Debug.Log("i " + i);
+            MyDBManager.GetInstance().AddItemToBag(i, 1);
         }
 
         Shentong[] tmp = new Shentong[12];

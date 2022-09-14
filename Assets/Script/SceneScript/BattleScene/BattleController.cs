@@ -1,6 +1,5 @@
 using DG.Tweening;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.ParticleSystem;
@@ -47,7 +46,7 @@ public class BattleController : BaseMono
         {
             for (int z = 0; z < height; z++)
             {
-                GameObject cube = Instantiate(gridCubePrefab);
+                GameObject cube = Instantiate(gridCubePrefab, this.transform);
                 cube.transform.position = new Vector3(x + 0.5f, 0.002f, z + 0.5f);
                 cube.name = x + "," + z;
                 cube.SetActive(false);

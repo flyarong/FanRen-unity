@@ -200,7 +200,44 @@ public class MyDBManager
         return roleShentong;
     }
 
-    
+    public List<RoleItem> GetRoleItemInBag(int roleId, bool isForBattle)
+    {
+        List<RoleItem> allRoleItem = new List<RoleItem>();
+        RoleItem roleItem;
+        SqliteCommand sqliteCommand = this.mSqliteConnection.CreateCommand();
+        sqliteCommand.CommandText = $"select * from role_bag_rw a left join items_r b on a.itemId=b.itemId where a.roleId={roleId}";
+        if (isForBattle) sqliteCommand.CommandText += " and (b.recoverHp>0 or b.recoverMp>0)";
+        SqliteDataReader sdr = sqliteCommand.ExecuteReader();
+        while (sdr.Read())
+        {
+            roleItem = new RoleItem();
+
+            roleItem.roleId = roleId;
+            roleItem.itemId = (int)((Int64)sdr["itemId"]);
+            roleItem.itemCount = (int)((Int64)sdr["itemCount"]); //比GetItemDetailInfo仅多出这一项
+
+            roleItem.itemType = (int)((Int64)sdr["itemType"]);
+            roleItem.itemName = (string)(sdr["itemName"]);
+
+            roleItem.addPhyAck = (int)((Int64)sdr["addPhyAck"]);
+            roleItem.addPhyDef = (int)((Int64)sdr["addPhyDef"]);
+            roleItem.price = (int)((Int64)sdr["price"]);
+
+            roleItem.imageName = (string)(sdr["imageName"]);
+            roleItem.itemDesc = (string)(sdr["itemDesc"]);
+
+            roleItem.scarceLevel = (int)((Int64)sdr["scarceLevel"]);
+
+            roleItem.recoverHp = (int)((Int64)sdr["recoverHp"]);
+            roleItem.recoverMp = (int)((Int64)sdr["recoverMp"]);
+
+            allRoleItem.Add(roleItem);
+        }
+        sdr.Close();
+        sdr.Dispose();
+        sqliteCommand.Dispose();
+        return allRoleItem;
+    }
 
     public RoleItem GetRoleItemInBag(int itemId)
     {
@@ -614,6 +651,7 @@ public class RoleInfo
 //角色拥有的物品
 public class RoleItem
 {
+    public int roleId;
     public int itemId;
     public int itemType;
     public int itemCount;
