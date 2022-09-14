@@ -81,6 +81,10 @@ public class MyListView : MonoBehaviour
     {
         MyDBManager.GetInstance().ConnDB();
         this.datas = MyDBManager.GetInstance().GetRoleItemInBag(1, false);
+
+        //this.datas.RemoveRange(0, 13);
+        //this.datas.Clear();
+
         this.dataSize = this.datas.Count;
     }
 
@@ -135,7 +139,6 @@ public class MyListView : MonoBehaviour
 
             //最后一行剩余的空位
             int lastRowNonUseCount;
-
             LinkedListNode<GameObject> lastVisibleNode = cacheItems.Last;
             for (int i = 0; i < cacheItems.Count; i++)
             {
@@ -148,93 +151,213 @@ public class MyListView : MonoBehaviour
                     lastVisibleNode = lastVisibleNode.Previous;
                 }
             }
-
-            Debug.LogError("lastVisibleNode.Value.transform.GetChild(0).name " + lastVisibleNode.Value.transform.GetChild(0).name);
-
-            if ((1 + int.Parse(lastVisibleNode.Value.transform.GetChild(0).name)) % columnCount == 0) //最后一行没有空位，刚好排满
+            if (lastVisibleNode != null && lastVisibleNode.Value.activeInHierarchy) //说明有数据
             {
-                lastRowNonUseCount = 0;
-            }
-            else
-            {
-                lastRowNonUseCount = columnCount - ((1 + int.Parse(lastVisibleNode.Value.transform.GetChild(0).name)) % columnCount);
-            }
-            Debug.LogError("lastRowNonUseCount " + lastRowNonUseCount);
-            //增加了多少数据
-            int addDataCount = this.dataSize - originDataSize;
-            Debug.LogError("addDataCount " + addDataCount);
-
-            if(addDataCount <= lastRowNonUseCount)
-            {
-                Debug.Log("增加的数据量，隐藏空位放得下");
-                RefreshLastRowNonUseGridItem();
-            }
-            else if (addDataCount > lastRowNonUseCount) //增加的数据量超过剩余空位
-            {
-                if(lastRowNonUseCount > 0)
+                Debug.Log("lastVisibleNode.Value.transform.GetChild(0).name " + lastVisibleNode.Value.transform.GetChild(0).name);
+                if ((1 + int.Parse(lastVisibleNode.Value.transform.GetChild(0).name)) % columnCount == 0) //最后一行没有空位，刚好排满
                 {
-                    //如果有隐藏空位就先利用
-                    RefreshLastRowNonUseGridItem();
+                    lastRowNonUseCount = 0;
                 }
-                ScrollTouchUp();
+                else
+                {
+                    lastRowNonUseCount = columnCount - ((1 + int.Parse(lastVisibleNode.Value.transform.GetChild(0).name)) % columnCount);
+                }
+                Debug.Log("lastRowNonUseCount " + lastRowNonUseCount);
+                //增加了多少数据
+                int addDataCount = this.dataSize - originDataSize;
+                Debug.Log("addDataCount " + addDataCount);
+
+                RefreshAllGridItem();
+                if (addDataCount > lastRowNonUseCount) //增加的数据量超过剩余空位
+                {
+
+                    if(originDataSize <= (oneScreenNeedItems + 2 * columnCount))
+                    {
+                        Debug.Log("旧数据在范围内");
+                        if (this.dataSize <= (oneScreenNeedItems + 2 * columnCount))
+                        {
+                            Debug.Log("范围内增加数据，只需要行变动");
+                            int addLineCount;
+                            int c = addDataCount - lastRowNonUseCount;
+                            if (c % columnCount == 0)
+                            {
+                                addLineCount = c / columnCount;
+                            }
+                            else
+                            {
+                                addLineCount = c / columnCount + 1;
+                            }
+                            Debug.Log("addLineCount " + addLineCount);
+                            Vector2 sd = scrollContentRectTransform.sizeDelta;
+                            sd.y += (addLineCount * (cellHeight + spaceHeight));
+                            scrollContentRectTransform.sizeDelta = sd;
+                        }
+                        else if (this.dataSize > (oneScreenNeedItems + 2 * columnCount))
+                        {
+                            Debug.Log("范围内增加数据到范围外，可能需要行变动 和 paddingTop变动");
+                            SetInitHeight();
+                            //if (scrollOffset >= maxHeight - containerHeight) //如果当前滚动到底部，则可以+1行
+                            //{
+                            //    //+1行
+                            //    ScrollTouchUp();
+                            //}
+                        }
+                    }
+                    else if (originDataSize > (oneScreenNeedItems + 2 * columnCount))
+                    {
+                        Debug.Log("旧数据量在范围外");
+                    }
+
+                }
+                else
+                {
+                    Debug.Log("添加的数据量小于等于隐藏格子，无需处理");
+                }
             }
+            else //说明添加数据之前零数据
+            {
+                RefreshAllGridItem();
+                SetInitHeight();
+            }
+
+            
         }
         else if (this.dataSize == originDataSize) //没有增减数据
         {
             Debug.Log("数据量没变");
+            RefreshAllGridItem();
         }
         else //减少了数据
         {
-            //最后一行数据量
-            int lastRowGridItemCount;
-            if ((1 + int.Parse(cacheItems.Last.Value.transform.GetChild(0).name)) % columnCount == 0)
+            Debug.Log("originDataSize " + originDataSize);
+
+            if (originDataSize <= (oneScreenNeedItems + 2 * columnCount)) //范围内
             {
-                lastRowGridItemCount = columnCount;
+                Debug.Log("范围内 减到 范围内");
+                RefreshAllGridItem();
+                SetInitHeight();
             }
-            else
+            else if (originDataSize > (oneScreenNeedItems + 2 * columnCount))
             {
-                lastRowGridItemCount = (1 + int.Parse(cacheItems.Last.Value.transform.GetChild(0).name)) % columnCount;
+                if (this.dataSize <= (oneScreenNeedItems + 2 * columnCount))
+                {
+                    Debug.Log("范围外 减到 范围内");
+                    //RefreshAllGridItem();
+                    //SetInitHeight();
+                    //gridLayoutGroup.padding.top = originPaddingTop;
+                }
+                else if (this.dataSize > (oneScreenNeedItems + 2 * columnCount))
+                {
+                    Debug.Log("范围外 减到 范围外");
+                }
             }
-            int reduceDataCount = originDataSize - this.dataSize;
-            if (reduceDataCount >= lastRowGridItemCount) //需要减行
-            {
-                Debug.Log("需要减行");
-            }
-            else
-            {
-                Debug.Log("减少的数据量，最后一行足够扣减，无需减行");
-            }
+
+            ////最后一行数据量
+            //int lastRowVisibleGridItemCount = originDataSize % this.columnCount;
+            //if(originDataSize % this.columnCount == 0)
+            //{
+            //    lastRowVisibleGridItemCount = columnCount;
+            //}
+            //RefreshAllGridItem();
+            //int reduceDataCount = originDataSize - this.dataSize;
+            //Debug.Log("reduceDataCount " + reduceDataCount + ", lastRowGridItemCount " + lastRowVisibleGridItemCount);
+            //if (reduceDataCount >= lastRowVisibleGridItemCount) //需要减行
+            //{
+            //    Debug.Log("需要减行");
+            //    int c = reduceDataCount - lastRowVisibleGridItemCount; //需要减1行
+            //    int lineCountForDelete = 1;
+            //    if(c < columnCount)
+            //    {
+            //        Debug.Log("不需要+1");
+            //    }
+            //    else if(c == columnCount)
+            //    {
+            //        lineCountForDelete++;
+            //    }
+            //    else if (c > columnCount)
+            //    {
+            //        if(c % columnCount == 0)
+            //        {
+            //            lineCountForDelete += c / columnCount;
+            //        }
+            //        else
+            //        {
+            //            lineCountForDelete += (int)(c / columnCount + 1);
+            //        }
+            //    }
+
+                //    Debug.Log("lineCountForDelete " + lineCountForDelete);
+
+
+
+                //    Vector2 sd = scrollContentRectTransform.sizeDelta;
+                //    sd.y -= (lineCountForDelete * (cellHeight + spaceHeight));
+
+                //    if (this.dataSize > (oneScreenNeedItems + columnCount * 2)) //滚动区域
+                //    {
+                //        int atLeastHeight = ((int)((oneScreenNeedRow + 2) * (cellHeight + spaceHeight))) + gridLayoutGroup.padding.bottom; //占满一屏+2行的高度
+                //        if(sd.y < atLeastHeight)
+                //        {
+                //            Debug.LogWarning("不允许减行-1");
+                //        }
+                //        else
+                //        {
+                //            Debug.LogWarning("1111");
+                //            gridLayoutGroup.padding.top -= (lineCountForDelete * (int)(cellHeight + spaceHeight));
+
+                //            scrollContentRectTransform.sizeDelta = sd;
+
+                //            Vector2 os = scrollContentRectTransform.anchoredPosition;
+                //            os.y -= (lineCountForDelete * (cellHeight + spaceHeight));
+                //            scrollContentRectTransform.anchoredPosition = os;
+
+                //        }
+                //    }
+                //    else
+                //    {
+                //        if(sd.y < originPaddingTop)
+                //        {
+                //            Debug.LogWarning("不允许减行-2");
+                //        }
+                //        else
+                //        {
+                //            Debug.LogWarning("2222");
+                //            gridLayoutGroup.padding.top -= (lineCountForDelete * (int)(cellHeight + spaceHeight));
+                //            scrollContentRectTransform.sizeDelta = sd;
+                //        }
+                //    }
+
+
+
+                //}
+                //else
+                //{
+                //    Debug.Log("减少的数据量，最后一行足够扣减，无需减行");
+                //}
         }
 
-        //int offset = paddingTopCount * (int)(cellHeight + spaceHeight);
-        //if(this.dataSize > oneScreenNeedItems + 2*columnCount) { 
-        //}
-        //SetHeight(offset);
-        //gridLayoutGroup.padding.top += offset;
-
-        //SelectItem(lastClickGridItemIndex);
     }
 
-    private void RefreshLastRowNonUseGridItem()
+    private void RefreshAllGridItem()
     {
-        LinkedListNode<GameObject> node = cacheItems.Last;
+        Debug.Log("RefreshAllGridItem()");
+        LinkedListNode<GameObject> node = cacheItems.First;
         do
         {
             GameObject cacheGridItem = node.Value;
-            if (!cacheGridItem.activeInHierarchy)
+            int itemDataIndex = int.Parse(cacheGridItem.transform.GetChild(0).name);
+            if (itemDataIndex < this.dataSize)
             {
-                int itemDataIndex = int.Parse(cacheGridItem.transform.GetChild(0).name);
-                if (itemDataIndex < this.dataSize)
-                {
-                    RoleItem roleItem = this.datas[itemDataIndex];
-                    SetGridItem(cacheGridItem, itemDataIndex, roleItem);
-                }
+                RoleItem roleItem = this.datas[itemDataIndex];
+                SetGridItem(cacheGridItem, itemDataIndex, roleItem);
             }
             else
             {
-                break;
+                cacheGridItem.SetActive(false);
             }
-        } while ((node = node.Previous) != null);
+        } while ((node = node.Next) != null);
+
+        SelectItem(lastClickGridItemIndex);
     }
 
     public void OnGridItemClick(GameObject gridItem)
@@ -282,8 +405,8 @@ public class MyListView : MonoBehaviour
         cacheItem.name = "cacheItem_" + index;
         cacheItem.transform.GetChild(0).name = index.ToString();
         cacheItem.SetActive(true);
-        //cacheItem.GetComponentInChildren<Text>().text = roleItem.itemName + "x" + roleItem.itemCount;
-        cacheItem.GetComponentInChildren<Text>().text = "x" + index;
+        cacheItem.GetComponentInChildren<Text>().text = roleItem.itemName + "x" + roleItem.itemCount;
+        //cacheItem.GetComponentInChildren<Text>().text = "x" + index;
         cacheItem.GetComponentInChildren<Image>().sprite = Resources.Load<Sprite>("Images/ItemImage/" + roleItem.imageName);
         Button bt = cacheItem.GetComponent<Button>();
         bt.onClick.RemoveAllListeners();
@@ -534,41 +657,48 @@ public class MyListView : MonoBehaviour
 
     public void AddDataTest()
     {
+        //for(int i=0; i<10; i++)
+        //{
+        //    RoleItem a = new RoleItem();
+        //    a.itemCount = 1;
+        //    a.itemDesc = "desc";
+        //    a.itemName = "name";
+        //    a.recoverHp = 999;
+        //    this.datas.Insert(0, a);
+        //}
+        
+        //i++;
+        //a = new RoleItem();
+        //a.itemCount = 2;
+        //a.itemDesc = "desc";
+        //a.itemName = "name" + i;
+        //a.recoverHp = 999;
+        //this.datas.Insert(i, a);
+        //i++;
+        //a = new RoleItem();
+        //a.itemCount = 3;
+        //a.itemDesc = "desc";
+        //a.itemName = "name" + i;
+        //a.recoverHp = 999;
+        //this.datas.Insert(i, a);
+        //i++;
+        //a = new RoleItem();
+        //a.itemCount = 4;
+        //a.itemDesc = "desc";
+        //a.itemName = "name" + i;
+        //a.recoverHp = 999;
+        //this.datas.Insert(i, a);
+        //i++;
+        //a = new RoleItem();
+        //a.itemCount = 5;
+        //a.itemDesc = "desc";
+        //a.itemName = "name" + i;
+        //a.recoverHp = 999;
+        //this.datas.Insert(i, a);
 
-        RoleItem a = new RoleItem();
-        a.itemCount = 1;
-        a.itemDesc = "desc";
-        a.itemName = "name";
-        a.recoverHp = 999;
-        this.datas.Add(a);
+        if(this.datas.Count > 0) this.datas.RemoveAt(0);
 
-        a = new RoleItem();
-        a.itemCount = 2;
-        a.itemDesc = "desc";
-        a.itemName = "name";
-        a.recoverHp = 999;
-        this.datas.Add(a);
-
-        a = new RoleItem();
-        a.itemCount = 3;
-        a.itemDesc = "desc";
-        a.itemName = "name";
-        a.recoverHp = 999;
-        this.datas.Add(a);
-
-        a = new RoleItem();
-        a.itemCount = 4;
-        a.itemDesc = "desc";
-        a.itemName = "name";
-        a.recoverHp = 999;
-        this.datas.Add(a);
-
-        a = new RoleItem();
-        a.itemCount = 5;
-        a.itemDesc = "desc";
-        a.itemName = "name";
-        a.recoverHp = 999;
-        this.datas.Add(a);
+        //if (this.datas.Count > 0) this.datas.RemoveAt(0);
 
         NotifyDatasetChange();
     }
