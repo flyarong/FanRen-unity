@@ -2,15 +2,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(ScrollRect))]
-public class MyListView : MonoBehaviour
+public class MyGridLayout<T>
 {
-
     GridLayoutGroup gridLayoutGroup;
     RectTransform scrollContentRectTransform;
 
+    //public bool isNeedDefaultSelectStateColor = true;
+
     //格子UI prefab
-    public GameObject bagGridItemPrefab;
+    private GameObject gridItemUIPrefab;
 
     //最后一次点击的索引
     int lastClickGridItemIndex;
@@ -26,12 +26,12 @@ public class MyListView : MonoBehaviour
     //滚动内容最大高度，根据数据量计算出来
     int maxHeight;
 
-    List<RoleItem> datas = new List<RoleItem>();
+    //List<T> datas = new List<T>();
 
     /// <summary>
     /// 从数据库查
     /// </summary>
-    int dataSize = 111;
+    int dataSize = 0;
 
     //列数
     int columnCount;
@@ -68,8 +68,14 @@ public class MyListView : MonoBehaviour
     //最大允许的偏移量
     float maxScrollOffset;
 
-    void Start()
+    GameObject scrollRectGameObject;
+
+    public void StartInit(GameObject scrollRectGameObject, GameObject gridItemUIPrefab, Adapter<T> adapter)
     {
+        this.scrollRectGameObject = scrollRectGameObject;
+        this.gridItemUIPrefab = gridItemUIPrefab;
+        this.adapter = adapter;
+        //this.datas = datas;
         InitDatas();
         InitUIDatas();
         InitItemCache();
@@ -78,32 +84,30 @@ public class MyListView : MonoBehaviour
 
     private void InitDatas()
     {
-        MyDBManager.GetInstance().ConnDB();
-        this.datas = MyDBManager.GetInstance().GetRoleItemInBag(1, false);
+        //MyDBManager.GetInstance().ConnDB();
+        //this.datas = MyDBManager.GetInstance().GetRoleItemInBag(1, false);
 
-        //this.datas.RemoveRange(30, 3);
-        //this.datas.Clear();
-
-        this.dataSize = this.datas.Count;
+        this.dataSize = this.adapter.GetDataCount();
 
     }
 
     private void InitUIDatas()
     {
-        gridLayoutGroup = GetComponentInChildren<GridLayoutGroup>();
+        gridLayoutGroup = scrollRectGameObject.GetComponentInChildren<GridLayoutGroup>();
 
         scrollContentGameObj = gridLayoutGroup.gameObject;
+
         scrollContentRectTransform = scrollContentGameObj.GetComponent<RectTransform>();
 
         columnCount = gridLayoutGroup.constraintCount;
         cellHeight = gridLayoutGroup.cellSize.y;
         spaceHeight = gridLayoutGroup.spacing.y;
-        if(originPaddingTop == 0) originPaddingTop = gridLayoutGroup.padding.top;
+        if (originPaddingTop == 0) originPaddingTop = gridLayoutGroup.padding.top;
 
-        containerHeight = transform.rectTransform().rect.height;
+        containerHeight = scrollRectGameObject.transform.rectTransform().rect.height;
         Debug.Log("containerHeight " + containerHeight);
 
-        float containerWidth = transform.rectTransform().rect.width;
+        float containerWidth = scrollRectGameObject.transform.rectTransform().rect.width;
         Vector2 v2 = gridLayoutGroup.spacing;
         v2.x = (containerWidth - (columnCount * gridLayoutGroup.cellSize.x)) / (columnCount + 1);
         gridLayoutGroup.spacing = v2;
@@ -129,9 +133,7 @@ public class MyListView : MonoBehaviour
     {
 
         int originDataSize = this.dataSize;
-
-        this.dataSize = this.datas.Count;
-        //this.gridItemNewestNextPointer = 0;
+        this.dataSize = this.adapter.GetDataCount();
         InitUIDatas();
 
         if (this.dataSize > originDataSize) //增加了数据
@@ -219,18 +221,12 @@ public class MyListView : MonoBehaviour
 
                     //cacheGridItemLastDataIndex // padding // scrollOffset // scrollAreaHeight // cahceItem data index // RefreshAllGridItem()
 
-                    //int reduceLineCount = GetReduceLineCount(originDataSize);
-                    //cacheGridItemLastDataIndex -= reduceLineCount * columnCount;
-                    //if(cacheGridItemLastDataIndex < (oneScreenNeedRow + 2) * columnCount)
-                    //{
-                        cacheGridItemLastDataIndex = (oneScreenNeedRow + 2) * columnCount - 1;
-                    //}
+                    cacheGridItemLastDataIndex = (oneScreenNeedRow + 2) * columnCount - 1;
 
                     gridLayoutGroup.padding.top = originPaddingTop;
 
                     SetInitHeight();
 
-                    //AdjustGridItemDataIndex(reduceLineCount * columnCount);
                     AdjustGridItemDataIndexToInitState();
 
                     RefreshAllGridItem();
@@ -244,13 +240,13 @@ public class MyListView : MonoBehaviour
                     int lastActiveGridItemDataIndex = int.Parse(lastActiveGridItem.name);
                     if (this.dataSize <= lastActiveGridItemDataIndex) //数据量变得太小导致入侵了cache索引范围
                     {
-                        Debug.LogWarning("剩余数据量小到入侵了cache item data index最大值，需要操作UI");
+                        Debug.Log("剩余数据量小到入侵了cache item data index最大值，需要操作UI");
 
                         //int reduceLineCount = GetReduceLineCount(originDataSize); //todo 逻辑有问题，如果100万数据减少到10万呢，那岂不是很多行，应该是要计算入侵了多少行?
 
-                        int exceedCount = lastActiveGridItemDataIndex - this.dataSize + 1; 
+                        int exceedCount = lastActiveGridItemDataIndex - this.dataSize + 1;
 
-                        Debug.LogWarning("exceedCount " + exceedCount);
+                        Debug.Log("exceedCount " + exceedCount);
 
                         int reduceLineCount = 0;
 
@@ -265,10 +261,11 @@ public class MyListView : MonoBehaviour
                             {
                                 Debug.Log("入侵的数量，最后排的 (active grid item count - 1) 足够扣减，无需减行");
                             }
-                            else if(exceedCount == lastRowActiveGridItemCount) //入侵的数量，最后排的 active grid item count 刚好够扣减，需减行
+                            else if (exceedCount == lastRowActiveGridItemCount) //入侵的数量，最后排的 active grid item count 刚好够扣减，需减行
                             {
                                 reduceLineCount++;
-                            }else if (exceedCount > lastRowActiveGridItemCount)
+                            }
+                            else if (exceedCount > lastRowActiveGridItemCount)
                             {
                                 exceedCount -= lastRowActiveGridItemCount;
                                 reduceLineCount++;
@@ -276,7 +273,7 @@ public class MyListView : MonoBehaviour
                             }
                         }
 
-                        Debug.LogError("reduceLineCount " + reduceLineCount);
+                        Debug.Log("reduceLineCount " + reduceLineCount);
 
                         if (reduceLineCount > 0)
                         {
@@ -343,7 +340,7 @@ public class MyListView : MonoBehaviour
 
     private void AdjustGridItemDataIndexToInitState()
     {
-        Debug.Log("AdjustGridItemDataIndex()");
+        Debug.Log("AdjustGridItemDataIndexToInitState()");
         LinkedListNode<GameObject> tmp = cacheItems.First;
         int i = -1;
         while (true)
@@ -366,8 +363,8 @@ public class MyListView : MonoBehaviour
             int itemDataIndex = int.Parse(cacheGridItem.name);
             if (itemDataIndex < this.dataSize)
             {
-                RoleItem roleItem = this.datas[itemDataIndex];
-                SetGridItem(cacheGridItem, itemDataIndex, roleItem);
+                //RoleItem roleItem = this.datas[itemDataIndex];
+                SetGridItem(cacheGridItem, itemDataIndex);
             }
             else
             {
@@ -377,7 +374,7 @@ public class MyListView : MonoBehaviour
             if (node == null) break;
         }
 
-        if(dataSize > 0)
+        if (dataSize > 0)
         {
             int lastI = lastClickGridItemIndex;
             if (lastI >= this.dataSize)
@@ -385,13 +382,15 @@ public class MyListView : MonoBehaviour
                 lastI = this.dataSize - 1;
             }
             lastClickGridItemIndex = lastI;
-            ShowItemDesc(this.datas[lastI]);
+            //todo 改到OnSelectGridItem回调中去
+            //ShowItemDesc(this.datas[lastI]);
             SelectActiveItem(lastI);
         }
         else
         {
             lastClickGridItemIndex = 0;
-            ShowItemDesc(null);
+            //ShowItemDesc(null);
+            this.adapter.OnSelectGridItem(null, -1);
         }
     }
 
@@ -401,13 +400,16 @@ public class MyListView : MonoBehaviour
         Debug.LogWarning("OnGridItemClick clickIndex " + clickIndex);
         lastClickGridItemIndex = clickIndex;
 
+        this.adapter.OnItemClick(gridItem, clickIndex);
         SelectActiveItem(clickIndex);
 
-        ShowItemDesc(this.datas[clickIndex]);
+        //todo 改到OnSelectGridItem回调中去
+        //ShowItemDesc(this.datas[clickIndex]);
     }
 
     private void SelectActiveItem(int targetIndex)
     {
+
         if (this.dataSize == 0) return;
 
         int _targetIndex = targetIndex;
@@ -428,24 +430,27 @@ public class MyListView : MonoBehaviour
             int dataIndex = int.Parse(node.Value.name);
             if (_targetIndex == dataIndex)
             {
-                node.Value.GetComponent<Image>().color = Color.green;
+                if (this.adapter.IsNeedAutoSelectState()) node.Value.GetComponent<Image>().color = Color.green;
+                this.adapter.OnSelectGridItem(node.Value, dataIndex);
             }
             else
             {
-                node.Value.GetComponent<Image>().color = Color.white;
+                if (this.adapter.IsNeedAutoSelectState()) node.Value.GetComponent<Image>().color = Color.white;
             }
         }
         while ((node = node.Next) != null);
     }
 
-    private void SetGridItem(GameObject cacheItem, int index, RoleItem roleItem)
+    private void SetGridItem(GameObject cacheItem, int index)
     {
+        //cacheItem.GetComponentInChildren<Text>().text = roleItem.itemId + "_" + roleItem.itemName + "_" + roleItem.itemCount; //todo 测试用id
+        //cacheItem.GetComponentInChildren<Image>().sprite = Resources.Load<Sprite>("Images/ItemImage/" + roleItem.imageName);
+
+        this.adapter.BindView(cacheItem, index);
+
         cacheItem.name = "" + index;
         cacheItem.transform.name = index.ToString();
         cacheItem.SetActive(true);
-        cacheItem.GetComponentInChildren<Text>().text = roleItem.itemId + "_" + roleItem.itemName + "_" + roleItem.itemCount; //todo 测试用id
-        //cacheItem.GetComponentInChildren<Text>().text = "x" + index;
-        cacheItem.GetComponentInChildren<Image>().sprite = Resources.Load<Sprite>("Images/ItemImage/" + roleItem.imageName);
         Button bt = cacheItem.GetComponent<Button>();
         bt.onClick.RemoveAllListeners();
         bt.onClick.AddListener(() =>
@@ -453,32 +458,36 @@ public class MyListView : MonoBehaviour
             OnGridItemClick(cacheItem);
         });
 
-        if (index == lastClickGridItemIndex)
+        if (this.adapter.IsNeedAutoSelectState())
         {
-            cacheItem.GetComponent<Image>().color = Color.green;
+            if (index == lastClickGridItemIndex)
+            {
+                cacheItem.GetComponent<Image>().color = Color.green;
+            }
+            else
+            {
+                cacheItem.GetComponent<Image>().color = Color.white;
+            }
         }
-        else
-        {
-            cacheItem.GetComponent<Image>().color = Color.white;
-        }
+
     }
 
     private void InitItemCache()
     {
 
-        Transform gridItemParent = GetComponent<ScrollRect>().content;
+        Transform gridItemParent = scrollRectGameObject.GetComponent<ScrollRect>().content;
         //if (dataSize > (oneScreenNeedItems + columnCount * 2)) //数据量超出1屏+2行
         //{
 
         for (int i = 0; i < (oneScreenNeedItems + columnCount * 2); i++)
         {
             cacheGridItemLastDataIndex++;
-            GameObject cacheItem = Instantiate(bagGridItemPrefab, gridItemParent);
+            GameObject cacheItem = GameObject.Instantiate(gridItemUIPrefab, gridItemParent);
             cacheItems.AddLast(cacheItem);
-            if(cacheGridItemLastDataIndex < this.dataSize)
+            if (cacheGridItemLastDataIndex < this.dataSize)
             {
-                RoleItem roleItem = this.datas[cacheGridItemLastDataIndex];
-                SetGridItem(cacheItem, cacheGridItemLastDataIndex, roleItem);
+                //RoleItem roleItem = this.datas[cacheGridItemLastDataIndex];
+                SetGridItem(cacheItem, cacheGridItemLastDataIndex);
             }
             else
             {
@@ -509,10 +518,10 @@ public class MyListView : MonoBehaviour
         }
     }
 
-    private void Update()
+    public void Update()
     {
         scrollOffset = scrollContentRectTransform.anchoredPosition.y;
-        if(scrollOffset > maxScrollOffset)
+        if (scrollOffset > maxScrollOffset)
         {
             scrollOffset = maxScrollOffset;
         }
@@ -523,28 +532,27 @@ public class MyListView : MonoBehaviour
         if (scrollOffset - preScrollOffset > 1 && scrollOffset > 1 && Input.GetMouseButton(0)) //向上滑动 && 垂直偏移量要大于0(1更加安全一点)避免滑到最顶部回弹导致底部自动增加行
         {
             //上滑
-            this.ScrollTouchUp();
+            this.OnScrollDragUp();
         }
         else if (preScrollOffset - scrollOffset > 1 && Input.GetMouseButton(0)) //Input.GetMouseButton(0)防止scroll rect的松手自动回弹混乱逻辑
         {
             //下滑
-            this.ScrollTouchDown();
+            this.OnScrollDragDown();
         }
         preScrollOffset = scrollOffset;
     }
 
-    private void ScrollTouchUp()
+    private void OnScrollDragUp()
     {
         if (this.dataSize > oneScreenNeedItems + 2 * columnCount) //总数据量满足加载更多
         {
-            Debug.Log("总数据量满足加载更多");
+            //Debug.Log("总数据量满足加载更多");
             if (scrollOffset + (cellHeight + spaceHeight) >= (scrollContentRectTransform.sizeDelta.y - containerHeight))
             {
-                Debug.Log("离底部 1个 格子高度，可以加载更多(最后一行刚刚露出来)");
+                //Debug.Log("离底部 1个 格子高度，可以加载更多(最后一行刚刚露出来)");
                 if (cacheGridItemLastDataIndex < dataSize - 1)
                 {
-                    Debug.Log("cacheGridItemLastDataIndex < dataSize-1 说明还有数据需要增行来显示");
-                    Debug.LogWarning("正式开始底部加载更多");
+                    Debug.LogWarning("cacheGridItemLastDataIndex < dataSize-1 说明还有数据需要增行来显示,正式开始底部加载更多");
                     for (int i = 0; i < columnCount; i++)
                     {
                         cacheGridItemLastDataIndex++;
@@ -559,8 +567,8 @@ public class MyListView : MonoBehaviour
                         }
                         else
                         {
-                            RoleItem roleItem = this.datas[cacheGridItemLastDataIndex];
-                            SetGridItem(firstGO, cacheGridItemLastDataIndex, roleItem);
+                            //RoleItem roleItem = this.datas[cacheGridItemLastDataIndex];
+                            SetGridItem(firstGO, cacheGridItemLastDataIndex);
                         }
                     }
                     Debug.Log("增加滚动区域高度，增加了paddingTop高度");
@@ -571,17 +579,17 @@ public class MyListView : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("数据已经全部显示完全");
+                    Debug.Log("数据已经全部加载完全");
                 }
             }
             else
             {
-                Debug.Log("离底部还有" + (scrollContentRectTransform.sizeDelta.y - scrollOffset - containerHeight));
+                //Debug.Log("离底部还有" + (scrollContentRectTransform.sizeDelta.y - scrollOffset - containerHeight));
             }
         }
         else
         {
-            Debug.Log("总数据量不满足加载更多");
+            //Debug.Log("总数据量不满足加载更多");
         }
 
         if (scrollOffset >= maxHeight - containerHeight)
@@ -590,18 +598,17 @@ public class MyListView : MonoBehaviour
         }
     }
 
-    private void ScrollTouchDown()
+    private void OnScrollDragDown()
     {
         if (scrollOffset <= gridLayoutGroup.padding.top + cellHeight)
         {
             //Debug.Log("还有一个(cellHeight-spaceHeight)的距离到达小顶部，也就是最上面行刚露出来，就进来执行了");
             if (gridLayoutGroup.padding.top > originPaddingTop)
             {
-                Debug.Log("padding top 高度还可以减少");
+                //Debug.Log("padding top 高度还可以减少");
                 if (int.Parse(scrollContentGameObj.transform.GetChild(0).name) > 0) //首个gridItem data index > 0
                 {
                     Debug.Log("首个gridItem data index > 0，顶部可以继续加载，正式开始加载顶部");
-                    Debug.LogWarning("正式开始顶部加载行");
                     for (int i = 0; i < columnCount; i++)
                     {
                         cacheGridItemLastDataIndex--;
@@ -611,8 +618,8 @@ public class MyListView : MonoBehaviour
                         cacheItems.AddFirst(lastGO);
                         int firstIndex = cacheGridItemLastDataIndex - ((oneScreenNeedRow + 2) * columnCount) + 1;
                         //Debug.Log("firstIndex " + firstIndex);
-                        RoleItem roleItem = this.datas[firstIndex];
-                        SetGridItem(lastGO, firstIndex, roleItem);
+                        //RoleItem roleItem = this.datas[firstIndex];
+                        SetGridItem(lastGO, firstIndex);
                     }
                     Vector2 sd = scrollContentRectTransform.sizeDelta;
                     sd.y -= (cellHeight + spaceHeight);
@@ -628,112 +635,44 @@ public class MyListView : MonoBehaviour
         }
     }
 
-    public void OnCloseButtonClick()
+    private Adapter<T> adapter;
+
+    public void SetAdapter(Adapter<T> adapter)
     {
-        this.gameObject.SetActive(false);
+        this.adapter = adapter;
     }
 
+}
 
+public abstract class Adapter<T>
+{
 
+    protected List<T> datas;
 
-
-
-
-    public GameObject imageGO;
-    public GameObject buttonGO;
-    public GameObject nameGO;
-    public GameObject countGO;
-    public GameObject effectDescGO;
-    public GameObject itemDescGO;
-
-    private void ShowItemDesc(RoleItem roleItem)
+    public Adapter(List<T> datas)
     {
-        if(roleItem != null)
-        {
-            imageGO.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/ItemImage/" + roleItem.imageName);
-            Button useButton = buttonGO.GetComponent<Button>();
-            buttonGO.SetActive(true);
-            useButton.onClick.RemoveAllListeners();
-            useButton.onClick.AddListener(() => { OnUseButtonClick(roleItem); });
-            nameGO.GetComponent<Text>().text = roleItem.itemName;
-            countGO.GetComponent<Text>().text = "数量： " + roleItem.itemCount;
-            effectDescGO.GetComponent<Text>().text = "功效：" + (roleItem.recoverHp > 0 ? " 气血+" + roleItem.recoverHp : "") + (roleItem.recoverMp > 0 ? " 灵力+" + roleItem.recoverMp : "");
-            itemDescGO.GetComponent<Text>().text = roleItem.itemDesc;
-        }
-        else
-        {
-            imageGO.GetComponent<Image>().sprite = null;
-            buttonGO.SetActive(false);
-            nameGO.GetComponent<Text>().text = "";
-            countGO.GetComponent<Text>().text = "";
-            effectDescGO.GetComponent<Text>().text = "";
-            itemDescGO.GetComponent<Text>().text = "";
-        }
+        this.datas = datas;
     }
 
-    void OnUseButtonClick(RoleItem roleItem)
+    public abstract void BindView(GameObject gridItem, int index);
+
+    public abstract void OnItemClick(GameObject gridItem, int index);
+
+    /// <summary>
+    /// 点击了会有选中，但是选中未必是点击了，有可能是之前选中的删除了，就会重新选中
+    /// </summary>
+    /// <param name="gridItem"></param>
+    /// <param name="index"></param>
+    public abstract void OnSelectGridItem(GameObject gridItem, int index);
+
+    /// <summary>
+    /// 是否需要默认的选中状态（选中背景颜色更改）
+    /// </summary>
+    /// <returns></returns>
+    public abstract bool IsNeedAutoSelectState();
+
+    public int GetDataCount()
     {
-        MyDBManager.GetInstance().ConnDB();
-        MyDBManager.GetInstance().DeleteItemInBag(roleItem.itemId, 1, roleItem.itemCount);
-        if (roleItem.itemCount == 1)
-        {
-            this.datas.Remove(roleItem);
-            ShowItemDesc(null);
-        }
-        else
-        {
-            roleItem.itemCount--;
-            ShowItemDesc(roleItem);
-        }
-        NotifyDatasetChange();
-
-        //todo 测试，无限循环模式下，从中间删除
-
-        Debug.Log("OnUseButtonClick()");
+        return this.datas.Count;
     }
-
-
-    int i = 0, j=0;
-
-    public void AddFirst()
-    {
-        i++;
-        RoleItem a = new RoleItem();
-        a.itemCount = 1;
-        a.itemDesc = "desc";
-        a.itemName = "F_" + i;
-        a.recoverHp = 999;
-        this.datas.Insert(0, a);
-        NotifyDatasetChange();
-        Debug.Log("data size " + this.datas.Count);
-    }
-
-    public void AddLast()
-    {
-        j++;
-        RoleItem a = new RoleItem();
-        a.itemCount = 1;
-        a.itemDesc = "desc";
-        a.itemName = "L_" + j;
-        a.recoverHp = 999;
-        this.datas.Add(a);
-        NotifyDatasetChange();
-        Debug.Log("data size " + this.datas.Count);
-    }
-
-    public void ReduceFirst()
-    {
-        this.datas.RemoveAt(0);
-        NotifyDatasetChange();
-        Debug.Log("data size " + this.datas.Count);
-    }
-
-    public void ReduceLast()
-    {
-        this.datas.RemoveAt(this.datas.Count-1);
-        this.datas.RemoveAt(this.datas.Count - 1);
-        NotifyDatasetChange();
-        Debug.Log("data size " + this.datas.Count);
-    }
-
 }

@@ -593,6 +593,10 @@ public class MyDBManager
 
 }
 
+public interface BaseEntity
+{
+}
+
 //╫ги╚хннЯ
 public class RoleTask
 {
