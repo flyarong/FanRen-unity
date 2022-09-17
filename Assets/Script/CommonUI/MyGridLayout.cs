@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
+/// 注意：暂时不支持鼠标滚轮，只能拖拽
 /// 使用方式非常简单方便，最多三分钟学会
 /// 1、组合在包含有scroll rect的gameObject的脚本中
 /// 2、继承GridLayoutAdapter实现自己的适配器
@@ -108,6 +109,14 @@ public class MyGridLayout
 
     private void InitUIDatas()
     {
+        ScrollRect sr = scrollRectGameObject.GetComponent<ScrollRect>();
+        sr.vertical = true;
+        sr.horizontal = false;
+        sr.movementType = ScrollRect.MovementType.Elastic;
+        sr.elasticity = 0.06f;
+        sr.inertia = false;
+        sr.scrollSensitivity = 0;
+
         gridLayoutGroup = scrollRectGameObject.GetComponentInChildren<GridLayoutGroup>();
 
         scrollContentGameObj = gridLayoutGroup.gameObject;
@@ -415,7 +424,7 @@ public class MyGridLayout
     private void OnGridItemClick(GameObject gridItem)
     {
         int clickIndex = int.Parse(gridItem.transform.name);
-        Debug.LogWarning("OnGridItemClick clickIndex " + clickIndex);
+        Debug.Log("OnGridItemClick clickIndex " + clickIndex);
         lastClickGridItemIndex = clickIndex;
 
         this.adapter.OnGridItemClick(gridItem, clickIndex);
