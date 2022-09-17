@@ -2,15 +2,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MyGridLayout<T>
+/// <summary>
+/// 使用方式非常简单方便，最多三分钟学会
+/// 1、组合在包含有scroll rect的gameObject的脚本中
+/// 2、继承GridLayoutAdapter实现自己的适配器
+/// 3、初始化本类
+/// 4、放进Update里执行
+/// </summary>
+public class MyGridLayout
 {
     GridLayoutGroup gridLayoutGroup;
     RectTransform scrollContentRectTransform;
+    BaseAdapter adapter;
 
     //public bool isNeedDefaultSelectStateColor = true;
-
-    //格子UI prefab
-    private GameObject gridItemUIPrefab;
 
     //最后一次点击的索引
     int lastClickGridItemIndex;
@@ -70,10 +75,20 @@ public class MyGridLayout<T>
 
     GameObject scrollRectGameObject;
 
-    public void StartInit(GameObject scrollRectGameObject, GameObject gridItemUIPrefab, Adapter<T> adapter)
+    private MyGridLayout()
+    {
+    }
+
+    /// <summary>
+    /// 使用方式非常简单方便，最多三分钟学会
+    /// 1、组合在包含有scroll rect的gameObject的脚本中
+    /// 2、继承GridLayoutAdapter实现自己的适配器
+    /// 3、初始化本类
+    /// 4、放进Update里执行
+    /// </summary>
+    public MyGridLayout(GameObject scrollRectGameObject, BaseAdapter adapter)
     {
         this.scrollRectGameObject = scrollRectGameObject;
-        this.gridItemUIPrefab = gridItemUIPrefab;
         this.adapter = adapter;
         //this.datas = datas;
         InitDatas();
@@ -129,6 +144,9 @@ public class MyGridLayout<T>
         Debug.Log("one screen needItems " + oneScreenNeedItems);
     }
 
+    /// <summary>
+    /// 数据发生任何改变后，都需要调用这个方法
+    /// </summary>
     public void NotifyDatasetChange()
     {
 
@@ -390,17 +408,17 @@ public class MyGridLayout<T>
         {
             lastClickGridItemIndex = 0;
             //ShowItemDesc(null);
-            this.adapter.OnSelectGridItem(null, -1);
+            this.adapter.OnGridItemSelect(null, -1);
         }
     }
 
-    public void OnGridItemClick(GameObject gridItem)
+    private void OnGridItemClick(GameObject gridItem)
     {
         int clickIndex = int.Parse(gridItem.transform.name);
         Debug.LogWarning("OnGridItemClick clickIndex " + clickIndex);
         lastClickGridItemIndex = clickIndex;
 
-        this.adapter.OnItemClick(gridItem, clickIndex);
+        this.adapter.OnGridItemClick(gridItem, clickIndex);
         SelectActiveItem(clickIndex);
 
         //todo 改到OnSelectGridItem回调中去
@@ -431,7 +449,7 @@ public class MyGridLayout<T>
             if (_targetIndex == dataIndex)
             {
                 if (this.adapter.IsNeedAutoSelectState()) node.Value.GetComponent<Image>().color = Color.green;
-                this.adapter.OnSelectGridItem(node.Value, dataIndex);
+                this.adapter.OnGridItemSelect(node.Value, dataIndex);
             }
             else
             {
@@ -482,7 +500,8 @@ public class MyGridLayout<T>
         for (int i = 0; i < (oneScreenNeedItems + columnCount * 2); i++)
         {
             cacheGridItemLastDataIndex++;
-            GameObject cacheItem = GameObject.Instantiate(gridItemUIPrefab, gridItemParent);
+            //GameObject cacheItem = GameObject.Instantiate(gridItemUIPrefab, gridItemParent);
+            GameObject cacheItem = adapter.GetGridItemView(cacheGridItemLastDataIndex, gridItemParent);
             cacheItems.AddLast(cacheItem);
             if (cacheGridItemLastDataIndex < this.dataSize)
             {
@@ -518,6 +537,9 @@ public class MyGridLayout<T>
         }
     }
 
+    /// <summary>
+    /// 宿主类Update里执行
+    /// </summary>
     public void Update()
     {
         scrollOffset = scrollContentRectTransform.anchoredPosition.y;
@@ -635,43 +657,47 @@ public class MyGridLayout<T>
         }
     }
 
-    private Adapter<T> adapter;
-
-    public void SetAdapter(Adapter<T> adapter)
-    {
-        this.adapter = adapter;
-    }
-
 }
 
-public abstract class Adapter<T>
+public abstract class BaseAdapter
 {
-
-    protected List<T> datas;
-
-    public Adapter(List<T> datas)
-    {
-        this.datas = datas;
-    }
-
-    public abstract void BindView(GameObject gridItem, int index);
-
-    public abstract void OnItemClick(GameObject gridItem, int index);
-
+    /// <summary>
+    /// 初始化当前索引的UI
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="parent"></param>
+    /// <returns></returns>
+    public abstract GameObject GetGridItemView(int index, Transform parent);
+    /// <summary>
+    /// 当前索引的数据和UI 绑定
+    /// </summary>
+    /// <param name="gridItemView"></param>
+    /// <param name="index"></param>
+    public abstract void BindView(GameObject gridItemView, int index);
+    public abstract void OnGridItemClick(GameObject gridItemView, int index);
     /// <summary>
     /// 点击了会有选中，但是选中未必是点击了，有可能是之前选中的删除了，就会重新选中
     /// </summary>
-    /// <param name="gridItem"></param>
+    /// <param name="gridItemView"></param>
     /// <param name="index"></param>
-    public abstract void OnSelectGridItem(GameObject gridItem, int index);
-
+    public abstract void OnGridItemSelect(GameObject gridItemView, int index);
     /// <summary>
     /// 是否需要默认的选中状态（选中背景颜色更改）
     /// </summary>
-    /// <returns></returns>
+    /// <returns>是否需要默认的选中状态（选中背景颜色更改）</returns>
     public abstract bool IsNeedAutoSelectState();
+    public abstract int GetDataCount();
+}
 
-    public int GetDataCount()
+public abstract class GridLayoutAdapter<T> : BaseAdapter
+{
+    protected List<T> datas;
+    private GridLayoutAdapter() { }
+    public GridLayoutAdapter(List<T> datas)
+    {
+        this.datas = datas;
+    }
+    public override int GetDataCount()
     {
         return this.datas.Count;
     }
