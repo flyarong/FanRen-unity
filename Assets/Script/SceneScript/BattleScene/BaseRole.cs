@@ -255,7 +255,9 @@ public class BaseRole : BaseMono
         else
         {
             //todo UI提示灵力不足
-            Debug.LogError("灵力不足");
+            //Debug.LogError("灵力不足");
+            BattleUIControl battleUIControl = GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>();
+            battleUIControl.ShowTips("灵力不足");
         }
     }
 

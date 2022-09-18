@@ -19,6 +19,7 @@ public class BattleUIControl : BaseMono
     public GameObject battleUIPanel;
     public GameObject winUIGameObj;
     public GameObject battleBagUIGameObj;
+    public GameObject tipsPanel;
 
     //private List<SlideAvatarController> allSlideAvatarCS = new List<SlideAvatarController>();
 
@@ -309,6 +310,11 @@ public class BattleUIControl : BaseMono
 
         //Vector2 tp2 = RectTransformUtility.WorldToScreenPoint(Camera.main, targetGO.transform.position);
         //damageTextGO.GetComponent<RectTransform>().position = tp2;
+    }
+
+    public void ShowTips(string text)
+    {
+        tipsPanel.GetComponent<BattleTipsScript>().ShowTips(text);
     }
 
     public void ShowRecoverTextUI(int recoverHp, int recoverMp, GameObject targetGO)
