@@ -28,6 +28,11 @@ public class BattleBagScript : MonoBehaviour
         mMyGridLayout.Update();
     }
 
+
+
+
+
+
     //============道具全部描述 UI
     public GameObject imageGO;
     public GameObject buttonGO;
@@ -69,16 +74,19 @@ public class BattleBagScript : MonoBehaviour
         if (roleItem.itemCount == 1)
         {
             this.datas.Remove(roleItem);
-            ShowItemDesc(null);
+            //ShowItemDesc(null);
         }
         else
         {
             roleItem.itemCount--;
-            ShowItemDesc(roleItem);
+            //ShowItemDesc(roleItem);
         }
         mMyGridLayout.NotifyDatasetChange();
 
-        Debug.Log("OnUseButtonClick()");
+        Debug.Log("OnUseButtonClick() roleItem name " + roleItem.itemName);
+
+        this.transform.parent.GetComponent<BagAllContainerScript>().DoCloseBagContainer();
+
     }
 
 
@@ -133,6 +141,8 @@ public class BattleBagScript : MonoBehaviour
         mMyGridLayout.NotifyDatasetChange();
         Debug.Log("data size " + this.datas.Count);
     }
+
+    //============ test
 
 }
 

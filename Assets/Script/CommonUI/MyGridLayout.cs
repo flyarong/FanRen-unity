@@ -80,13 +80,6 @@ public class MyGridLayout
     {
     }
 
-    /// <summary>
-    /// 使用方式非常简单方便，最多三分钟学会
-    /// 1、组合在包含有scroll rect的gameObject的脚本中
-    /// 2、继承GridLayoutAdapter实现自己的适配器
-    /// 3、初始化本类
-    /// 4、放进Update里执行
-    /// </summary>
     public MyGridLayout(GameObject scrollRectGameObject, BaseAdapter adapter)
     {
         this.scrollRectGameObject = scrollRectGameObject;

@@ -16,6 +16,11 @@ public class BagAllContainerScript : MonoBehaviour
 
     public void OnClickCloseButton()
     {
+        DoCloseBagContainer();
+    }
+
+    public void DoCloseBagContainer()
+    {
         this.gameObject.SetActive(false);
     }
 

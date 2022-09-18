@@ -17,6 +17,8 @@ public class BaseRole : BaseMono
 
     public RoleItem selectRoleItem;
 
+    public bool isDidUseShentongOrBagCurrentRound = false;
+
     public (int, int) battleOriginPosition
     {
         get {
@@ -174,6 +176,7 @@ public class BaseRole : BaseMono
 
     public void DoUseRoleItem()
     {
+        isDidUseShentongOrBagCurrentRound = true;
         //todo 使用道具
 
 
@@ -206,10 +209,15 @@ public class BaseRole : BaseMono
     }
 
     /// <summary>
-    /// 调息恢复2% hp mp
+    /// 无攻击或者使用储物袋，调息可恢复3% hp mp
     /// </summary>
-    public void DoRest(float rPercent)
+    public void DoRest()
     {
+        if (isDidUseShentongOrBagCurrentRound) {
+            isDidUseShentongOrBagCurrentRound = false;
+            return;
+        }
+        float rPercent = 0.03f;
         int rHp = (int)(this.maxHp * rPercent);
         if (rHp < 1) rHp = 1;
         this.hp += rHp;
@@ -265,6 +273,7 @@ public class BaseRole : BaseMono
     public bool DoAck(BaseRole enemy)
     {
         Debug.Log("DoAck");
+        isDidUseShentongOrBagCurrentRound = true;
         //todo 公式待定
         int damage = this.gongJiLi + this.selectedShentong.damage - enemy.fangYuLi;
 
