@@ -10,6 +10,7 @@ public class BattleBagScript : MonoBehaviour
     public GameObject gridItemUIPrefab;
 
     MyGridLayout mMyGridLayout;
+
     List<RoleItem> datas;
 
     private void Start()
@@ -74,18 +75,18 @@ public class BattleBagScript : MonoBehaviour
         if (roleItem.itemCount == 1)
         {
             this.datas.Remove(roleItem);
-            //ShowItemDesc(null);
         }
         else
         {
             roleItem.itemCount--;
-            //ShowItemDesc(roleItem);
         }
         mMyGridLayout.NotifyDatasetChange();
 
         Debug.Log("OnUseButtonClick() roleItem name " + roleItem.itemName);
 
         this.transform.parent.GetComponent<BagAllContainerScript>().DoCloseBagContainer();
+
+        GameObject.FindGameObjectWithTag("Terrain").GetComponent<BattleController>().OnRoleItemSelectToUse(roleItem);
 
     }
 

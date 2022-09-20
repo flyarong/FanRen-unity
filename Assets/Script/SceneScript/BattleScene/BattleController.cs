@@ -600,7 +600,13 @@ public class BattleController : BaseMono
         }
     }
 
-    
+    public void OnRoleItemSelectToUse(RoleItem item)
+    {
+        BaseRole role = this.activingRoleGO.GetComponent<BaseRole>();
+        role.selectRoleItem = item;
+        role.DoUseRoleItem();
+        GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().OnClickPassButton();
+    }
 
     private void DoSelectRole(GameObject activingGameObj)
     {

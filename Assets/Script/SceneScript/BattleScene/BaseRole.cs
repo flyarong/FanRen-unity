@@ -177,20 +177,37 @@ public class BaseRole : BaseMono
     public void DoUseRoleItem()
     {
         isDidUseShentongOrBagCurrentRound = true;
-        //todo 使用道具
 
+        RecoverHPMP(this.selectRoleItem.recoverHp, this.selectRoleItem.recoverMp);
 
-
-        
-        
-        //使用完
-        this.roleItems.Remove(this.selectRoleItem);
-        //this.selectRoleItem = null;
+        if (roleId == 1) //主角走储物袋逻辑
+        {
+            
+        }
+        else 
+        {
+            if(this.selectRoleItem.itemCount == 1)
+            {
+                this.roleItems.Remove(this.selectRoleItem);
+            }
+            else if(this.selectRoleItem.itemCount > 1)
+            {
+                this.selectRoleItem.itemCount--;
+            }
+            else
+            {
+                Debug.LogError("DoUseRoleItem() 逻辑错误");
+            }
+        }
     }
 
-    public void UpdateHP(int damage)
+    public void UpdateHP(int value)
     {
-        this.hp -= damage;
+        this.hp -= value;
+
+        if (this.hp < 0) this.hp = 0;
+        if (this.hp > this.maxHp) this.hp = this.maxHp;
+
         Debug.Log(this.name + "更新血条 maxHp " + this.maxHp + ", hp " + this.hp);
         Slider hpSlide = this.hpGO.GetComponent<Slider>();
         hpSlide.maxValue = this.maxHp;
@@ -198,9 +215,13 @@ public class BaseRole : BaseMono
         hpSlide.value = this.hp;
     }
 
-    public void UpdateMP(int consumeMP)
+    public void UpdateMP(int value)
     {
-        this.mp -= consumeMP;
+        this.mp -= value;
+
+        if (this.mp < 0) this.mp = 0;
+        if (this.mp > this.maxMp) this.mp = this.maxHp;
+
         Debug.Log(this.name + "更新灵力条 maxMp " + this.maxMp + ", mp " + this.mp);
         Slider mpSlide = this.hpGO.transform.Find("MP_Slider").GetComponent<Slider>();
         mpSlide.maxValue = this.maxMp;
@@ -213,27 +234,34 @@ public class BaseRole : BaseMono
     /// </summary>
     public void DoRest()
     {
-        if (isDidUseShentongOrBagCurrentRound) {
+        RecoverHPMPOnRest();
+    }
+
+    private void RecoverHPMPOnRest()
+    {
+        if (isDidUseShentongOrBagCurrentRound)
+        {
             isDidUseShentongOrBagCurrentRound = false;
             return;
         }
         float rPercent = 0.03f;
+
         int rHp = (int)(this.maxHp * rPercent);
         if (rHp < 1) rHp = 1;
-        this.hp += rHp;
-        if (this.hp > this.maxHp) this.hp = this.maxHp;
 
         int rMp = (int)(this.maxMp * rPercent);
         if (rMp < 1) rMp = 1;
-        this.mp += rMp;
-        if (this.mp > this.maxMp) this.mp = this.maxMp;
 
         Debug.Log("调息恢复hp " + rHp + ", mp " + rMp);
 
-        UpdateHP(0);
-        UpdateMP(0);
+        RecoverHPMP(rHp, rMp);
+    }
 
-        GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().ShowRecoverTextUI(rHp, rMp, this.gameObject);
+    private void RecoverHPMP(int hp, int mp)
+    {
+        UpdateHP(-hp);
+        UpdateMP(-mp);
+        GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().ShowRecoverTextUI(hp, mp, this.gameObject);
     }
 
     public int GetMoveDistanceInBattle()
