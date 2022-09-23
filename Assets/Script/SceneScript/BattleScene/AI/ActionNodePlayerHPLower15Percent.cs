@@ -11,7 +11,7 @@ public class ActionNodePlayerHPLower15Percent : IActionNode
     {
     }
 
-    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategySmart actionStrategySmart)
+    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategyGeneral actionStrategyGeneral)
     {
         BaseRole activingRole = activingRoleGO.GetComponent<BaseRole>();
         if (activingRole.teamNum == TeamNum.TEAM_TWO) //敌人，目标击败主角
@@ -42,7 +42,7 @@ public class ActionNodePlayerHPLower15Percent : IActionNode
                 if (nodes.Count > activingRole.speed) //距离太远，选择最大移动距离
                 {
                     AStarPathUtil.Node maxSpeedNode = nodes[activingRole.speed - 1];
-                    actionStrategySmart.SetMoveTargetGridItem(mapGridItems[maxSpeedNode.x, maxSpeedNode.y]);
+                    actionStrategyGeneral.SetMoveTargetGridItem(mapGridItems[maxSpeedNode.x, maxSpeedNode.y]);
                     isNeedMove = true;
                 }
                 else
@@ -50,12 +50,12 @@ public class ActionNodePlayerHPLower15Percent : IActionNode
                     if (nodes.Count > 0) //寻路的最后一格
                     {
                         AStarPathUtil.Node lastPathNode = nodes[nodes.Count - 1];
-                        actionStrategySmart.SetMoveTargetGridItem(mapGridItems[lastPathNode.x, lastPathNode.y]);
+                        actionStrategyGeneral.SetMoveTargetGridItem(mapGridItems[lastPathNode.x, lastPathNode.y]);
                         isNeedMove = true;
                     }
                     else //原地
                     {
-                        actionStrategySmart.SetMoveTargetGridItem(mapGridItems[activingRole.battleOriginPosX, activingRole.battleOriginPosZ]);
+                        actionStrategyGeneral.SetMoveTargetGridItem(mapGridItems[activingRole.battleOriginPosX, activingRole.battleOriginPosZ]);
                         isNeedMove = false;
                     }
                 }
@@ -104,11 +104,11 @@ public class ActionNodePlayerHPLower15Percent : IActionNode
                         {
                             if (isNeedMove) //向主角移动后调息
                             {
-                                actionStrategySmart.SetIsPass(true);
+                                actionStrategyGeneral.SetIsPass(true);
                             }
                             else //已经在主角身边，直接调息
                             {
-                                actionStrategySmart.SetIsPass(true);
+                                actionStrategyGeneral.SetIsPass(true);
                             }
                         }
                     }
@@ -149,7 +149,7 @@ public class ActionNodeMaxTotalDamage : IActionNode
     {
     }
 
-    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategySmart actionStrategySmart)
+    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategyGeneral actionStrategyGeneral)
     {
         throw new System.NotImplementedException();
     }
@@ -164,14 +164,14 @@ public class ActionNodeAttackShortestDistance: IActionNode
     {
     }
 
-    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategySmart actionStrategySmart)
+    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategyGeneral actionStrategyGeneral)
     {
         throw new System.NotImplementedException();
     }
 }
 
 /// <summary>
-/// 贪婪 穷举
+/// 贪婪 穷举 攻击
 /// </summary>
 public class ActionNodeGreedyAlgorithm : IActionNode
 {
@@ -179,9 +179,234 @@ public class ActionNodeGreedyAlgorithm : IActionNode
     {
     }
 
-    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategySmart actionStrategySmart)
+    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategyGeneral actionStrategyGeneral)
     {
-        return true;
+        BaseRole currentRole = activingRoleGO.GetComponent<BaseRole>();
+
+        //敌人位置
+        Dictionary<(int, int), GameObject> position_roleGO = new Dictionary<(int, int), GameObject>();
+        foreach (GameObject roleGO in allRoleGO)
+        {
+            BaseRole role = roleGO.GetComponent<BaseRole>();
+            if (role.teamNum != currentRole.teamNum)
+            {
+                position_roleGO.Add((role.battleOriginPosX, role.battleOriginPosZ), roleGO);
+            }
+        }
+
+        Shentong[] roleST = currentRole.shentongInBattle;
+
+        List<GameObject> canMoveMapGrids = currentRole.lastAllCanMoveGrids;
+
+        int maxDamage = 0;
+
+        foreach (GameObject canMoveMapGrid in canMoveMapGrids)
+        {
+            (int, int) rolePosition = MapUtil.GetPositionFromGridItemGO(canMoveMapGrid);
+            foreach(Shentong st in roleST)
+            {
+                if (st == null) continue;
+                if (st.rangeType == ShentongRangeType.Point)
+                {
+                    int minX = rolePosition.Item1 - st.unitDistance;
+                    if (minX < 0) minX = 0;
+
+                    int maxX = rolePosition.Item1 + st.unitDistance;
+                    if (maxX > mapGridItems.GetLength(0)-1) maxX = mapGridItems.GetLength(0)-1;
+
+                    int minY = rolePosition.Item2 - st.unitDistance;
+                    if (minY < 0) minY = 0;
+
+                    int maxY = rolePosition.Item2 + st.unitDistance;
+                    if (maxY > mapGridItems.GetLength(1)-1) maxY = mapGridItems.GetLength(1) - 1;
+
+                    for(int i=minX; i<= maxX; i++)
+                    {
+                        for (int j = minY; j <= maxY; j++)
+                        {
+                            if((ManHaDunDistanceTrim(rolePosition, (i, j))+1) <= st.unitDistance) //攻击范围
+                            {
+                                GameObject enemyGO = position_roleGO.GetValueOrDefault((i, j), null);
+                                if (enemyGO != null)//格子上有行动人的敌人
+                                {
+                                    int damage = currentRole.CalculateDamage(enemyGO.GetComponent<BaseRole>(), st);
+                                    if (damage > maxDamage)
+                                    {
+                                        maxDamage = damage;
+                                        actionStrategyGeneral.SetMoveTargetGridItem(canMoveMapGrid); //移动到哪
+                                        currentRole.selectedShentong = st;//使用什么神通
+                                        actionStrategyGeneral.SetAttackMapGridItem(mapGridItems[i, j]);//攻击哪一格
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+                else if (st.rangeType == ShentongRangeType.Line)
+                {
+                    int minX = rolePosition.Item1 - st.unitDistance;
+                    if (minX < 0) minX = 0;
+
+                    int maxX = rolePosition.Item1 + st.unitDistance;
+                    if (maxX > mapGridItems.GetLength(0) - 1) maxX = mapGridItems.GetLength(0) - 1;
+
+                    int minY = rolePosition.Item2 - st.unitDistance;
+                    if (minY < 0) minY = 0;
+
+                    int maxY = rolePosition.Item2 + st.unitDistance;
+                    if (maxY > mapGridItems.GetLength(1) - 1) maxY = mapGridItems.GetLength(1) - 1;
+
+                    int thisGroupTotalDamage = 0;
+                    for(int i= minX; i< rolePosition.Item1; i++)
+                    {
+                        GameObject enemyGO = position_roleGO.GetValueOrDefault((i, rolePosition.Item2), null);
+                        if(enemyGO != null)
+                        {
+                            thisGroupTotalDamage += currentRole.CalculateDamage(enemyGO.GetComponent<BaseRole>(), st);
+                        }
+                    }
+                    if(thisGroupTotalDamage > maxDamage)
+                    {
+                        maxDamage = thisGroupTotalDamage;
+                        actionStrategyGeneral.SetMoveTargetGridItem(canMoveMapGrid); //移动到哪
+                        currentRole.selectedShentong = st;//使用什么神通
+                        actionStrategyGeneral.SetAttackMapGridItem(mapGridItems[rolePosition.Item1-1, rolePosition.Item2]);//攻击哪一格
+                    }
+
+                    thisGroupTotalDamage = 0;
+                    for (int i = rolePosition.Item1+1; i <= maxX; i++)
+                    {
+                        GameObject enemyGO = position_roleGO.GetValueOrDefault((i, rolePosition.Item2), null);
+                        if (enemyGO != null)
+                        {
+                            thisGroupTotalDamage += currentRole.CalculateDamage(enemyGO.GetComponent<BaseRole>(), st);
+                        }
+                    }
+                    if (thisGroupTotalDamage > maxDamage)
+                    {
+                        maxDamage = thisGroupTotalDamage;
+                        actionStrategyGeneral.SetMoveTargetGridItem(canMoveMapGrid); //移动到哪
+                        currentRole.selectedShentong = st;//使用什么神通
+                        actionStrategyGeneral.SetAttackMapGridItem(mapGridItems[rolePosition.Item1 - 1, rolePosition.Item2]);//攻击哪一格
+                    }
+
+                    thisGroupTotalDamage = 0;
+                    for (int i = minY; i < rolePosition.Item2; i++)
+                    {
+                        GameObject enemyGO = position_roleGO.GetValueOrDefault((rolePosition.Item1, i), null);
+                        if (enemyGO != null)
+                        {
+                            thisGroupTotalDamage += currentRole.CalculateDamage(enemyGO.GetComponent<BaseRole>(), st);
+                        }
+                    }
+                    if (thisGroupTotalDamage > maxDamage)
+                    {
+                        maxDamage = thisGroupTotalDamage;
+                        actionStrategyGeneral.SetMoveTargetGridItem(canMoveMapGrid); //移动到哪
+                        currentRole.selectedShentong = st;//使用什么神通
+                        actionStrategyGeneral.SetAttackMapGridItem(mapGridItems[rolePosition.Item1 - 1, rolePosition.Item2]);//攻击哪一格
+                    }
+
+                    thisGroupTotalDamage = 0;
+                    for (int i = rolePosition.Item2 + 1; i <= maxY; i++)
+                    {
+                        GameObject enemyGO = position_roleGO.GetValueOrDefault((rolePosition.Item1, i), null);
+                        if (enemyGO != null)
+                        {
+                            thisGroupTotalDamage += currentRole.CalculateDamage(enemyGO.GetComponent<BaseRole>(), st);
+                        }
+                    }
+                    if (thisGroupTotalDamage > maxDamage)
+                    {
+                        maxDamage = thisGroupTotalDamage;
+                        actionStrategyGeneral.SetMoveTargetGridItem(canMoveMapGrid); //移动到哪
+                        currentRole.selectedShentong = st;//使用什么神通
+                        actionStrategyGeneral.SetAttackMapGridItem(mapGridItems[rolePosition.Item1 - 1, rolePosition.Item2]);//攻击哪一格
+                    }
+
+                }
+                else if (st.rangeType == ShentongRangeType.Plane)
+                {
+                    int minX = rolePosition.Item1 - st.unitDistance;
+                    if (minX < 0) minX = 0;
+
+                    int maxX = rolePosition.Item1 + st.unitDistance;
+                    if (maxX > mapGridItems.GetLength(0) - 1) maxX = mapGridItems.GetLength(0) - 1;
+
+                    int minY = rolePosition.Item2 - st.unitDistance;
+                    if (minY < 0) minY = 0;
+
+                    int maxY = rolePosition.Item2 + st.unitDistance;
+                    if (maxY > mapGridItems.GetLength(1) - 1) maxY = mapGridItems.GetLength(1) - 1;
+
+                    int thisGroupTotalDamage = 0;
+
+                    for (int i = minX; i <= maxX; i++)
+                    {
+                        for (int j = minY; j <= maxY; j++)
+                        {
+                            if ((ManHaDunDistanceTrim(rolePosition, (i, j)) + 1) <= st.unitDistance) //鼠标点击范围
+                            {
+                                (int, int) attackCore = (i, j);
+
+                                int minX2 = attackCore.Item1 - st.planeRadius;
+                                if (minX2 < 0) minX2 = 0;
+
+                                int maxX2 = attackCore.Item1 + st.planeRadius;
+                                if (maxX2 > mapGridItems.GetLength(0) - 1) maxX2 = mapGridItems.GetLength(0) - 1;
+
+                                int minY2 = attackCore.Item2 - st.planeRadius;
+                                if (minY2 < 0) minY2 = 0;
+
+                                int maxY2 = attackCore.Item2 + st.planeRadius;
+                                if (maxY2 > mapGridItems.GetLength(1) - 1) maxY2 = mapGridItems.GetLength(1) - 1;
+
+                                for (int m = minX2; m <= maxX2; m++)
+                                {
+                                    for (int n = minY2; n <= maxY2; n++)
+                                    {
+                                        if ((ManHaDunDistanceTrim(attackCore, (m, n)) + 1) <= st.planeRadius) //伤害范围
+                                        {
+                                            GameObject enemyGO = position_roleGO.GetValueOrDefault((i, j), null);
+                                            if (enemyGO != null)//格子上有行动人的敌人
+                                            {
+                                                thisGroupTotalDamage += currentRole.CalculateDamage(enemyGO.GetComponent<BaseRole>(), st);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if(thisGroupTotalDamage > maxDamage)
+                                {
+                                    maxDamage = thisGroupTotalDamage;
+                                    actionStrategyGeneral.SetMoveTargetGridItem(canMoveMapGrid); //移动到哪
+                                    currentRole.selectedShentong = st;//使用什么神通
+                                    actionStrategyGeneral.SetAttackMapGridItem(mapGridItems[i, j]);//攻击哪一格
+                                }
+                                thisGroupTotalDamage = 0;
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if(maxDamage > 0)
+        {
+            Debug.LogError("执行了ActionNodeGreedyAlgorithm maxDamage " + maxDamage);
+            Debug.LogError("MoveTargetGridItem " + actionStrategyGeneral.GetMoveTargetGridItem().name);
+            Debug.LogError("currentRole.selectedShentong " + currentRole.selectedShentong.shenTongName);
+            Debug.LogError("AttackMapGridItem " + actionStrategyGeneral.GetAttackMapGridItem().name);
+            actionStrategyGeneral.SetIsPass(false);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+        
     }
 }
 
@@ -193,8 +418,8 @@ public class ActionNodeMpNotEnough : IActionNode
 
     public override bool Run(GameObject activingRoleGO, 
         List<GameObject> allRoleGO, 
-        GameObject[,] mapGridItems, 
-        ActionStrategySmart actionStrategySmart)
+        GameObject[,] mapGridItems,
+        ActionStrategyGeneral actionStrategyGeneral)
     {
         BaseRole activingRole = activingRoleGO.GetComponent<BaseRole>();
 
@@ -206,6 +431,7 @@ public class ActionNodeMpNotEnough : IActionNode
 
         foreach(Shentong st in activingRole.shentongInBattle)
         {
+            if (st == null) continue;
             if(st.needMp <= activingRole.mp && st.effType == ShentongEffType.Gong_Ji)
             {
                 //有足够的mp使用攻击神通
@@ -227,18 +453,18 @@ public class ActionNodeMpNotEnough : IActionNode
             if (nodes.Count > activingRole.speed) //距离太远，选择最大移动距离
             {
                 AStarPathUtil.Node maxSpeedNode = nodes[activingRole.speed - 1];
-                actionStrategySmart.SetMoveTargetGridItem(mapGridItems[maxSpeedNode.x, maxSpeedNode.y]);
+                actionStrategyGeneral.SetMoveTargetGridItem(mapGridItems[maxSpeedNode.x, maxSpeedNode.y]);
             }
             else
             {
                 if (nodes.Count > 0) //寻路的最后一格
                 {
                     AStarPathUtil.Node lastPathNode = nodes[nodes.Count - 1];
-                    actionStrategySmart.SetMoveTargetGridItem(mapGridItems[lastPathNode.x, lastPathNode.y]);
+                    actionStrategyGeneral.SetMoveTargetGridItem(mapGridItems[lastPathNode.x, lastPathNode.y]);
                 }
                 else //留在原地
                 {
-                    actionStrategySmart.SetMoveTargetGridItem(mapGridItems[activingRole.battleOriginPosX, activingRole.battleOriginPosZ]);
+                    actionStrategyGeneral.SetMoveTargetGridItem(mapGridItems[activingRole.battleOriginPosX, activingRole.battleOriginPosZ]);
                 }
             }
         }
@@ -256,7 +482,7 @@ public class ActionNodeMpNotEnough : IActionNode
                     targetMapGridItem = canMoveMapGridItem;
                 }
             }
-            actionStrategySmart.SetMoveTargetGridItem(targetMapGridItem);
+            actionStrategyGeneral.SetMoveTargetGridItem(targetMapGridItem);
         }
 
         foreach(RoleItem item in activingRole.roleItems) //挑选道具恢复mp
@@ -270,9 +496,11 @@ public class ActionNodeMpNotEnough : IActionNode
 
         if(activingRole.selectRoleItem == null) //无道具可用->调息
         {
-            actionStrategySmart.SetIsPass(true);
+            actionStrategyGeneral.SetIsPass(true);
         }
 
+
+        Debug.Log("执行了ActionNodeMpNotEnough");
         return true;
     }
 }

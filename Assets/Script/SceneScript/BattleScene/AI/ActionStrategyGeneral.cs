@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 此策略每次只会走到离主角最近的位置使用普通攻击
+/// </summary>
 public class ActionStrategyGeneral : ActionStrategy
 {
 

@@ -25,7 +25,6 @@ public class BattleUIControl : BaseMono
 
     public void Init(List<GameObject> allRole)
     {
-
         this.allRole = allRole;
         passButton = GameObject.FindGameObjectWithTag("PassButton");
         resetButton = GameObject.FindGameObjectWithTag("ResetButton");

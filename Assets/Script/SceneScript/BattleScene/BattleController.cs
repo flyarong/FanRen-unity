@@ -590,10 +590,12 @@ public class BattleController : BaseMono
                 GameObject targetMoveGridItem = selectRoleCS.GetActionStrategy().GetMoveTargetGridItem();
                 if (targetMoveGridItem == this.grids[selectRoleCS.battleOriginPosX, selectRoleCS.battleOriginPosZ]) //移动目标就是原地不动(冰冻等状态也是待在原地)
                 {
+                    Debug.Log("原地不动");
                     ActionAfterAIMove();
                 }
                 else
                 {
+                    Debug.Log("开始移动");
                     this.DoMove(targetMoveGridItem);
                 }
             }
@@ -699,7 +701,7 @@ public class BattleController : BaseMono
         }
         else
         {
-            Debug.LogWarning("回合内多次移动");
+            Debug.LogWarning("回合内多次调整位置");
             int startX = activingRole.battleToPosX;
             int startZ = activingRole.battleToPosZ;
             battleObstacles = GetAllBattleObstacles();

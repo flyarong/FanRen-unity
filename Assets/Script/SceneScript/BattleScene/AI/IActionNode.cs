@@ -56,5 +56,13 @@ public abstract class IActionNode
         return obstacles;
     }
 
-    public abstract bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategySmart actionStrategySmart);
+    /// <summary>
+    /// 如果返回true，那么后续节点就不会再判断执行了
+    /// </summary>
+    /// <param name="activingRoleGO"></param>
+    /// <param name="allRoleGO"></param>
+    /// <param name="mapGridItems"></param>
+    /// <param name="actionStrategyGeneral"></param>
+    /// <returns>如果返回true，那么后续节点就不会再判断执行了</returns>
+    public abstract bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategyGeneral actionStrategyGeneral);
 }

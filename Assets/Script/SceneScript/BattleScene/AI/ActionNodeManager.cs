@@ -9,15 +9,15 @@ public class ActionNodeManager
     public List<GameObject> allRoleGO;
     public GameObject[,] mapGridItems;
 
-    public ActionStrategySmart actionStrategySmart;
+    public ActionStrategyGeneral actionStrategyGeneral;
 
-    public ActionNodeManager(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategySmart actionStrategySmart)
+    public ActionNodeManager(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategyGeneral actionStrategyGeneral)
     {
         this.actionNodes = new SortedList<float, IActionNode>(new MyActionNodeSort());
         this.activingRoleGO = activingRoleGO;
         this.allRoleGO = allRoleGO;
         this.mapGridItems = mapGridItems;
-        this.actionStrategySmart = actionStrategySmart;
+        this.actionStrategyGeneral = actionStrategyGeneral;
     }
 
     public ActionNodeManager AddActionNode(IActionNode actionNode)
@@ -33,16 +33,26 @@ public class ActionNodeManager
         return this;
     }
 
-    public void Execute()
+    public bool Execute()
     {
-        for (int i = 0; i < actionNodes.Count; i++)
+        //for (int i = 0; i < actionNodes.Count; i++)
+        //{
+        //    if (actionNodes[i].Run(activingRoleGO, allRoleGO, mapGridItems, actionStrategyGeneral))
+        //    {
+        //        return true;
+        //    }
+        //}
+
+        foreach(IActionNode an in actionNodes.Values)
         {
-            if (actionNodes[i].Run(activingRoleGO, allRoleGO, mapGridItems, actionStrategySmart))
+            if (an.Run(activingRoleGO, allRoleGO, mapGridItems, actionStrategyGeneral))
             {
-                return;
+                return true;
             }
         }
-        Debug.LogError("没有子策略被执行");
+
+        Debug.LogWarning("没有子策略被执行");
+        return false;
     }
 
     private class MyActionNodeSort : IComparer<float>

@@ -180,17 +180,13 @@ public class BaseRole : BaseMono
 
         RecoverHPMP(this.selectRoleItem.recoverHp, this.selectRoleItem.recoverMp);
 
-        if (roleId == 1) //主角走储物袋逻辑
+        if (roleId > 1) //主角走储物袋逻辑
         {
-            
-        }
-        else 
-        {
-            if(this.selectRoleItem.itemCount == 1)
+            if (this.selectRoleItem.itemCount == 1)
             {
                 this.roleItems.Remove(this.selectRoleItem);
             }
-            else if(this.selectRoleItem.itemCount > 1)
+            else if (this.selectRoleItem.itemCount > 1)
             {
                 this.selectRoleItem.itemCount--;
             }
@@ -304,8 +300,7 @@ public class BaseRole : BaseMono
     {
         Debug.Log("DoAck");
         isDidUseShentongOrBagCurrentRound = true;
-        //todo 公式待定
-        int damage = this.gongJiLi + this.selectedShentong.damage - enemy.fangYuLi;
+        int damage = CalculateDamage(enemy, this.selectedShentong);
 
         if (damage <= 0) damage = 1;
 
@@ -327,6 +322,17 @@ public class BaseRole : BaseMono
         }
     }
 
+    public int CalculateDamage(BaseRole beAttackedEnemy, Shentong attackShentong)
+    {
+        if (this.mp < attackShentong.needMp) return 0;
+        //todo 公式待定
+        int damage = this.gongJiLi + attackShentong.damage - beAttackedEnemy.fangYuLi;
+        return damage;
+    }
+
+    /// <summary>
+    /// 最近一次生成的可移动范围（其实就是本回合的可移动范围，会在生成本回合AI策略之前生成）
+    /// </summary>
     public List<GameObject> lastAllCanMoveGrids = new List<GameObject>();
 
     /// <summary>

@@ -43,7 +43,7 @@ public class RootBattleInit : BaseMono
             RoleInfo enemyRoleInfo = MyDBManager.GetInstance().GetRoleInfo(7);
             enemyCS.Init(enemyRoleInfo, 1);
             enemyCS.InitRoleBattelePos(2, 22);
-            enemyCS.SetActionStrategy(new ActionStrategyGeneral());
+            enemyCS.SetActionStrategy(new ActionStrategyLoop());
 
             GameObject.FindGameObjectWithTag("UI_Canvas").GetComponent<BattleUIControl>().Init(roles);
             GameObject.FindGameObjectWithTag("Terrain").GetComponent<BattleController>().Init(roles);
