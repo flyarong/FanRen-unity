@@ -35,14 +35,6 @@ public class ActionNodeManager
 
     public bool Execute()
     {
-        //for (int i = 0; i < actionNodes.Count; i++)
-        //{
-        //    if (actionNodes[i].Run(activingRoleGO, allRoleGO, mapGridItems, actionStrategyGeneral))
-        //    {
-        //        return true;
-        //    }
-        //}
-
         foreach(IActionNode an in actionNodes.Values)
         {
             if (an.Run(activingRoleGO, allRoleGO, mapGridItems, actionStrategyGeneral))
@@ -59,9 +51,9 @@ public class ActionNodeManager
     {
         int IComparer<float>.Compare(float x, float y)
         {
-            if (x > y) return 1;
+            if (x > y) return -1;
             if (x == y) return 0;
-            if (x < y) return -1;
+            if (x < y) return 1;
             return 0;
         }
     }

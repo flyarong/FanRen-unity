@@ -181,6 +181,7 @@ public class ActionNodeGreedyAlgorithm : IActionNode
 
     public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategyGeneral actionStrategyGeneral)
     {
+        Debug.LogError("Run " + this.name);
         BaseRole currentRole = activingRoleGO.GetComponent<BaseRole>();
 
         //敌人位置
@@ -288,7 +289,7 @@ public class ActionNodeGreedyAlgorithm : IActionNode
                         maxDamage = thisGroupTotalDamage;
                         actionStrategyGeneral.SetMoveTargetGridItem(canMoveMapGrid); //移动到哪
                         currentRole.selectedShentong = st;//使用什么神通
-                        actionStrategyGeneral.SetAttackMapGridItem(mapGridItems[rolePosition.Item1 - 1, rolePosition.Item2]);//攻击哪一格
+                        actionStrategyGeneral.SetAttackMapGridItem(mapGridItems[rolePosition.Item1 + 1, rolePosition.Item2]);//攻击哪一格
                     }
 
                     thisGroupTotalDamage = 0;
@@ -305,7 +306,7 @@ public class ActionNodeGreedyAlgorithm : IActionNode
                         maxDamage = thisGroupTotalDamage;
                         actionStrategyGeneral.SetMoveTargetGridItem(canMoveMapGrid); //移动到哪
                         currentRole.selectedShentong = st;//使用什么神通
-                        actionStrategyGeneral.SetAttackMapGridItem(mapGridItems[rolePosition.Item1 - 1, rolePosition.Item2]);//攻击哪一格
+                        actionStrategyGeneral.SetAttackMapGridItem(mapGridItems[rolePosition.Item1, rolePosition.Item2 - 1]);//攻击哪一格
                     }
 
                     thisGroupTotalDamage = 0;
@@ -322,7 +323,7 @@ public class ActionNodeGreedyAlgorithm : IActionNode
                         maxDamage = thisGroupTotalDamage;
                         actionStrategyGeneral.SetMoveTargetGridItem(canMoveMapGrid); //移动到哪
                         currentRole.selectedShentong = st;//使用什么神通
-                        actionStrategyGeneral.SetAttackMapGridItem(mapGridItems[rolePosition.Item1 - 1, rolePosition.Item2]);//攻击哪一格
+                        actionStrategyGeneral.SetAttackMapGridItem(mapGridItems[rolePosition.Item1, rolePosition.Item2 + 1]);//攻击哪一格
                     }
 
                 }
@@ -368,7 +369,7 @@ public class ActionNodeGreedyAlgorithm : IActionNode
                                     {
                                         if ((ManHaDunDistanceTrim(attackCore, (m, n)) + 1) <= st.planeRadius) //伤害范围
                                         {
-                                            GameObject enemyGO = position_roleGO.GetValueOrDefault((i, j), null);
+                                            GameObject enemyGO = position_roleGO.GetValueOrDefault((m, n), null);
                                             if (enemyGO != null)//格子上有行动人的敌人
                                             {
                                                 thisGroupTotalDamage += currentRole.CalculateDamage(enemyGO.GetComponent<BaseRole>(), st);
@@ -395,10 +396,10 @@ public class ActionNodeGreedyAlgorithm : IActionNode
 
         if(maxDamage > 0)
         {
-            Debug.LogError("执行了ActionNodeGreedyAlgorithm maxDamage " + maxDamage);
-            Debug.LogError("MoveTargetGridItem " + actionStrategyGeneral.GetMoveTargetGridItem().name);
-            Debug.LogError("currentRole.selectedShentong " + currentRole.selectedShentong.shenTongName);
-            Debug.LogError("AttackMapGridItem " + actionStrategyGeneral.GetAttackMapGridItem().name);
+            //Debug.LogError("执行了ActionNodeGreedyAlgorithm maxDamage " + maxDamage);
+            //Debug.LogError("MoveTargetGridItem " + actionStrategyGeneral.GetMoveTargetGridItem().name);
+            //Debug.LogError("currentRole.selectedShentong " + currentRole.selectedShentong.shenTongName);
+            //Debug.LogError("AttackMapGridItem " + actionStrategyGeneral.GetAttackMapGridItem().name);
             actionStrategyGeneral.SetIsPass(false);
             return true;
         }
@@ -421,6 +422,7 @@ public class ActionNodeMpNotEnough : IActionNode
         GameObject[,] mapGridItems,
         ActionStrategyGeneral actionStrategyGeneral)
     {
+        Debug.Log("Run " + this.name);
         BaseRole activingRole = activingRoleGO.GetComponent<BaseRole>();
 
         //这个策略是给非主角方NPC使用的
@@ -429,10 +431,16 @@ public class ActionNodeMpNotEnough : IActionNode
             return false;
         }
 
-        foreach(Shentong st in activingRole.shentongInBattle)
+        HanLiScriptInBattle hanLiScriptInBattle = GetHanLi(allRoleGO);
+
+        foreach (Shentong st in activingRole.shentongInBattle)
         {
             if (st == null) continue;
-            if(st.needMp <= activingRole.mp && st.effType == ShentongEffType.Gong_Ji)
+            if ((((float)hanLiScriptInBattle.hp) / ((float)hanLiScriptInBattle.maxHp)) > 0.1f && st.shenTongId == 1) //主角血量在10%以上时候，不要用普通攻击
+            {
+                continue;
+            }
+            if (st.needMp <= activingRole.mp && st.effType == ShentongEffType.Gong_Ji)
             {
                 //有足够的mp使用攻击神通
                 return false;
@@ -441,8 +449,7 @@ public class ActionNodeMpNotEnough : IActionNode
 
         //无攻击神通可用，使用道具或者调息补充mp
         //如果主角血量在20%以下，向主角移动，否则远离主角
-        HanLiScriptInBattle hanLiScriptInBattle = GetHanLi(allRoleGO);
-        if(hanLiScriptInBattle.hp / hanLiScriptInBattle.maxHp < 0.2f) //向主角移动
+        if(((float)hanLiScriptInBattle.hp / (float)hanLiScriptInBattle.maxHp) < 0.2f) //向主角移动
         {
             Debug.LogWarning("主角hp低于20%，会贴身主角");
             AStarPathUtil aStarPathUtil = new AStarPathUtil();
