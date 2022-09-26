@@ -13,6 +13,7 @@ public class PlayerSimpleInfoUIScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        MyDBManager.GetInstance().ConnDB();
         RoleInfo roleInfo = MyDBManager.GetInstance().GetRoleInfo(1);
 
         Slider slider = sliderHPGO.GetComponent<Slider>();

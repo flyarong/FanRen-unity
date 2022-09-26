@@ -141,36 +141,6 @@ public class ActionNodePlayerHPLower15Percent : IActionNode
 }
 
 /// <summary>
-/// 最大总输出
-/// </summary>
-public class ActionNodeMaxTotalDamage : IActionNode
-{
-    public ActionNodeMaxTotalDamage(float priority, string name = null) : base(priority, name)
-    {
-    }
-
-    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategyGeneral actionStrategyGeneral)
-    {
-        throw new System.NotImplementedException();
-    }
-}
-
-/// <summary>
-/// 攻击最近的敌人
-/// </summary>
-public class ActionNodeAttackShortestDistance: IActionNode
-{
-    public ActionNodeAttackShortestDistance(float priority, string name = null) : base(priority, name)
-    {
-    }
-
-    public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategyGeneral actionStrategyGeneral)
-    {
-        throw new System.NotImplementedException();
-    }
-}
-
-/// <summary>
 /// 贪婪 穷举 攻击
 /// </summary>
 public class ActionNodeGreedyAlgorithm : IActionNode
@@ -396,10 +366,6 @@ public class ActionNodeGreedyAlgorithm : IActionNode
 
         if(maxDamage > 0)
         {
-            //Debug.LogError("执行了ActionNodeGreedyAlgorithm maxDamage " + maxDamage);
-            //Debug.LogError("MoveTargetGridItem " + actionStrategyGeneral.GetMoveTargetGridItem().name);
-            //Debug.LogError("currentRole.selectedShentong " + currentRole.selectedShentong.shenTongName);
-            //Debug.LogError("AttackMapGridItem " + actionStrategyGeneral.GetAttackMapGridItem().name);
             actionStrategyGeneral.SetIsPass(false);
             return true;
         }
@@ -448,10 +414,10 @@ public class ActionNodeMpNotEnough : IActionNode
         }
 
         //无攻击神通可用，使用道具或者调息补充mp
-        //如果主角血量在20%以下，向主角移动，否则远离主角
-        if(((float)hanLiScriptInBattle.hp / (float)hanLiScriptInBattle.maxHp) < 0.2f) //向主角移动
+        //如果主角血量在10%以下，向主角移动，否则远离主角
+        if(((float)hanLiScriptInBattle.hp / (float)hanLiScriptInBattle.maxHp) < 0.1f) //向主角移动
         {
-            Debug.LogWarning("主角hp低于20%，会贴身主角");
+            Debug.LogWarning("主角hp低于10%，会贴身主角");
             AStarPathUtil aStarPathUtil = new AStarPathUtil();
             (int, int) start = (activingRole.battleOriginPosX, activingRole.battleOriginPosZ);
             (int, int) end = (hanLiScriptInBattle.battleOriginPosX, hanLiScriptInBattle.battleOriginPosZ);
@@ -505,7 +471,6 @@ public class ActionNodeMpNotEnough : IActionNode
         {
             actionStrategyGeneral.SetIsPass(true);
         }
-
 
         Debug.Log("执行了ActionNodeMpNotEnough");
         return true;
