@@ -151,7 +151,7 @@ public class ActionNodeGreedyAlgorithm : IActionNode
 
     public override bool Run(GameObject activingRoleGO, List<GameObject> allRoleGO, GameObject[,] mapGridItems, ActionStrategyGeneral actionStrategyGeneral)
     {
-        Debug.LogError("Run " + this.name);
+        Debug.Log("Run " + this.name);
         BaseRole currentRole = activingRoleGO.GetComponent<BaseRole>();
 
         //µ–»ÀŒª÷√

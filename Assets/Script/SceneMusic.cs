@@ -3,8 +3,14 @@ using UnityEngine;
 public class SceneMusic : BaseMono
 {
 
+    /// <summary>
+    /// 本场景需要的bgm prefab
+    /// </summary>
     public GameObject globalMusicPrefab;
 
+    /// <summary>
+    /// 目前已挂载的bgm
+    /// </summary>
     GameObject musicObject;
 
     // Start is called before the first frame update

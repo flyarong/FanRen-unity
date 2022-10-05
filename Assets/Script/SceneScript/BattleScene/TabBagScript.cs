@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(ScrollRect))]
-public class BattleBagScript : MonoBehaviour
+public class TabBagScript : MonoBehaviour
 {
 
     public GameObject gridItemUIPrefab;
@@ -17,9 +17,9 @@ public class BattleBagScript : MonoBehaviour
     {
         
         MyDBManager.GetInstance().ConnDB();
-        datas = MyDBManager.GetInstance().GetRoleItemInBag(1, true);
+        datas = MyDBManager.GetInstance().GetRoleItemInBag(1, false);
 
-        MyAdapter myAdapter = new MyAdapter(datas, this, this.gridItemUIPrefab);
+        MyTabBagAdapter myAdapter = new MyTabBagAdapter(datas, this, this.gridItemUIPrefab);
 
         mMyGridLayout = new MyGridLayout(this.gameObject, myAdapter);
     }
@@ -84,9 +84,32 @@ public class BattleBagScript : MonoBehaviour
 
         Debug.Log("OnUseButtonClick() roleItem name " + roleItem.itemName);
 
-        this.transform.parent.GetComponent<BagAllContainerScript>().DoCloseBagContainer();
+        if(roleItem.recoverHp > 0 || roleItem.recoverMp > 0)
+        {
+            //数据库更新人物hp mp
+            RoleInfo roleInfo = MyDBManager.GetInstance().GetRoleInfo(1);
+            roleInfo.currentHp += roleItem.recoverHp;
+            roleInfo.currentMp += roleItem.recoverMp;
+            if (roleInfo.currentHp > roleInfo.maxHp) roleInfo.currentHp = roleInfo.maxHp;
+            if (roleInfo.currentMp > roleInfo.maxMp) roleInfo.currentMp = roleInfo.maxMp;
+            MyDBManager.GetInstance().UpdateRoleInfo(1, roleInfo.currentHp, roleInfo.currentMp);
 
-        GameObject.FindGameObjectWithTag("Terrain").GetComponent<BattleController>().OnRoleItemSelectToUse(roleItem);
+            //更新左上角hp条mp条
+            PlayerSimpleInfoUIScript psi = GameObject.Find("PlayerSimpleInfo_UI_Canvas").GetComponent<PlayerSimpleInfoUIScript>();
+            psi.UpdateHPAndMp();
+
+            if (roleItem.recoverHp > 0 && roleItem.recoverMp > 0) UIUtil.ShowTipsUI("血气补充" + roleItem.recoverHp + " 灵力补充"+ roleItem.recoverMp);
+            if (roleItem.recoverHp > 0 && roleItem.recoverMp == 0) UIUtil.ShowTipsUI("血气补充" + roleItem.recoverHp);
+            if (roleItem.recoverHp == 0 && roleItem.recoverMp > 0) UIUtil.ShowTipsUI("灵力补充" + roleItem.recoverMp);
+
+        }
+        else
+        {
+            UIUtil.ShowTipsUI("没有任何效果");
+        }
+
+        //this.transform.parent.GetComponent<BagAllContainerScript>().DoCloseBagContainer();
+        //GameObject.FindGameObjectWithTag("Terrain").GetComponent<BattleController>().OnRoleItemSelectToUse(roleItem);
 
     }
 
@@ -147,15 +170,15 @@ public class BattleBagScript : MonoBehaviour
 
 }
 
-public class MyAdapter : GridLayoutAdapter<RoleItem>
+public class MyTabBagAdapter : GridLayoutAdapter<RoleItem>
 {
 
-    WeakReference<BattleBagScript> mWeakReference;
+    WeakReference<TabBagScript> mWeakReference;
     GameObject gridItemUIPrefab;
 
-    public MyAdapter(List<RoleItem> datas, BattleBagScript battleBagScript, GameObject gridItemUIPrefab) : base(datas)
+    public MyTabBagAdapter(List<RoleItem> datas, TabBagScript tabBagScript, GameObject gridItemUIPrefab) : base(datas)
     {
-        this.mWeakReference = new WeakReference<BattleBagScript>(battleBagScript);
+        this.mWeakReference = new WeakReference<TabBagScript>(tabBagScript);
         this.gridItemUIPrefab = gridItemUIPrefab;
     }
 
@@ -184,7 +207,7 @@ public class MyAdapter : GridLayoutAdapter<RoleItem>
     public override void OnGridItemSelect(GameObject gridItem, int index)
     {
         Debug.LogWarning("OnSelectGridItem " + index);
-        BattleBagScript bbs;
+        TabBagScript bbs;
         mWeakReference.TryGetTarget(out bbs);
         if (index >= 0)
         {

@@ -13,6 +13,11 @@ public class PlayerSimpleInfoUIScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        UpdateHPAndMp();
+    }
+
+    public void UpdateHPAndMp()
+    {
         MyDBManager.GetInstance().ConnDB();
         RoleInfo roleInfo = MyDBManager.GetInstance().GetRoleInfo(1);
 

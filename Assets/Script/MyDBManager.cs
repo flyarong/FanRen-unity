@@ -124,6 +124,15 @@ public class MyDBManager
         return roleInfo;
     }
 
+    public bool UpdateRoleInfo(int roleId, int nowHp, int nowMp)
+    {
+        SqliteCommand sqliteCommand = this.mSqliteConnection.CreateCommand();
+        sqliteCommand.CommandText = $"update role_info_r set hp={nowHp}, mp={nowMp} where roleId={roleId}";
+        bool result = sqliteCommand.ExecuteNonQuery() == 1;
+        sqliteCommand.Dispose();
+        return result;
+    }
+
     //isActive 学完后，是否有装备上
     public void ZhujueLearnShentong(int shenTongId, int isActive)
     {

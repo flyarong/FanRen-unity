@@ -37,6 +37,15 @@ public class PlayerControl : MonoBehaviour
     {
         //debug
         //PlayerPrefs.DeleteAll();
+        if (IS_DEBUG)
+        {
+            Debug.LogWarning("Awake() debug模式，储物袋默认放1-33的物品，测试用");
+            MyDBManager.GetInstance().ConnDB();
+            for (int i = 1; i <= 33; i++)
+            {
+                MyDBManager.GetInstance().AddItemToBag(i, 2);
+            }
+        }
 
         HandleSaveOrLoad();
 
@@ -44,9 +53,9 @@ public class PlayerControl : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        Debug.LogWarning("OnApplicationQuit() debug模式，退出游戏后清空所有游戏进度数据");
         if (IS_DEBUG)
         {
+            Debug.LogWarning("OnApplicationQuit() debug模式，退出游戏后清空所有游戏进度数据");
             //PlayerPrefs配置文件仅仅用来做可拾取物品、触发战斗的碰撞体、触发器 等在游戏进程中终生只显示1次的flag
             PlayerPrefs.DeleteAll();
 
