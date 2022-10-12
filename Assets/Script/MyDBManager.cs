@@ -23,10 +23,13 @@ public class MyDBManager
         return mMyDBManager;
     }
 
-    //有新增RW表需要在这里添加
+    /// <summary>
+    /// todo 有新增RW表需要在这里添加
+    /// 人物信息表，虽然是只读，但是主角和他的帮手（傀儡之类）也都暂时存在这个表 
+    /// </summary>
     public void DeleteAllRWGameData()
     {
-        string[] rwTalbeName = { "role_active_gongfa_rw", "role_active_shentong_rw", "role_bag_rw", "role_tasks_rw"};
+        string[] rwTalbeName = { "role_active_gongfa_rw", "role_active_shentong_rw", "role_bag_rw", "role_tasks_rw", "role_info_rw"};
 
         //sqlite不支持truncate
         //sqliteCommand.CommandText = $"truncate table role_active_gongfa_rw,role_active_shentong_rw,role_bag_rw,role_tasks_rw";
@@ -82,7 +85,14 @@ public class MyDBManager
     {
         RoleInfo roleInfo = null;
         SqliteCommand sqliteCommand = this.mSqliteConnection.CreateCommand();
-        sqliteCommand.CommandText = $"select * from role_info_r where roleId={roleId}";
+        if(roleId == 1)
+        {
+            sqliteCommand.CommandText = $"select * from role_info_rw where roleId={roleId}";
+        }
+        else
+        {
+            sqliteCommand.CommandText = $"select * from role_info_r where roleId={roleId}";
+        }
         SqliteDataReader sdr = sqliteCommand.ExecuteReader();
         if (sdr.Read())
         {
@@ -127,7 +137,16 @@ public class MyDBManager
     public bool UpdateRoleInfo(int roleId, int nowHp, int nowMp)
     {
         SqliteCommand sqliteCommand = this.mSqliteConnection.CreateCommand();
-        sqliteCommand.CommandText = $"update role_info_r set hp={nowHp}, mp={nowMp} where roleId={roleId}";
+        sqliteCommand.CommandText = $"update role_info_rw set hp={nowHp}, mp={nowMp} where roleId={roleId}";
+        bool result = sqliteCommand.ExecuteNonQuery() == 1;
+        sqliteCommand.Dispose();
+        return result;
+    }
+
+    public bool InsertRoleInfo(int roleId)
+    {
+        SqliteCommand sqliteCommand = this.mSqliteConnection.CreateCommand();
+        sqliteCommand.CommandText = $"insert into role_info_rw select * from role_info_r where roleId={roleId}";
         bool result = sqliteCommand.ExecuteNonQuery() == 1;
         sqliteCommand.Dispose();
         return result;

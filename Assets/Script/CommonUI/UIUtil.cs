@@ -1,7 +1,6 @@
-using DG.Tweening;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class UIUtil
@@ -9,7 +8,7 @@ public class UIUtil
     public static void NotifyTaskUIDatasetChanged()
     {
         GameObject topGO = GameObject.Find("TaskScrollView");
-        GameObject parentGO = GameObject.Find("ScrollViewContent");
+        GameObject parentGO = GameObject.Find("TaskScrollViewContent");
         GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("TaskUICell");
         if (gameObjects.Length > 0)
         {
@@ -42,6 +41,28 @@ public class UIUtil
         TipsUIScript tmp = GameObject.Find("Panel_Tips").GetComponent<TipsUIScript>();
         tmp.AddTipsQueue(content);
         tmp.ShowTips();
+    }
+
+    public static void ShowDialog(string rootCanvasName, UnityAction okCB, UnityAction cancelCB, string message, bool needToggleComfirm = false)
+    {
+        DialogPanelScript dps = GameObject.Find(rootCanvasName).transform.Find("PanelDialog").GetComponent<DialogPanelScript>();
+        dps.SetDialog(okCB, cancelCB, message, needToggleComfirm);
+    }
+
+}
+
+public static class UIExtensions
+{
+    public static void SetOnClickListener(this Button button, UnityAction callBack)
+    {
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(callBack);
+    }
+    
+    public static void SetOnValueChangedListener(this Toggle toggle, UnityAction<bool> callBack)
+    {
+        toggle.onValueChanged.RemoveAllListeners();
+        toggle.onValueChanged.AddListener(callBack);
     }
 
 }

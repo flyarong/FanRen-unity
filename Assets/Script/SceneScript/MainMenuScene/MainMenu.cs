@@ -1,10 +1,6 @@
 using DG.Tweening;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using UnityEngine.Video;
 
 public class MainMenu : BaseMono
@@ -82,8 +78,55 @@ public class MainMenu : BaseMono
     public void OnStartButtonClick()
     {
         Debug.Log("OnStartButtonClick");
-        SceneManager.LoadScene(1, LoadSceneMode.Single);
-        //SceneManager.UnloadSceneAsync(0, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
+
+        if(PlayerPrefs.GetInt("gameHasPlayed", 0) == 1) //说明游戏开始过，重新游戏需要清空数据
+        {
+            ShowTipsDialog(); //询问是否要清空数据
+        }
+        else
+        {
+            ResetGameData();
+            PlayerPrefs.SetInt("gameHasPlayed", 1);
+            SceneManager.LoadScene(1, LoadSceneMode.Single);
+        }
+
+    }
+
+    public void ShowTipsDialog()
+    {
+        UIUtil.ShowDialog(
+            "CanvasDialog",
+            delegate ()
+            {
+                ResetGameData();
+                //开始重新游戏
+                PlayerPrefs.SetInt("gameHasPlayed", 1);
+                SceneManager.LoadScene(1, LoadSceneMode.Single);
+            },
+            delegate ()
+            {
+
+            },
+            "重新开始将会清空之前所有进度，是否确定要重新开始？",
+            true);
+    }
+
+    private void ResetGameData()
+
+
+
+
+
+
+
+    {
+        //清空旧数据
+        PlayerPrefs.DeleteAll();
+        MyDBManager.GetInstance().ConnDB();
+        MyDBManager.GetInstance().DeleteAllRWGameData();
+
+        //初始化数据
+        MyDBManager.GetInstance().InsertRoleInfo(1); //主角在R表的数据复制到RW表
     }
 
     public void OnResumeButtonClick()
