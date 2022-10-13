@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -158,6 +159,7 @@ public class ActionNodeGreedyAlgorithm : IActionNode
         Dictionary<(int, int), GameObject> position_roleGO = new Dictionary<(int, int), GameObject>();
         foreach (GameObject roleGO in allRoleGO)
         {
+            if (roleGO == null || roleGO.IsDestroyed()) continue;
             BaseRole role = roleGO.GetComponent<BaseRole>();
             if (role.teamNum != currentRole.teamNum)
             {
@@ -402,10 +404,10 @@ public class ActionNodeMpNotEnough : IActionNode
         foreach (Shentong st in activingRole.shentongInBattle)
         {
             if (st == null) continue;
-            if ((((float)hanLiScriptInBattle.hp) / ((float)hanLiScriptInBattle.maxHp)) > 0.1f && st.shenTongId == 1) //主角血量在10%以上时候，不要用普通攻击
-            {
-                continue;
-            }
+            //if ((((float)hanLiScriptInBattle.hp) / ((float)hanLiScriptInBattle.maxHp)) > 0.1f && st.shenTongId == 1) //主角血量在10%以上时候，不要用普通攻击(只有普通攻击呢？)
+            //{
+            //    continue;
+            //}
             if (st.needMp <= activingRole.mp && st.effType == ShentongEffType.Gong_Ji)
             {
                 //有足够的mp使用攻击神通

@@ -23,8 +23,8 @@ public class Enemy : BaseRole
         //shentongs[0] = new Shentong("ÆÕÍ¨¹¥»÷", 2, 5, 10, "Ef/ZhaYanJianFa", "SoundEff/ZhaYanJianFa");
 
         //InitRoleData(100, 100, 50, 10, 5, shentongs, 11, 2, TeamNum.TEAM_TWO);
-
-        List<Shentong> enemyRoleShentongs = MyDBManager.GetInstance().GetRoleShentong(enemyRoleInfo.roleId, 1, false);
+        MyDBManager.GetInstance().ConnDB();
+       List <Shentong> enemyRoleShentongs = MyDBManager.GetInstance().GetRoleShentong(enemyRoleInfo.roleId, 1, false);
 
         if (PlayerControl.IS_DEBUG && enemyRoleShentongs.Count == 0)
         {

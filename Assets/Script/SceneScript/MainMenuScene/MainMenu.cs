@@ -22,9 +22,14 @@ public class MainMenu : BaseMono
         {
             jumpVideoButton.SetActive(true);
         }
+        else
+        {
+            Debug.Log("片头没有看过，强制观看");
+        }
 
         if (PlayerControl.IS_DEBUG)
         {
+            Debug.Log("debug模式片头可直接跳过");
             jumpVideoButton.SetActive(true);
         }
     }
