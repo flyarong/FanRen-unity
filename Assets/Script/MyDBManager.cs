@@ -619,10 +619,146 @@ public class MyDBManager
         }
     }
 
+    public bool InsertCollectionPlace(int placeId)
+    {
+        SqliteCommand sqliteCommand = null;
+        try
+        {
+            sqliteCommand = this.mSqliteConnection.CreateCommand();
+            sqliteCommand.CommandText = $"insert into place_info_rw (placeId) values({placeId})";
+            return sqliteCommand.ExecuteNonQuery() == 1;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("AddItemToBag, " + e.ToString());
+            return false;
+        }
+        finally
+        {
+            if (sqliteCommand != null)
+            {
+                sqliteCommand.Dispose();
+            }
+        }
+    }
+
+    public List<PlaceCollectionEntity> GetAllCollectionPlace()
+    {
+        List<PlaceCollectionEntity> allPlace = new List<PlaceCollectionEntity>();
+        SqliteCommand sqliteCommand = null;
+        try
+        {
+            sqliteCommand = this.mSqliteConnection.CreateCommand();
+            sqliteCommand.CommandText = $"select * from place_info_r a left join place_info_rw b on a.id=b.placeId";
+            SqliteDataReader sdr = sqliteCommand.ExecuteReader();
+            PlaceCollectionEntity placeCollectionEntity = null;
+            while (sdr.Read())
+            {
+                placeCollectionEntity = new PlaceCollectionEntity();
+                placeCollectionEntity.id = (int)((Int64)sdr["placeId"]);
+                placeCollectionEntity.placeName = (string)sdr["placeName"];
+                placeCollectionEntity.desc = (string)sdr["desc"];
+                placeCollectionEntity.imagePath = (string)sdr["imagePath"];
+                placeCollectionEntity.isOpened = sdr["placeId"].Equals(DBNull.Value) ? false : true;
+                allPlace.Add(placeCollectionEntity);
+            }
+            return allPlace;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("AddItemToBag, " + e.ToString());
+            return allPlace;
+        }
+        finally
+        {
+            if (sqliteCommand != null)
+            {
+                sqliteCommand.Dispose();
+            }
+        }
+    }
+
+    public bool InsertCollectionNPC(int npcId)
+    {
+        SqliteCommand sqliteCommand = null;
+        try
+        {
+            sqliteCommand = this.mSqliteConnection.CreateCommand();
+            sqliteCommand.CommandText = $"insert into npc_collection_rw (npcCollectionId) values({npcId})";
+            return sqliteCommand.ExecuteNonQuery() == 1;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("AddItemToBag, " + e.ToString());
+            return false;
+        }
+        finally
+        {
+            if (sqliteCommand != null)
+            {
+                sqliteCommand.Dispose();
+            }
+        }
+    }
+
+    public List<NPCCollectionEntity> GetAllCollectionNPC()
+    {
+        List<NPCCollectionEntity> allPlace = new List<NPCCollectionEntity>();
+        SqliteCommand sqliteCommand = null;
+        try
+        {
+            sqliteCommand = this.mSqliteConnection.CreateCommand();
+            sqliteCommand.CommandText = $"select * from npc_collection_r a left join npc_collection_rw b on a.id=b.npcCollectionId";
+            SqliteDataReader sdr = sqliteCommand.ExecuteReader();
+            NPCCollectionEntity npcCollectionEntity = null;
+            while (sdr.Read())
+            {
+                npcCollectionEntity = new NPCCollectionEntity();
+                npcCollectionEntity.id = (int)((Int64)sdr["npcCollectionId"]);
+                npcCollectionEntity.npcName = (string)sdr["npcName"];
+                npcCollectionEntity.desc = (string)sdr["desc"];
+                npcCollectionEntity.imagePath = (string)sdr["imagePath"];
+                npcCollectionEntity.isOpened = sdr["npcCollectionId"].Equals(DBNull.Value) ? false : true;
+                allPlace.Add(npcCollectionEntity);
+            }
+            return allPlace;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("AddItemToBag, " + e.ToString());
+            return allPlace;
+        }
+        finally
+        {
+            if (sqliteCommand != null)
+            {
+                sqliteCommand.Dispose();
+            }
+        }
+    }
+
 }
 
 public interface BaseEntity
 {
+}
+
+public class PlaceCollectionEntity
+{
+    public int id;
+    public string placeName;
+    public string desc;
+    public string imagePath;
+    public bool isOpened;
+}
+
+public class NPCCollectionEntity
+{
+    public int id;
+    public string npcName;
+    public string desc;
+    public string imagePath;
+    public bool isOpened;
 }
 
 //角色任务
@@ -652,7 +788,13 @@ public class RoleInfo
     public string roleAvatar;
     public string battleModelPath;
 
-    public string canGetItemId;
+    /// <summary>
+    /// 击败可以获取的道具id
+    /// </summary>
+    public string canGetItemId; 
+    /// <summary>
+    /// 击败获取道具的概率
+    /// </summary>
     public string canGetItemPercent;
 
     public List<int> CanGetItemIdList()

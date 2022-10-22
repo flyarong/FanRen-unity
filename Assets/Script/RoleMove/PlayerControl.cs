@@ -39,12 +39,18 @@ public class PlayerControl : MonoBehaviour
         //PlayerPrefs.DeleteAll();
         if (IS_DEBUG)
         {
-            Debug.LogWarning("Awake() debug模式，储物袋默认放1-33的物品，测试用");
+
+            Debug.LogWarning("初始化游戏数据，测试需要放在这里");
             MyDBManager.GetInstance().ConnDB();
-            for (int i = 1; i <= 33; i++)
-            {
-                MyDBManager.GetInstance().AddItemToBag(i, 2);
-            }
+            RoleInfo roleInfo = MyDBManager.GetInstance().GetRoleInfo(1);
+            if(roleInfo == null) MyDBManager.GetInstance().InsertRoleInfo(1);
+
+            //Debug.LogWarning("Awake() debug模式，储物袋默认放1-33的物品，测试用");
+            //MyDBManager.GetInstance().ConnDB();
+            //for (int i = 1; i <= 33; i++)
+            //{
+            //    MyDBManager.GetInstance().AddItemToBag(i, 2);
+            //}
         }
 
         HandleSaveOrLoad();

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -269,7 +270,8 @@ public class TalkButtonController : MonoBehaviour
     private void SetNextUIContent()
     {
         TalkContentItemModel tcim = (TalkContentItemModel)this.allTalkContentHandleData.Dequeue();
-        texts[1].text = tcim.dfTalkContent;
+        texts[1].text = "";
+        texts[1].DOText(tcim.dfTalkContent, 1).SetEase(Ease.Linear);
         images[1].sprite = Resources.Load<Sprite>("Images/Avatar/" + tcim.dfAvatar);
         texts[0].text = tcim.dfName;
     }

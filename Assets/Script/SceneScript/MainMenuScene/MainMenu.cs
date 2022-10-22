@@ -117,13 +117,6 @@ public class MainMenu : BaseMono
     }
 
     private void ResetGameData()
-
-
-
-
-
-
-
     {
         //Çå¿Õ¾ÉÊý¾Ý
         PlayerPrefs.DeleteAll();
