@@ -271,7 +271,7 @@ public class TalkButtonController : MonoBehaviour
     {
         TalkContentItemModel tcim = (TalkContentItemModel)this.allTalkContentHandleData.Dequeue();
         texts[1].text = "";
-        texts[1].DOText(tcim.dfTalkContent, 1).SetEase(Ease.Linear);
+        texts[1].DOText(tcim.dfTalkContent, 0.8f).SetEase(Ease.Linear);
         images[1].sprite = Resources.Load<Sprite>("Images/Avatar/" + tcim.dfAvatar);
         texts[0].text = tcim.dfName;
     }
