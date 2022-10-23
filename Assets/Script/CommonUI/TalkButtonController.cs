@@ -126,12 +126,17 @@ public class TalkButtonController : MonoBehaviour
                 //显示下一段话
                 if(allTalkContentHandleData != null && allTalkContentHandleData.Count > 0)
                 {
-                    SetNextUIContent();
+                    if (!isTextPlaying) {
+                        SetNextUIContent();
+                    }
                 }
                 else
                 {
-                    GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>().StopMove(false);
-                    HideTalkUI();
+                    if (!isTextPlaying)
+                    {
+                        GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>().StopMove(false);
+                        HideTalkUI();
+                    }
                 }
             }
         }
@@ -269,11 +274,20 @@ public class TalkButtonController : MonoBehaviour
 
     private void SetNextUIContent()
     {
+        isTextPlaying = true;
         TalkContentItemModel tcim = (TalkContentItemModel)this.allTalkContentHandleData.Dequeue();
+        //texts[1].DOComplete();
         texts[1].text = "";
-        texts[1].DOText(tcim.dfTalkContent, 0.8f).SetEase(Ease.Linear);
+        texts[1].DOText(tcim.dfTalkContent, 0.5f).OnComplete(OnTextPlayFinish).SetEase(Ease.Linear);
         images[1].sprite = Resources.Load<Sprite>("Images/Avatar/" + tcim.dfAvatar);
         texts[0].text = tcim.dfName;
+    }
+
+    bool isTextPlaying = false;
+
+    private void OnTextPlayFinish()
+    {
+        isTextPlaying = false;
     }
 
     //Queue talkContents = new Queue();
