@@ -76,6 +76,8 @@ public class MyGridLayout
 
     GameObject scrollRectGameObject;
 
+    readonly int PaddingTopAndBottom = 20;
+
     private MyGridLayout()
     {
     }
@@ -123,17 +125,18 @@ public class MyGridLayout
         //=======================================
 
         //gridLayoutGroup初始化设置
-        if (gridLayoutGroup.padding.top <= 0) gridLayoutGroup.padding.top = 20; //和滑动逻辑有关联
-        gridLayoutGroup.padding.bottom = 20;
+        if (gridLayoutGroup.padding.top <= 0) gridLayoutGroup.padding.top = PaddingTopAndBottom; //和滑动逻辑有关联
+        gridLayoutGroup.padding.bottom = PaddingTopAndBottom;
         gridLayoutGroup.startCorner = GridLayoutGroup.Corner.UpperLeft;
         gridLayoutGroup.startAxis = GridLayoutGroup.Axis.Horizontal;
         gridLayoutGroup.childAlignment = TextAnchor.UpperLeft;
         gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        gridLayoutGroup.constraintCount = 5;
-        Vector2 cellSize = gridLayoutGroup.cellSize;
-        cellSize.x = 160;
-        cellSize.y = 190;
-        gridLayoutGroup.cellSize = cellSize;
+
+        //gridLayoutGroup.constraintCount = 5;
+        //Vector2 cellSize = gridLayoutGroup.cellSize;
+        //cellSize.x = 160;
+        //cellSize.y = 190;
+        //gridLayoutGroup.cellSize = cellSize;
 
         Vector2 v2 = gridLayoutGroup.spacing;
         v2.x = (containerWidth - (gridLayoutGroup.constraintCount * gridLayoutGroup.cellSize.x)) / (gridLayoutGroup.constraintCount + 1);

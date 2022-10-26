@@ -8,6 +8,16 @@ public class HanLiScriptInBattle : BaseRole
     public void Init()
     {
         MyDBManager.GetInstance().ConnDB();
+
+
+        if (PlayerControl.IS_DEBUG)
+        {
+            Debug.LogWarning("初始化游戏数据，测试需要放在这里");
+            MyDBManager.GetInstance().ConnDB();
+            RoleInfo roleInfoHanLi = MyDBManager.GetInstance().GetRoleInfo(1);
+            if (roleInfoHanLi == null) MyDBManager.GetInstance().InsertRoleInfo(1);
+        }
+
         List<Shentong> shenTongList = MyDBManager.GetInstance().GetRoleShentong(1, 1, true);
 
         if (PlayerControl.IS_DEBUG && shenTongList.Count == 0)

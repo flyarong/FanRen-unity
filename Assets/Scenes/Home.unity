@@ -14533,19 +14533,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6469664816525858747, guid: 407299d254fc950439734c8da0e7e286, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6469664816525858747, guid: 407299d254fc950439734c8da0e7e286, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6469664816525858747, guid: 407299d254fc950439734c8da0e7e286, type: 3}
       propertyPath: m_SizeDelta.x
-      value: -17
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6469664816534793319, guid: 407299d254fc950439734c8da0e7e286, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 407299d254fc950439734c8da0e7e286, type: 3}
@@ -47208,6 +47208,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5994906699734216286, guid: a31d8b80440304142981e874a2985531, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5994906699734216287, guid: a31d8b80440304142981e874a2985531, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5994906699827366005, guid: a31d8b80440304142981e874a2985531, type: 3}

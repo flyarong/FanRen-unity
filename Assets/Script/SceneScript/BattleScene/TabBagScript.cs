@@ -19,9 +19,9 @@ public class TabBagScript : MonoBehaviour
         MyDBManager.GetInstance().ConnDB();
         datas = MyDBManager.GetInstance().GetRoleItemInBag(1, false);
 
-        MyTabBagAdapter myAdapter = new MyTabBagAdapter(datas, this, this.gridItemUIPrefab);
+        TabBagAdapter tabBagAdapter = new TabBagAdapter(datas, this, this.gridItemUIPrefab);
 
-        mMyGridLayout = new MyGridLayout(this.gameObject, myAdapter);
+        mMyGridLayout = new MyGridLayout(this.gameObject, tabBagAdapter);
     }
 
     private void Update()
@@ -170,13 +170,13 @@ public class TabBagScript : MonoBehaviour
 
 }
 
-public class MyTabBagAdapter : GridLayoutAdapter<RoleItem>
+public class TabBagAdapter : GridLayoutAdapter<RoleItem>
 {
 
     WeakReference<TabBagScript> mWeakReference;
     GameObject gridItemUIPrefab;
 
-    public MyTabBagAdapter(List<RoleItem> datas, TabBagScript tabBagScript, GameObject gridItemUIPrefab) : base(datas)
+    public TabBagAdapter(List<RoleItem> datas, TabBagScript tabBagScript, GameObject gridItemUIPrefab) : base(datas)
     {
         this.mWeakReference = new WeakReference<TabBagScript>(tabBagScript);
         this.gridItemUIPrefab = gridItemUIPrefab;

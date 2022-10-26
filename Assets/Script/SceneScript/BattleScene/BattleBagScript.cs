@@ -19,9 +19,9 @@ public class BattleBagScript : MonoBehaviour
         MyDBManager.GetInstance().ConnDB();
         datas = MyDBManager.GetInstance().GetRoleItemInBag(1, true);
 
-        MyAdapter myAdapter = new MyAdapter(datas, this, this.gridItemUIPrefab);
+        BattleBagAdapter battleBagAdapter = new BattleBagAdapter(datas, this, this.gridItemUIPrefab);
 
-        mMyGridLayout = new MyGridLayout(this.gameObject, myAdapter);
+        mMyGridLayout = new MyGridLayout(this.gameObject, battleBagAdapter);
     }
 
     private void Update()
@@ -147,13 +147,13 @@ public class BattleBagScript : MonoBehaviour
 
 }
 
-public class MyAdapter : GridLayoutAdapter<RoleItem>
+public class BattleBagAdapter : GridLayoutAdapter<RoleItem>
 {
 
     WeakReference<BattleBagScript> mWeakReference;
     GameObject gridItemUIPrefab;
 
-    public MyAdapter(List<RoleItem> datas, BattleBagScript battleBagScript, GameObject gridItemUIPrefab) : base(datas)
+    public BattleBagAdapter(List<RoleItem> datas, BattleBagScript battleBagScript, GameObject gridItemUIPrefab) : base(datas)
     {
         this.mWeakReference = new WeakReference<BattleBagScript>(battleBagScript);
         this.gridItemUIPrefab = gridItemUIPrefab;
