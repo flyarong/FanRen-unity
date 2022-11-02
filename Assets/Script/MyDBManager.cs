@@ -29,7 +29,14 @@ public class MyDBManager
     /// </summary>
     public void DeleteAllRWGameData()
     {
-        string[] rwTalbeName = { "role_active_gongfa_rw", "role_active_shentong_rw", "role_bag_rw", "role_tasks_rw", "role_info_rw"};
+        string[] rwTalbeName = { "role_active_gongfa_rw", 
+            "role_active_shentong_rw", 
+            "role_bag_rw", 
+            "role_tasks_rw", 
+            "role_info_rw",
+            "place_info_rw",
+            "npc_collection_rw" 
+        };
 
         //sqlite²»Ö§³Ötruncate
         //sqliteCommand.CommandText = $"truncate table role_active_gongfa_rw,role_active_shentong_rw,role_bag_rw,role_tasks_rw";
@@ -714,7 +721,7 @@ public class MyDBManager
             while (sdr.Read())
             {
                 npcCollectionEntity = new NPCCollectionEntity();
-                npcCollectionEntity.id = (int)((Int64)sdr["npcCollectionId"]);
+                npcCollectionEntity.id = sdr["npcCollectionId"].Equals(DBNull.Value) ? 0 : (int)((Int64)sdr["npcCollectionId"]);
                 npcCollectionEntity.npcName = (string)sdr["npcName"];
                 npcCollectionEntity.desc = (string)sdr["desc"];
                 npcCollectionEntity.imagePath = (string)sdr["imagePath"];

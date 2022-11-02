@@ -2,11 +2,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+//[RequireComponent(typeof(ScrollRect))]
 public class NPCNameBookScrollRectScript : MonoBehaviour
 {
 
     MyGridLayout myGridLayout;
-    public GameObject gridItemPrefab;
+
+    public GameObject nameBookGridItemPrefab;
 
     // Start is called before the first frame update
     void Start()
@@ -14,7 +16,7 @@ public class NPCNameBookScrollRectScript : MonoBehaviour
         MyDBManager.GetInstance().ConnDB();
         List<NPCCollectionEntity> datas = MyDBManager.GetInstance().GetAllCollectionNPC();
 
-        NPCBookAdapter npcBookAdapter = new NPCBookAdapter(datas, gridItemPrefab);
+        NPCBookAdapter npcBookAdapter = new NPCBookAdapter(datas, nameBookGridItemPrefab);
         myGridLayout = new MyGridLayout(this.gameObject, npcBookAdapter);
     }
 
@@ -40,7 +42,7 @@ public class NPCNameBookScrollRectScript : MonoBehaviour
 
         public override GameObject GetGridItemView(int index, Transform parent)
         {
-            return GameObject.Instantiate(gridItemPrefab);
+            return GameObject.Instantiate(this.gridItemPrefab, parent);
         }
 
         public override bool IsNeedAutoSelectState()

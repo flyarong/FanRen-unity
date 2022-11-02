@@ -25,7 +25,7 @@ public class PlayerControl : MonoBehaviour
 
     //非正常状态：这是为了解决返回或者读档时候，人物的位置不能还原，场景刚开始加载，人物创建的时候设置position和cc的move有冲突，所以设置了前面1秒不让运行cc.move
     //但这样做其实会有隐患，待解决。 这个问题应该是unity内部多线程问题导致的。
-    //可以加个过场动画掩饰这1秒
+    //todo 可以加个过场动画掩饰这1秒
     bool normalState = false;
 
     private void SetNormalState()
@@ -43,7 +43,14 @@ public class PlayerControl : MonoBehaviour
             Debug.LogWarning("初始化游戏数据，测试需要放在这里");
             MyDBManager.GetInstance().ConnDB();
             RoleInfo roleInfo = MyDBManager.GetInstance().GetRoleInfo(1);
-            if(roleInfo == null) MyDBManager.GetInstance().InsertRoleInfo(1);
+            if (roleInfo == null) {
+                MyDBManager.GetInstance().InsertRoleInfo(1);
+                MyDBManager.GetInstance().InsertCollectionNPC(1);
+                MyDBManager.GetInstance().InsertCollectionPlace(1);
+            }
+            
+
+
 
             //Debug.LogWarning("Awake() debug模式，储物袋默认放1-33的物品，测试用");
             //MyDBManager.GetInstance().ConnDB();
