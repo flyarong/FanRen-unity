@@ -69,6 +69,7 @@ public class TalkButtonController : MonoBehaviour
                 tcim.dfAvatar = item.dfAvatar;
                 tcim.dfName = item.dfName;
                 tcim.dfTalkContent = item.dfTalkContent;
+                tcim.isInner = item.isInner;
                 allTalkContentHandleData.Enqueue(tcim);
             }
             else
@@ -278,6 +279,14 @@ public class TalkButtonController : MonoBehaviour
         TalkContentItemModel tcim = (TalkContentItemModel)this.allTalkContentHandleData.Dequeue();
         //texts[1].DOComplete();
         texts[1].text = "";
+        if (tcim.isInner)
+        {
+            texts[1].color = new Color(0.5189569f, 0.59304f, 0.9245283f);
+        }
+        else
+        {
+            texts[1].color = Color.white;
+        }
         texts[1].DOText(tcim.dfTalkContent, 0.5f).OnComplete(OnTextPlayFinish).SetEase(Ease.Linear);
         images[1].sprite = Resources.Load<Sprite>("Images/Avatar/" + tcim.dfAvatar);
         texts[0].text = tcim.dfName;

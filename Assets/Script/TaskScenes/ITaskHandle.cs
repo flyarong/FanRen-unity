@@ -47,5 +47,9 @@ public class TalkContentItemModel
     public string dfAvatar;
     public string dfName;
     public string dfTalkContent;
+    /// <summary>
+    /// 是否是内心独白
+    /// </summary>
+    public bool isInner;
 }
 
