@@ -1,3 +1,6 @@
+最近女儿出生，忙得手忙脚乱，每天只能睡两三个小时，精力不济，停更了几个月了，计划年中重新开始更新，多谢道友们的关注
+2023/3/16
+
 [English Page](https://github.com/rtsbtx/FanRen/wiki/Notice-:-copyright-statement)
 
 ![imagesmain_image](https://user-images.githubusercontent.com/1829123/180601524-c4c08493-2d13-47d7-b4f9-2d1622b58e6c.jpg)
